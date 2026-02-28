@@ -503,3 +503,37 @@ function highlightKeyword(keyword) {
         firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
+
+
+/* --- LIGHTBOX (IMAGE ZOOM) --- */
+document.addEventListener('DOMContentLoaded', () => {
+    // Create the overlay container once
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox-overlay';
+    const overlayImg = document.createElement('img');
+    overlay.appendChild(overlayImg);
+    document.body.appendChild(overlay);
+
+    // Close on click anywhere in the overlay
+    overlay.addEventListener('click', () => {
+        overlay.classList.remove('active');
+        setTimeout(() => overlayImg.src = '', 300); // Clear after fade out
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlayImg.src = '', 300);
+        }
+    });
+
+    // Attach click listeners to all article images
+    const allImages = document.querySelectorAll('.content-wrap img:not(.sidebar-brand img, .site-footer img)');
+    allImages.forEach(img => {
+        img.addEventListener('click', () => {
+            overlayImg.src = img.src;
+            overlay.classList.add('active');
+        });
+    });
+});

@@ -504,29 +504,36 @@ function highlightKeyword(keyword) {
     }
 }
 
-// --- TAWK.TO REAL-TIME CHAT WIDGET ---
-var Tawk_API = Tawk_API || {};
-var Tawk_LoadStart = new Date();
-(function () {
-    // Note: To activate this chat widget, replace the placeholders with the actual
-    // Direct Chat Link from your free Tawk.to account (https://dashboard.tawk.to).
-    // Example: '65f1a2b3c4d5e6f7a8b9c0d1/1hp2q3r4s'
-    const TAWK_PROPERTY_ID = 'YOUR_PROPERTY_ID_HERE/default';
 
-    // Only load the script if a real property ID has been configured
-    if (TAWK_PROPERTY_ID.includes('YOUR_PROPERTY_ID')) {
-        console.warn('Tawk.to Chat Widget disabled: Pending Property ID configuration.');
-        return;
-    }
+/* --- LIGHTBOX (IMAGE ZOOM) --- */
+document.addEventListener('DOMContentLoaded', () => {
+    // Create the overlay container once
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox-overlay';
+    const overlayImg = document.createElement('img');
+    overlay.appendChild(overlayImg);
+    document.body.appendChild(overlay);
 
-    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-    s1.async = true;
-    s1.src = 'https://embed.tawk.to/' + TAWK_PROPERTY_ID;
-    s1.charset = 'UTF-8';
-    s1.setAttribute('crossorigin', '*');
-    if (s0 && s0.parentNode) {
-        s0.parentNode.insertBefore(s1, s0);
-    } else {
-        document.head.appendChild(s1);
-    }
-})();
+    // Close on click anywhere in the overlay
+    overlay.addEventListener('click', () => {
+        overlay.classList.remove('active');
+        setTimeout(() => overlayImg.src = '', 300); // Clear after fade out
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlayImg.src = '', 300);
+        }
+    });
+
+    // Attach click listeners to all article images
+    const allImages = document.querySelectorAll('.content-wrap img:not(.sidebar-brand img, .site-footer img)');
+    allImages.forEach(img => {
+        img.addEventListener('click', () => {
+            overlayImg.src = img.src;
+            overlay.classList.add('active');
+        });
+    });
+});
