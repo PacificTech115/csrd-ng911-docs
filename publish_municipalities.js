@@ -101,7 +101,7 @@ municipalities.forEach(muni => {
     });
 
     // Create root index.html redirect
-    const redirectHtml = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=docs/${muni.guideFile}" /><title>${muni.name} Portal Redirect</title></head><body>Redirecting to User Guide...</body></html>`;
+    const redirectHtml = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./docs/${muni.guideFile}" /><title>${muni.name} Portal Redirect</title></head><body>Redirecting to User Guide...</body></html>`;
     fs.writeFileSync(path.join(muniDir, 'index.html'), redirectHtml, 'utf8');
 
     // Copy general dependencies
