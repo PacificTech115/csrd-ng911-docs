@@ -10,28 +10,32 @@ const municipalities = [
         name: 'Revelstoke',
         guideFile: 'guide-revelstoke.html',
         pdfName: 'Revelstoke_NG911_Central_Addressing_User_Guide.pdf',
-        assetsFolder: 'assets/revelstoke'
+        assetsFolder: 'assets/revelstoke',
+        logoFile: 'Revelstoke.png'
     },
     {
         id: 'golden',
         name: 'Golden',
         guideFile: 'guide-golden.html',
         pdfName: 'Golden_NG911_Central_Addressing_User_Guide.pdf',
-        assetsFolder: 'assets/golden'
+        assetsFolder: 'assets/golden',
+        logoFile: 'Golden.jpg'
     },
     {
         id: 'salmonarm',
         name: 'Salmon Arm',
         guideFile: 'guide-salmonarm.html',
         pdfName: 'Salmon_Arm_NG911_Central_Addressing_User_Guide.pdf',
-        assetsFolder: 'assets/salmonarm'
+        assetsFolder: 'assets/salmonarm',
+        logoFile: 'SalmonArm.png'
     },
     {
         id: 'sicamous',
         name: 'Sicamous',
         guideFile: 'guide-sicamous.html',
         pdfName: 'Sicamous_NG911_Central_Addressing_User_Guide.pdf',
-        assetsFolder: 'assets/sicamous'
+        assetsFolder: 'assets/sicamous',
+        logoFile: 'Sicamous.png'
     }
 ];
 
@@ -139,7 +143,7 @@ municipalities.forEach(muni => {
             const municipalSidebar = `
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+      <img src="${muni.assetsFolder}/${muni.logoFile}" alt="${muni.name} Logo">
       <h2>${muni.name} Portal</h2>
     </div>
     <nav class="sidebar-nav">
