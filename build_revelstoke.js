@@ -367,14 +367,14 @@ const FOOTER = `
 </html>`;
 
 const finalHTML = HEAD + SIDEBAR + HEADER + SEC1 + SEC2 + SEC3 + FOOTER;
-fs.writeFileSync('c:\\Users\\solim\\Arcgis Notebooks\\docs\\guide-revelstoke.html', finalHTML, 'utf8');
+fs.writeFileSync('./docs\\guide-revelstoke.html', finalHTML, 'utf8');
 console.log('✓ Created guide-revelstoke.html');
 
 // Now we update all existing HTML files to inject the Sidebar link.
 // We look for '<div class="nav-group-label">3. Version Control</div>'
 // or '<div class="nav-group-label">3. Quick Reference</div>' (in some old docs)
 // and replace it with the new nav group label structure safely.
-const docsDir = 'c:\\Users\\solim\\Arcgis Notebooks\\docs';
+const docsDir = './docs';
 const files = fs.readdirSync(docsDir).filter(f => f.endsWith('.html') && f !== 'guide-revelstoke.html');
 
 let count = 0;
@@ -404,7 +404,7 @@ for (const file of files) {
 }
 
 // Update Documentation.html separately since it's in the root
-const rootDocPath = 'c:\\Users\\solim\\Arcgis Notebooks\\Documentation.html';
+const rootDocPath = './Documentation.html';
 if (fs.existsSync(rootDocPath)) {
   let content = fs.readFileSync(rootDocPath, 'utf8');
 

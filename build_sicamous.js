@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const srcImagesDir = 'c:\\Users\\solim\\Arcgis Notebooks\\Municipal User Guides\\Sicamous User Guid';
-const destImagesDir = 'c:\\Users\\solim\\Arcgis Notebooks\\docs\\assets\\sicamous';
+const srcImagesDir = './Municipal User Guides\\Sicamous User Guid';
+const destImagesDir = './docs\\assets\\sicamous';
 
 if (!fs.existsSync(destImagesDir)) {
   fs.mkdirSync(destImagesDir, { recursive: true });
@@ -43,7 +43,7 @@ imagesToCopy.forEach(img => {
 
 // Also copy the PDF
 const pdfSrc = path.join(srcImagesDir, 'Sicamous_NG911_Central_Addressing_User_Guide.pdf');
-const pdfDest = 'c:\\Users\\solim\\Arcgis Notebooks\\DownloadFiles\\Sicamous_NG911_Central_Addressing_User_Guide.pdf';
+const pdfDest = './DownloadFiles\\Sicamous_NG911_Central_Addressing_User_Guide.pdf';
 if (fs.existsSync(pdfSrc)) {
   fs.copyFileSync(pdfSrc, pdfDest);
 }
@@ -521,11 +521,11 @@ const FOOTER = `
 </html>`;
 
 const finalHTML = HEAD + SIDEBAR + HEADER + SEC1 + SEC2 + SEC4 + SEC_APPX + FOOTER;
-fs.writeFileSync('c:\\Users\\solim\\Arcgis Notebooks\\docs\\guide-sicamous.html', finalHTML, 'utf8');
+fs.writeFileSync('./docs\\guide-sicamous.html', finalHTML, 'utf8');
 console.log('✓ Created guide-sicamous.html');
 
 // Inject the Sicamous link into all existing HTML files.
-const docsDir = 'c:\\Users\\solim\\Arcgis Notebooks\\docs';
+const docsDir = './docs';
 const files = fs.readdirSync(docsDir).filter(f => f.endsWith('.html') && f !== 'guide-sicamous.html');
 
 let count = 0;
@@ -547,7 +547,7 @@ for (const file of files) {
 }
 
 // Update Documentation.html separately since it's in the root
-const rootDocPath = 'c:\\Users\\solim\\Arcgis Notebooks\\Documentation.html';
+const rootDocPath = './Documentation.html';
 if (fs.existsSync(rootDocPath)) {
   let content = fs.readFileSync(rootDocPath, 'utf8');
 

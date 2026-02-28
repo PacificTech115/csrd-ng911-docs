@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const srcDir = 'c:\\Users\\solim\\Arcgis Notebooks';
+const srcDir = '.';
 const distDir = path.join(srcDir, 'dist');
 
 const municipalities = [
