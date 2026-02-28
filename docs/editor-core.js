@@ -159,6 +159,7 @@ function injectToolbar() {
         <div class="toolbar-group">
             <button id="btnContextAdd" onclick="addNode('p')" title="Add Block"><i class="fas fa-plus"></i> <span>Add Text</span></button>
             <button id="btnContextAddHeader" onclick="addNode('h3')" title="Add Header below"><i class="fas fa-heading"></i></button>
+            <button id="btnContextAddStep" onclick="addNode('card')" title="Duplicate Step" style="display:none;"><i class="fas fa-clone"></i> <span>Dupe Step</span></button>
             <button id="btnContextDelete" onclick="deleteActiveNode()" title="Delete selected block" class="btn-danger"><i class="fas fa-trash"></i> <span>Delete</span></button>
         </div>
         <div class="toolbar-group" style="margin-left: auto;">
@@ -232,6 +233,8 @@ function updateToolbarContext(node) {
     const btnAdd = document.getElementById('btnContextAdd');
     const btnDel = document.getElementById('btnContextDelete');
     const btnHeader = document.getElementById('btnContextAddHeader');
+    const btnStep = document.getElementById('btnContextAddStep');
+    if (btnStep) btnStep.style.display = 'none';
     const tag = node.tagName.toLowerCase();
 
     if (tag === 'td') {
@@ -239,6 +242,12 @@ function updateToolbarContext(node) {
         btnDel.innerHTML = '<i class="fas fa-trash"></i> <span>Del Row</span>';
         btnAdd.setAttribute('onclick', "addNode('tr')");
         btnHeader.style.display = 'none'; // Headers don't make sense inside tables usually
+    } else if (tag === 'h4' && node.closest('.card')) {
+        btnAdd.innerHTML = '<i class="fas fa-paragraph"></i> <span>Add Text</span>';
+        btnDel.innerHTML = '<i class="fas fa-trash"></i> <span>Delete Step</span>';
+        btnAdd.setAttribute('onclick', "addNode('p')");
+        btnHeader.style.display = 'none';
+        if (btnStep) btnStep.style.display = 'flex';
     } else if (tag === 'li') {
         btnAdd.innerHTML = '<i class="fas fa-list-ul"></i> <span>Add Bullet</span>';
         btnDel.innerHTML = '<i class="fas fa-trash"></i> <span>Del Bullet</span>';
@@ -536,4 +545,80 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.classList.add('active');
         });
     });
+});
+
+
+/* --- IMAGE UPLOAD LOGIC --- */
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+
+    let currentTargetImage = null;
+
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file || !currentTargetImage) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 1200;
+                const MAX_HEIGHT = 1200;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Compress and convert to Base64
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+                // Update the old text logic so reverse action works if needed
+                const oldText = currentTargetImage.src;
+                
+                currentTargetImage.src = dataUrl;
+                
+                // Trigger save so it's persisted instantly
+                if(typeof savePageHTML === 'function') {
+                    savePageHTML();
+                }
+                if(typeof showToast === 'function') {
+                    showToast('Image updated successfully.');
+                }
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Intercept clicks on images when in editor mode
+    document.body.addEventListener('click', (e) => {
+        if (!document.body.classList.contains('editor-mode-active')) return;
+        
+        if (e.target.tagName.toLowerCase() === 'img' && e.target.closest('.content-wrap')) {
+            e.preventDefault();
+            e.stopPropagation();
+            currentTargetImage = e.target;
+            fileInput.click();
+        }
+    }, true);
 });
