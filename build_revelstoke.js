@@ -1,6 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 
+const destImagesDir = './docs\\assets\\revelstoke';
+if (!fs.existsSync(destImagesDir)) {
+  fs.mkdirSync(destImagesDir, { recursive: true });
+}
+
+// Copy logo
+const logoSrc = './Municipal User Guides/Revelstoke.png';
+const logoDest = path.join(destImagesDir, 'Revelstoke.png');
+if (fs.existsSync(logoSrc)) {
+  fs.copyFileSync(logoSrc, logoDest);
+}
+
 const HEAD = `<!DOCTYPE html>
 <html lang="en">
 <head>

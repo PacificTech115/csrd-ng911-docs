@@ -37,6 +37,13 @@ if (fs.existsSync(pdfSrc)) {
   fs.copyFileSync(pdfSrc, pdfDest);
 }
 
+// Copy logo
+const logoSrc = './Municipal User Guides/Golden.jpg';
+const logoDest = path.join(destImagesDir, 'Golden.jpg');
+if (fs.existsSync(logoSrc)) {
+  fs.copyFileSync(logoSrc, logoDest);
+}
+
 const HEAD = `<!DOCTYPE html>
 <html lang="en">
 <head>
