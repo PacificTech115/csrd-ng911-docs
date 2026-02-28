@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7. QAStatus — CSRD NG911 Attribute Rule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- ── SIDEBAR ── -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+      <h2>Revelstoke Portal</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="guide-revelstoke.html" class=""><i class="fas fa-home"></i> User Guide</a>
+      <div class="nav-group-label" style="margin-top:20px;">Technical References</div>
+      <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+      <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+      <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    </nav>
+    <div class="sidebar-footer">CSRD NG911 &copy; 2026 &middot; Pacific Tech Systems</div>
+  </aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- ── PAGE HEADER ── -->
+  <header class="page-header">
+    <div class="page-header-content">
+      <div class="breadcrumb"><span class="current">Revelstoke Reference</span></div>
+      <div class="detail-banner">
+        <div class="banner-icon" style="background:var(--red)">
+          <i class="fas fa-shield-halved"></i>
+        </div>
+        <div class="banner-info">
+          <h1>7. QAStatus</h1>
+          <div class="banner-tags">
+            <span class="banner-tag">Target: QAStatus</span>
+            <span class="banner-tag">Triggers: Insert / Update</span>
+            <span class="banner-tag">Type: Constraint Logic</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ── -->
+  <div class="content-wrap">
+
+    <!-- Description -->
+    <section>
+      <h2>Description</h2>
+      <p class="reveal">
+        The most complex attribute rule in the system. It manages the QA lifecycle of each address feature using three distinct behaviors: (1) preserving explicit <code>QAStatus</code> edits made by GP tools or users, (2) defaulting new features to <code>"Pending"</code>, and (3) automatically resetting to <code>"Pending"</code> when any watched business field changes. This rule is critical for the automated QA pipeline — it determines which features the nightly QA tool will validate.
+      </p>
+    </section>
+
+    <!-- Metadata -->
+    <section>
+      <h2>Metadata</h2>
+      <div class="reveal">
+        <table>
+          <thead>
+            <tr><th>Property</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Target Field</td><td><code>QAStatus</code></td></tr>
+            <tr><td>Triggers</td><td>Insert, Update</td></tr>
+            <tr><td>Input Fields</td><td><code>QAStatus</code>, <code>DiscrpAgID</code>, <code>NGUID</code>, <code>Country</code>, <code>A1</code>, <code>A2</code>, <code>A3</code>, <code>Full_Addr</code></td></tr>
+            <tr><td>Watched Fields</td><td><code>DiscrpAgID</code>, <code>NGUID</code>, <code>Country</code>, <code>A1</code>, <code>A2</code>, <code>A3</code>, <code>Full_Addr</code></td></tr>
+            <tr><td>Possible Outputs</td><td>Incoming value (preserved), <code>"Pending"</code> (default/reset), current value (no change)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Full Source Code -->
+    <section>
+      <h2>Full Source Code</h2>
+      <div class="code-block reveal">
+        <div class="code-header">
+          <span class="lang-tag">Arcade</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre>
+<span class="code-section" data-section="1"><span class="cm">// Preserve explicit QAStatus edits (including GP tool writes)</span>
+<span class="kw">if</span> (<span class="var">$originalFeature</span> != <span class="bi">null</span> &amp;&amp; <span class="var">$feature</span>.QAStatus != <span class="var">$originalFeature</span>.QAStatus) {
+    <span class="kw">return</span> <span class="var">$feature</span>.QAStatus;
+}</span>
+
+<span class="code-section" data-section="2"><span class="cm">// On insert, keep incoming QAStatus if provided (e.g., from QA-&gt;DEFAULT post);</span>
+<span class="cm">// otherwise default to Pending.</span>
+<span class="kw">if</span> (<span class="var">$originalFeature</span> == <span class="bi">null</span>) {
+    <span class="kw">var</span> incomingStatus = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.QAStatus, <span class="str">""</span>));
+    <span class="kw">return</span> <span class="fn">IIF</span>(incomingStatus == <span class="str">""</span>, <span class="str">"Pending"</span>, <span class="var">$feature</span>.QAStatus);
+}</span>
+
+<span class="code-section" data-section="3"><span class="kw">function</span> <span class="fn">sameValue</span>(a, b) {
+    <span class="kw">if</span> (a == <span class="bi">null</span> &amp;&amp; b == <span class="bi">null</span>) <span class="kw">return</span> <span class="bi">true</span>;
+    <span class="kw">if</span> (a == <span class="bi">null</span> || b == <span class="bi">null</span>) <span class="kw">return</span> <span class="bi">false</span>;
+    <span class="kw">return</span> <span class="fn">Text</span>(a) == <span class="fn">Text</span>(b);
+}</span>
+
+<span class="code-section" data-section="4"><span class="cm">// Watch only QA-relevant business fields (exclude DateUpdate to avoid rule loops)</span>
+<span class="kw">var</span> changed =
+    !<span class="fn">sameValue</span>(<span class="var">$feature</span>.DiscrpAgID, <span class="var">$originalFeature</span>.DiscrpAgID) ||
+    !<span class="fn">sameValue</span>(<span class="var">$feature</span>.NGUID, <span class="var">$originalFeature</span>.NGUID) ||
+    !<span class="fn">sameValue</span>(<span class="var">$feature</span>.Country, <span class="var">$originalFeature</span>.Country) ||
+    !<span class="fn">sameValue</span>(<span class="var">$feature</span>.A1, <span class="var">$originalFeature</span>.A1) ||
+    !<span class="fn">sameValue</span>(<span class="var">$feature</span>.A2, <span class="var">$originalFeature</span>.A2) ||
+    !<span class="fn">sameValue</span>(<span class="var">$feature</span>.A3, <span class="var">$originalFeature</span>.A3) ||
+    !<span class="fn">sameValue</span>(<span class="var">$feature</span>.Full_Addr, <span class="var">$originalFeature</span>.Full_Addr);
+
+<span class="cm">// If watched fields changed and status wasn't already Pending, reset to Pending</span>
+<span class="kw">var</span> oldStatus = <span class="fn">Lower</span>(<span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$originalFeature</span>.QAStatus, <span class="str">""</span>)));
+<span class="kw">var</span> isPending = <span class="fn">Find</span>(<span class="str">"pending"</span>, oldStatus) == <span class="num">0</span>;
+
+<span class="kw">if</span> (changed &amp;&amp; !isPending) {
+    <span class="kw">return</span> <span class="str">"Pending"</span>;
+}
+
+<span class="cm">// Otherwise keep current status</span>
+<span class="kw">return</span> <span class="var">$feature</span>.QAStatus;</span>
+</pre>
+      </div>
+      <div class="section-popup" id="sectionPopup"></div>
+    </section>
+
+    <!-- Section Breakdown -->
+    <section>
+      <h2>Section Breakdown</h2>
+
+      <div class="breakdown-card reveal" style="border-left-color:var(--red)" data-section="1">
+        <h4>1. Preserve Explicit Edits</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 1–4</span>
+          <span class="meta-tag">Input: $originalFeature, QAStatus</span>
+          <span class="meta-tag">Output: QAStatus (passthrough)</span>
+        </div>
+        <p>Highest-priority check. If this is an update (<code>$originalFeature != null</code>) AND the user/GP tool explicitly changed <code>QAStatus</code>, return the new value immediately. This allows the nightly QA GP tool to write <code>"Passed"</code>, <code>"Warning: ..."</code>, or error messages without the rule overriding them.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li>If <code>$originalFeature != null && $feature.QAStatus != $originalFeature.QAStatus</code> → return <code>$feature.QAStatus</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Never remove this block—it enables QA automation. New status values flow through automatically.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-1" style="border-left-color:var(--red)" data-section="2">
+        <h4>2. Insert Default</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 6–11</span>
+          <span class="meta-tag">Input: $originalFeature, QAStatus</span>
+          <span class="meta-tag">Output: "Pending" or incoming</span>
+        </div>
+        <p>Handles inserts only (<code>$originalFeature == null</code>). If <code>QAStatus</code> is provided (e.g., from reconcile/post), it's preserved. Otherwise defaults to <code>"Pending"</code> so the feature enters the QA queue.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>incomingStatus = Trim(DefaultValue($feature.QAStatus, ""))</code></li>
+            <li>Return <code>IIF(incomingStatus == "", "Pending", $feature.QAStatus)</code></li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Different default: change <code>"Pending"</code> to e.g. <code>"New"</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-2" style="border-left-color:var(--red)" data-section="3">
+        <h4>3. sameValue Helper</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 13–17</span>
+          <span class="meta-tag">Input: a, b (any)</span>
+          <span class="meta-tag">Output: boolean</span>
+        </div>
+        <p>Null-safe comparison. Converts both to text via <code>Text()</code> before comparing. Two nulls → true. One null → false. Required because Arcade's <code>==</code> doesn't handle null reliably across field types.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li>If both null → true; if one null → false; else <code>Text(a) == Text(b)</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Copy verbatim. Used by section 4 for watched field comparison.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-3" style="border-left-color:var(--red)" data-section="4">
+        <h4>4. Watched Field Change Detection</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 19–38</span>
+          <span class="meta-tag">7 watched: DiscrpAgID, NGUID, Country, A1, A2, A3, Full_Addr</span>
+        </div>
+        <p>Compares current vs original for 7 fields. If any changed AND status wasn't already <code>"Pending"</code>, reset to <code>"Pending"</code>. <code>DateUpdate</code> is excluded to avoid infinite loops.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>changed = !sameValue($feature.DiscrpAgID, $originalFeature.DiscrpAgID) || ...</code> (7 fields)</li>
+            <li><code>isPending = Find("pending", Lower(Trim($originalFeature.QAStatus))) == 0</code></li>
+            <li>If <code>changed && !isPending</code> → return <code>"Pending"</code></li>
+            <li>Else → return <code>$feature.QAStatus</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Add field: <code>!sameValue($feature.NewField, $originalFeature.NewField) ||</code></li>
+            <li>Remove field: delete its line.</li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Never add DateUpdate or auto-calculated fields—causes loops.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Warning Alert -->
+      <div class="alert danger reveal reveal-delay-4">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>
+          <strong>Warning:</strong> This rule deliberately excludes <code>DateUpdate</code> from the watched fields to prevent infinite loops with rule #6. Adding auto-calculated fields to the watch list will cause every save to reset QAStatus.
+        </div>
+      </div>
+
+    </section>
+
+  </div><!-- /content-wrap -->
+
+  <!-- ── FOOTER ── -->
+  <footer class="site-footer">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <p>CSRD NG911 Documentation</p>
+    <p class="sub">Columbia Shuswap Regional District — Next Generation 911</p>
+  </footer>
+
+</div><!-- /main -->
+
+<!-- ── BACK TO TOP ── -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<script>
+// ── Scroll-reveal observer ──
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+// ── Reading progress bar ──
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+// ── Back-to-top toggle ──
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+// ── Copy to clipboard ──
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  const text=pre.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+// ── Section hover interaction ──
+(function(){
+  const popup=document.getElementById('sectionPopup');
+  const sections=document.querySelectorAll('.code-section');
+  const cards=document.querySelectorAll('.breakdown-card[data-section]');
+  const META=[
+    {title:'Preserve Explicit Edits',lines:'Lines 1–4',fields:'QAStatus',desc:'Highest-priority check. If QAStatus was explicitly changed by editor/GP tool, keeps the new value.',maint:'Never remove this block — it allows QA automation to function.'},
+    {title:'Insert Default',lines:'Lines 6–11',fields:'QAStatus',desc:'New features get "Pending" unless QAStatus is explicitly provided (e.g., from reconcile/post).',maint:'Change "Pending" if QA workflow changes its initial state.'},
+    {title:'sameValue Helper',lines:'Lines 13–17',fields:'(utility)',desc:'Null-safe comparison: converts both values to text. Treats two nulls as equal.',maint:'No changes needed.'},
+    {title:'Watched Field Change Detection',lines:'Lines 19–38',fields:'DiscrpAgID, NGUID, Country, A1, A2, A3, Full_Addr',desc:'Compares 7 watched fields. Resets to "Pending" if any changed and status was not already Pending. DateUpdate is excluded to prevent loops.',maint:'Add/remove watched fields by editing the changed expression. Never add auto-calculated fields.'}
+  ];
+  sections.forEach(span=>{
+    span.addEventListener('mouseenter',function(e){
+      const idx=parseInt(this.dataset.section);const m=META[idx-1];if(!m)return;
+      this.classList.add('active');
+      cards.forEach(c=>c.classList.toggle('highlight',parseInt(c.dataset.section)===idx));
+      popup.innerHTML='<h4><span class="popup-num">'+idx+'</span>'+m.title+'</h4>'
+        +'<div class="popup-meta">'+(m.lines?'<span class="popup-tag">'+m.lines+'</span>':'')
+        +(m.fields?'<span class="popup-tag">Fields: '+m.fields+'</span>':'')+'</div>'
+        +'<p>'+m.desc+'</p>'
+        +(m.maint?'<div class="popup-maint"><strong>Maintenance:</strong> '+m.maint+'</div>':'');
+      popup.classList.add('visible');
+    });
+    span.addEventListener('mousemove',function(e){
+      const x=Math.min(e.clientX+16,window.innerWidth-360);
+      const y=Math.min(e.clientY-10,window.innerHeight-popup.offsetHeight-10);
+      popup.style.left=x+'px';popup.style.top=Math.max(10,y)+'px';
+    });
+    span.addEventListener('mouseleave',function(){
+      this.classList.remove('active');popup.classList.remove('visible');
+      cards.forEach(c=>c.classList.remove('highlight'));
+    });
+  });
+  cards.forEach(card=>{
+    const idx=parseInt(card.dataset.section);
+    const codeSection=document.querySelector('.code-section[data-section="'+idx+'"]');
+    if(codeSection){
+      const reveal=document.createElement('div');
+      reveal.className='breakdown-code-reveal';
+      const pre=document.createElement('pre');
+      pre.textContent=codeSection.textContent;
+      reveal.appendChild(pre);
+      card.parentNode.insertBefore(reveal,card.nextSibling);
+    }
+    card.addEventListener('mouseenter',function(){
+      const idx=parseInt(this.dataset.section);
+      sections.forEach(s=>s.classList.toggle('active',parseInt(s.dataset.section)===idx));
+      this.classList.add('highlight');
+    });
+    card.addEventListener('mouseleave',function(){
+      sections.forEach(s=>s.classList.remove('active'));this.classList.remove('highlight');
+    });
+    card.addEventListener('click',function(e){
+      e.preventDefault();
+      const rev=this.nextElementSibling;
+      if(rev&&rev.classList.contains('breakdown-code-reveal'))rev.classList.toggle('visible');
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

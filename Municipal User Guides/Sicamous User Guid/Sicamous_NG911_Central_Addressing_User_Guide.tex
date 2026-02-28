@@ -1,0 +1,560 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{float}
+
+\setstretch{1.15}
+
+% Pacific Tech Systems brand palette
+\definecolor{BrandNavy}{HTML}{10293A}
+\definecolor{BrandTeal}{HTML}{0B8B9A}
+\definecolor{BrandAqua}{HTML}{4FC3CF}
+\definecolor{BrandSlate}{HTML}{3F5568}
+\definecolor{BrandLight}{HTML}{EEF7F8}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=BrandTeal,
+  urlcolor=BrandTeal,
+  citecolor=BrandTeal
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{24pt}
+\lhead{\textcolor{BrandSlate}{\textbf{NG911 Central Addressing System}}}
+\rhead{\textcolor{BrandTeal}{\textbf{Sicamous User Guide}}}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.8pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{BrandAqua}\leaders\hrule height \headrulewidth\hfill}}
+
+\titleformat{\section}{\Large\bfseries\color{BrandNavy}}{\thesection}{0.75em}{}
+\titleformat{\subsection}{\large\bfseries\color{BrandTeal}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{BrandSlate}}{\thesubsubsection}{0.5em}{}
+
+\setlist[itemize]{itemsep=0.3em,topsep=0.3em,leftmargin=1.6em}
+\setlist[enumerate]{itemsep=0.4em,topsep=0.35em,leftmargin=1.8em}
+
+\newcommand{\shotplaceholder}[2]{
+\begin{center}
+\fcolorbox{BrandAqua}{BrandLight}{
+\parbox[c][6.0cm][c]{0.92\textwidth}{
+\centering
+\textbf{Screenshot Placeholder}\\[0.4em]
+\textbf{#1}\\[0.5em]
+\textit{Insert image: #2}
+}}
+\end{center}
+}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+\vspace*{1.2cm}
+{\Huge\bfseries\color{BrandNavy} NG911 Central Addressing System}\\[0.35cm]
+{\Large\bfseries\color{BrandTeal} Sicamous User Guide}\\[0.9cm]
+{\large\color{BrandSlate} Author: John Soliman}\\[0.15cm]
+{\normalsize\color{BrandSlate} Pacific Tech Systems}\\[0.15cm]
+{\normalsize\color{BrandSlate} Version: 1.0}\\[1.1cm]
+{\normalsize\color{BrandSlate} For: Sicamous NG911 Editors}\\[1.2cm]
+\includegraphics[width=\textwidth]{branding.png}
+\end{center}
+\vfill
+\noindent{\color{BrandTeal}\rule{\textwidth}{1.2pt}}\\[0.25cm]
+\noindent{\color{BrandSlate}\small This guide provides step-by-step instructions for accessing and editing the Sicamous NG911 address layer through the CSRD portal and ArcGIS Pro.}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\tableofcontents
+\newpage
+
+\section{Purpose and scope}
+This guide explains the standard Sicamous workflows for editing NG911 central addressing data:
+
+\textbf{Method 1: ArcGIS Pro}
+\begin{enumerate}
+\item Log in to the CSRD portal.
+\item Open the Sicamous NG911 group.
+\item Open the designated Sicamous editing feature layer item.
+\item Choose \textbf{Open in ArcGIS Pro}.
+\item Edit attributes/geometry and save edits.
+\item Verify changes in the Feature Layers Data tab on the CSRD Portal.
+\end{enumerate}
+
+\textbf{Method 2: Experience Builder Web App}
+\begin{enumerate}
+\item Log in to the CSRD portal.
+\item Open the Sicamous NG911 group.
+\item Open the Web app Portal Item and click on View.
+\item Edit and search records directly in the web browser.
+\end{enumerate}
+\textbf{Note:} The screenshots in this guide are representative examples of the portal/ArcGIS Pro workflows.
+
+\section{System access details}
+\subsection{Portal and item URLs}
+\begin{longtable}{p{4.0cm}p{10.0cm}}
+\toprule
+\textbf{Name} & \textbf{URL} \\
+\midrule\endhead
+CSRD Portal Home & \href{https://apps.csrd.bc.ca/hub/home}{https://apps.csrd.bc.ca/hub/home} \\
+Sicamous NG911 Group & \href{https://apps.csrd.bc.ca/hub/home/group.html?id=d86ec2e6c271497eaf8983af5ce577e1#overview}{Open Sicamous NG911 Group} \\
+Editing Layer Item & \href{https://apps.csrd.bc.ca/hub/home/item.html?id=f820d1ba962846d1bd71fa0d3c975043}{Open Sicamous editing feature layer item} \\
+Web App Item & \href{https://apps.csrd.bc.ca/hub/home/item.html?id=2a6307820c874d9bbfd7289a694408d4}{Open Sicamous Experience Builder Web App} \\
+\bottomrule
+\end{longtable}
+
+\subsection{User credentials}
+\begin{longtable}{p{3.2cm}p{4.0cm}p{5.8cm}}
+\toprule
+\textbf{Role} & \textbf{Username} & \textbf{Password} \\
+\midrule\endhead
+Viewer & \texttt{Sicamous} & \texttt{Sicamous\_2024} \\
+Editor & \texttt{Sicamous\_Editing} & \texttt{SicamousEdit!@2026} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Role guidance}
+\begin{itemize}
+\item Use the \textbf{Viewer} account for read-only review and validation.
+\item Use the \textbf{Editor} account for production edits.
+\item Only edit in the designated Sicamous editing layer.
+\end{itemize}
+
+\section{Step-by-step editing workflow: Method 1 (ArcGIS Pro)}
+\clearpage
+\subsection{Step 1: Log in to the CSRD portal}
+\begin{enumerate}
+\item Open a browser and go to the CSRD Portal Home URL.
+\item Click \textbf{Sign In}.
+\item Enter your Sicamous credentials.
+\item Confirm successful sign-in.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{1-CSRD Portal Home Page.png}}}
+\caption{CSRD Portal home page}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Click \textbf{Sign In} in the top-right corner, then use your Sicamous Viewer or Editor account.}
+
+\clearpage
+\subsection{Step 2: Navigate to the Sicamous NG911 group}
+\begin{enumerate}
+\item Open the Sicamous group URL.
+\item Confirm group access and content visibility.
+\item Locate the Sicamous editing feature layer item.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{2-Portal Groups Sicamous.png}}}
+\caption{Portal groups view}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} From \textbf{Groups}, open the Sicamous group.}
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{3-Sicamous Group.png}}}
+\caption{Group overview page}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Confirm group details and open the group content list.}
+
+\clearpage
+\subsection{Step 3: Open the editing feature layer item}
+\begin{enumerate}
+\item Open the Sicamous editing feature layer item page.
+\item Verify item details and ownership.
+\item Confirm this is the intended editable layer.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{4-Sicamous edit layer Overview.png}}}
+\caption{Editing layer item details}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Verify item details before launching ArcGIS Pro.}
+
+\clearpage
+\subsection{Step 4: Open in ArcGIS Pro}
+\begin{enumerate}
+\item Click \textbf{Open in ArcGIS Pro} from the item page.
+\item Allow ArcGIS Pro to launch.
+\item Sign in to the CSRD Portal if prompted.
+\item Confirm the Sicamous layer loads.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{5-Confirm CSRD Portal Sign in in Arcgis Pro.png}}}
+\caption{Confirm CSRD Portal sign in within ArcGIS Pro}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Use \textbf{Open in ArcGIS Pro} and authenticate if required.}
+
+\clearpage
+\subsection{Step 5: Edit records}
+\begin{enumerate}
+\item In ArcGIS Pro, open the \textbf{Edit} tab.
+\item Select or create features as needed.
+\item Update required fields.
+\item Validate location and attributes.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{6-Sicamous ArcGIS pro.png}}}
+\caption{ArcGIS Pro layer loaded}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Confirm the layer is present in \textbf{Contents} and attribute table is accessible.}
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{7-Sicamous ArcGISPro Edit.png}}}
+\caption{ArcGIS Pro editing view}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Use \textbf{Modify Features} to edit geometry and attributes.}
+
+\clearpage
+\subsection{Step 6: Save edits}
+\begin{enumerate}
+\item Click \textbf{Save} on the ArcGIS Pro \textbf{Edit} tab.
+\item Resolve any validation issues.
+\item Confirm edits are committed.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{8-Sicamous ArcGISPro Save Edits.png}}}
+\caption{Save edits in ArcGIS Pro}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Finalize edits with \textbf{Save}.}
+
+\clearpage
+\subsection{Step 7: Verification of changes}
+\begin{enumerate}
+\item Return to the CSRD Portal in your web browser.
+\item Navigate to the Sicamous editing feature layer item page.
+\item Open the \textbf{Data} tab.
+\item Review the records to confirm your recent edits from ArcGIS Pro are successfully reflected.
+\end{enumerate}
+
+\clearpage
+\section{Step-by-step editing workflow: Method 2 (Experience Builder Web App)}
+\textit{Note: Steps 1 and 2 (Logging in to the CSRD Portal and navigating to the Sicamous NG911 Group) are identical to Method 1.}
+
+\subsection{Step 3: Open the Web App}
+\begin{enumerate}
+\item Open the Web App Portal Item from the group page.
+\item Click on \textbf{View} to launch the application.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{3A- Sicamous Group.png}}}
+\caption{Web App Portal Item}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Launch the Experience Builder web application from its item details page.}
+
+\clearpage
+\subsection{Step 4: Create a new address}
+\begin{enumerate}
+\item In the Web App interface, click on the \textbf{Create} button.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{4A- Sicamous Address Management Web App overview.png}}}
+\caption{Web App Interface Overview}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{4B- Sicamous Address Management Web App Home page Create.png}}}
+\caption{Create Button}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Initiate the creation of a new address record.}
+
+\clearpage
+\subsection{Step 5: Place the address point}
+\begin{enumerate}
+\item On the right side of the page, click on the \textbf{Feature point Creation} button.
+\item Click on the map to place the point exactly on the location of the new address.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{5A- Sicamous Web App feature point.png}}}
+\caption{Feature Point Creation}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Accurately drop the new address point on the map.}
+
+\clearpage
+\subsection{Step 6: Fill out the fields}
+\begin{enumerate}
+\item Fill out all required fields in the creation form.
+\end{enumerate}
+\textit{For more information on how to fill out the fields and which fields are automatically calculated and non-editable, refer to \hyperref[sec:appendix_edit_form]{Appendix: Web App Edit Form Guide}.}
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{6A- Sicamous Web App Creation Form.png}}}
+\caption{Creation Form}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Ensure all mandatory attribute data is entered for the new address.}
+
+\clearpage
+\subsection{Step 7: Click Create}
+\begin{enumerate}
+\item After reviewing the details, click \textbf{Create} to save the new address.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{7A- Sicamous Web App Confirm Create.png}}}
+\caption{Confirm Create}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Finalize the creation process.}
+
+\clearpage
+\subsection{Step 8: Return to Home page}
+\begin{enumerate}
+\item To edit an existing record instead, go back to the Home page by clicking the \textbf{Home} button.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{8A- Sicamous Web AppHome Button.png}}}
+\caption{Home Button}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Navigate back to the main interface to begin searching.}
+
+\clearpage
+\subsection{Step 9: Click on Edit Button}
+\begin{enumerate}
+\item Click on the \textbf{Edit} button to access the editing mode.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{9A- Sicamous Web App Edit Button.png}}}
+\caption{Edit Button}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Toggle the application into editing mode.}
+
+\clearpage
+\subsection{Step 10: Search for an address}
+\begin{enumerate}
+\item Click on the search bar on the map.
+\item Search for the address by entering its Full Address or NGUID.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{10A-WebApp Search Bar.png}}}
+\caption{Search Bar}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Quickly locate existing records using the search widget.}
+
+\clearpage
+\subsection{Step 11: Click on the Search Result}
+\begin{enumerate}
+\item Click on the correct address from the search results to select it.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{11A-WebApp Search Results.png}}}
+\caption{Search Results}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Select the target address point to bring up its details.}
+
+\clearpage
+\subsection{Step 12: Edit the details}
+\begin{enumerate}
+\item Edit the details of the selected address on the edit form appearing on the right side of the page.
+\end{enumerate}
+\textit{For more information on how to fill out the fields and which fields are automatically calculated and non-editable, refer to \hyperref[sec:appendix_edit_form]{Appendix: Web App Edit Form Guide}.}
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{12A-WebApp Edit Form.png}}}
+\caption{Edit Form}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Update any incorrect attributes or attributes needing modification.}
+
+\clearpage
+\subsection{Step 13: Click Update}
+\begin{enumerate}
+\item Click \textbf{Update} to commit the changes to the database.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{13A-WebApp Update Button.png}}}
+\caption{Update Button}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Save your edits successfully.}
+
+\clearpage
+\appendix
+\section{Appendix: Web App Edit Form Guide}
+\label{sec:appendix_edit_form}
+
+This section describes the \textbf{NG911\_Address\_Sicamous\_Edit} full form architecture within the Experience Builder Web App. The fields are grouped by section with user-friendly descriptions.
+
+\textbf{Legend:}\\
+\textbf{EDIT} = User enters/changes $\cdot$ \textbf{REQ} = Required $\cdot$ \textbf{RO} = Read-only $\cdot$ \textbf{CALC} = Arcade-calculated $\cdot$ \textbf{SERVER} = Server-calculated on create/update $\cdot$ \textbf{HIDDEN} = Not shown on the form
+
+\subsection*{1) System Calculated Fields (No input needed) --- 9}
+\textit{Section purpose: These are system outputs. They are calculated server-side and will populate/update after you create or update an address point. You do not type into these fields.}
+
+\begin{itemize}
+\item \textbf{Full Address} (RO + SERVER): The complete formatted address built from your address components (e.g., unit + civic + street).
+\item \textbf{Agency} (RO + SERVER + CALC): The responsible agency/jurisdiction for this address record (e.g., Sicamous).
+\item \textbf{NENA Globally Unique ID} (RO + SERVER): A unique identifier for the address record used for NG911/NENA tracking.
+\item \textbf{Quality Check Status} (RO + SERVER): Indicates if the record passes or fails automated QA/QC checks.
+\item \textbf{Date Updated} (RO + SERVER): Timestamp of the most recent edit saved to the address point.
+\item \textbf{Additional Code} (RO + SERVER): A system-assigned code used for internal or NG911 reference (if applicable).
+\item \textbf{Latitude} (RO + SERVER): Latitude derived from the point geometry.
+\item \textbf{Longitude} (RO + SERVER): Longitude derived from the point geometry.
+\item \textbf{Elevation} (RO + SERVER): Elevation value if the system calculates or stores it for the point.
+\end{itemize}
+
+\subsection*{2) Effective Dates --- 2}
+\textit{Section purpose: Track when an address becomes valid and (optionally) when it is no longer valid.}
+
+\begin{itemize}
+\item \textbf{Effective Date} (EDIT): The date this address should be considered active/valid.
+\item \textbf{Expiration Date} (EDIT): The date this address is no longer active (leave blank if still active).
+\end{itemize}
+
+\subsection*{3) Mandatory NENA Fields and Administrative Jurisdiction --- 7}
+\textit{Section purpose: Required NG911 administrative areas. Most are auto-populated and locked to keep values consistent. (Calculated via Arcade in the webmap).}
+
+\begin{itemize}
+\item \textbf{Country} (RO + REQ + CALC): Country of the address (typically ``CA'').
+\item \textbf{Province (A1)} (RO + REQ + CALC): Province/state administrative area (e.g., BC).
+\item \textbf{Regional District (A2)} (RO + REQ + CALC): Regional district for the address location (e.g., Columbia Shuswap Regional District).
+\item \textbf{Locality (A3)} (RO + REQ + CALC): Local municipality/locality (e.g., Sicamous).
+\item \textbf{Discrepancy Agency ID} (RO + REQ + CALC): Identifier used to track agency responsibility and discrepancy workflows.
+\item \textbf{Unincorporated Community (A4)} (EDIT): Used when the address is within an unincorporated area/community name.
+\item \textbf{Neighborhood Community (A5)} (EDIT): Optional neighborhood name when there is a well-known defined neighborhood.
+\end{itemize}
+
+\subsection*{4) Main Address Components --- 12}
+\textit{Section purpose: The core civic address pieces. These fields largely determine the Full Address output.}
+
+\begin{itemize}
+\item \textbf{Unit} (EDIT): Unit/suite/apartment identifier (e.g., ``12'', ``A'', ``Unit 3'').
+\item \textbf{Address Number} (EDIT + REQ): Main civic number (e.g., ``123'').
+\item \textbf{Address Number Suffix} (EDIT): Text after the civic number (e.g., ``A'' in ``123A'', ``1/2'' in ``123 1/2'').
+\item \textbf{Street Name Pre Directional} (EDIT): Directional before street name (use full words: ``North'', ``Southwest'', etc.).
+\item \textbf{Street Name Pre Modifier} (EDIT): Optional modifier before the name (e.g., ``Old'', ``Upper'', ``Lower'').
+\item \textbf{Street Name Pre Type} (EDIT): Type before the name (rare) (e.g., ``Highway'' in ``Highway 1'').
+\item \textbf{Street Name Pre Type Separator} (EDIT): Separator between pre-type and name (usually blank, space, or hyphen).
+\item \textbf{Street Name} (EDIT + REQ): Core street name (e.g., ``Main'', ``Trans-Canada'', ``7'').
+\item \textbf{Street Name Post Type} (EDIT): Street type after the name (use full words: ``Street'', ``Avenue'', ``Road'').
+\item \textbf{Street Name Post Directional} (EDIT): Directional after the name/type (use full words: ``East'', ``Northwest'').
+\end{itemize}
+
+\subsection*{5) Legacy Street Components --- 4}
+\textit{Section purpose: Store the legacy/previous street naming components for reference or historical comparison.}
+
+\begin{itemize}
+\item \textbf{Legacy Street Name Pre Directional} (EDIT): Legacy directional before the street name.
+\item \textbf{Legacy Street Name} (EDIT): Legacy core street name.
+\item \textbf{Legacy Street Name Type} (EDIT): Legacy street type (e.g., Rd, St, Ave as historically recorded).
+\item \textbf{Legacy Street Name Post Directional} (EDIT): Legacy directional after the street name/type.
+\end{itemize}
+
+\subsection*{6) Internal System Reference and Notes --- 6}
+\textit{Section purpose: Optional identifiers and notes that help link the address to other systems and add context for staff.}
+
+\begin{itemize}
+\item \textbf{Additional Data URI} (EDIT): A link/URI to external supporting information (documents, records, etc.).
+\item \textbf{Feature ID} (EDIT): An internal ID for linking to another dataset/system.
+\item \textbf{Parcel ID} (EDIT): Parcel identifier (PID/parcel number) associated with the address.
+\item \textbf{Roll} (EDIT): Tax roll / assessment roll number if applicable.
+\item \textbf{Address Notes} (EDIT): Free-text notes about the address (access, signage, special instructions, etc.).
+\item \textbf{Alternate Access} (EDIT): Alternate access description (e.g., ``Access via rear lane'', ``Use service road'').
+\end{itemize}
+
+\subsection*{7) Unit -- Subproperty Components --- 5}
+\textit{Section purpose: Extra sub-location info when ``Unit'' alone isn’t enough (multi-building sites, campuses, facilities).}
+
+\begin{itemize}
+\item \textbf{Building} (EDIT): Building identifier/name/number (e.g., ``Building B'').
+\item \textbf{Floor} (EDIT): Floor level (e.g., ``3'', ``Mezzanine'').
+\item \textbf{Room} (EDIT): Room identifier (e.g., ``201'', ``Control Room'').
+\item \textbf{Seat} (EDIT): Seat/space identifier when relevant (e.g., arenas, venues).
+\item \textbf{Additional Location Information} (EDIT): Any extra description to help locate the exact unit/subproperty.
+\end{itemize}
+
+\subsection*{8) Postal/MSAG/ESN --- 5}
+\textit{Section purpose: Mailing and emergency service routing fields (where applicable/known).}
+
+\begin{itemize}
+\item \textbf{Postal Community Name} (EDIT): Community name used for mailing addresses.
+\item \textbf{Postal Code} (EDIT): Postal code (e.g., ``V0E 2V0'').
+\item \textbf{Postal Code Extension} (EDIT): Additional postal extension if used in a local standard.
+\item \textbf{MSAG Community Name} (EDIT): Master Street Address Guide community name (legacy 911 routing reference).
+\item \textbf{ESN} (EDIT): Emergency Service Number (legacy 911 field; used where still applicable).
+\end{itemize}
+
+\subsection*{9) Landmark/Placement --- 4}
+\textit{Section purpose: Describe special address types and how/where the point was placed (useful for non-standard sites).}
+
+\begin{itemize}
+\item \textbf{Place Type} (EDIT): Type of place/feature (e.g., park, marina, campground, facility).
+\item \textbf{Placement Method} (EDIT): How the point location was determined (e.g., rooftop, driveway, parcel centroid).
+\item \textbf{Complete Landmark Name} (EDIT): Full landmark/facility name (e.g., ``Sicamous Community Hall'').
+\item \textbf{Milepost} (EDIT): Milepost/km marker information for highway/rural addressing where applicable.
+\end{itemize}
+
+\clearpage
+\section{Version control}
+\begin{longtable}{p{2.0cm}p{2.8cm}p{3.8cm}p{5.0cm}}
+\toprule
+\textbf{Version} & \textbf{Date} & \textbf{Author} & \textbf{Change summary} \\
+\midrule\endhead
+1.0 & 2026-02-20 & John Soliman, Pacific Tech Systems & Initial Sicamous NG911 Central Addressing System user guide with representative annotated screenshots. \\
+\bottomrule
+\end{longtable}
+
+\end{document}

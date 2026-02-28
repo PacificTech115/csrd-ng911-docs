@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5. AddCode — CSRD NG911 Attribute Rule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- ── SIDEBAR ── -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+      <h2>Revelstoke Portal</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="guide-revelstoke.html" class=""><i class="fas fa-home"></i> User Guide</a>
+      <div class="nav-group-label" style="margin-top:20px;">Technical References</div>
+      <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+      <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+      <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    </nav>
+    <div class="sidebar-footer">CSRD NG911 &copy; 2026 &middot; Pacific Tech Systems</div>
+  </aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- ── PAGE HEADER ── -->
+  <header class="page-header">
+    <div class="page-header-content">
+      <div class="breadcrumb"><span class="current">Revelstoke Reference</span></div>
+      <div class="detail-banner">
+        <div class="banner-icon" style="background:var(--amber)">
+          <i class="fas fa-hashtag"></i>
+        </div>
+        <div class="banner-info">
+          <h1>5. AddCode</h1>
+          <div class="banner-tags">
+            <span class="banner-tag">Target: AddCode</span>
+            <span class="banner-tag">Triggers: Insert / Update</span>
+            <span class="banner-tag">Type: Calculation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ── -->
+  <div class="content-wrap">
+
+    <!-- Description -->
+    <section>
+      <h2>Description</h2>
+      <p class="reveal">
+        Maps the municipality name (from field <code>A3</code>) to its corresponding numeric address code using a hardcoded lookup dictionary of 39 CSRD communities. The municipality name is normalized (uppercased, periods stripped) before lookup. Returns <code>Null</code> if the municipality name is not found in the dictionary.
+      </p>
+    </section>
+
+    <!-- Metadata -->
+    <section>
+      <h2>Metadata</h2>
+      <div class="reveal">
+        <table>
+          <thead>
+            <tr><th>Property</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Target Field</td><td><code>AddCode</code></td></tr>
+            <tr><td>Triggers</td><td>Insert, Update</td></tr>
+            <tr><td>Input Fields</td><td><code>A3</code> (municipality name)</td></tr>
+            <tr><td>Lookup Entries</td><td>39 communities</td></tr>
+            <tr><td>Returns</td><td>Numeric code or <code>Null</code> if not found</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Full Source Code -->
+    <section>
+      <h2>Full Source Code</h2>
+      <div class="code-block reveal">
+        <div class="code-header">
+          <span class="lang-tag">Arcade</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre>
+<span class="code-section" data-section="1"><span class="kw">var</span> key = <span class="fn">Upper</span>(<span class="fn">Replace</span>(<span class="fn">Trim</span>(<span class="var">$feature</span>.A3), <span class="str">"."</span>, <span class="str">""</span>));
+<span class="kw">if</span> (<span class="fn">IsEmpty</span>(key)) {
+  <span class="kw">return</span> <span class="bi">null</span>;
+}</span>
+
+<span class="code-section" data-section="2"><span class="kw">var</span> m = {
+  <span class="str">"ANSTEY ARM"</span>: <span class="num">1066</span>,
+  <span class="str">"BEATON"</span>: <span class="num">60</span>,
+  <span class="str">"BLAEBERRY"</span>: <span class="num">1054</span>,
+  <span class="str">"BLIND BAY"</span>: <span class="num">581</span>,
+  <span class="str">"CANYON HOT SPRINGS"</span>: <span class="num">1053</span>,
+  <span class="str">"CASTLEDALE"</span>: <span class="num">18</span>,
+  <span class="str">"CELISTA"</span>: <span class="num">594</span>,
+  <span class="str">"CRAIGELLACHIE"</span>: <span class="num">182</span>,
+  <span class="str">"DEEP CREEK"</span>: <span class="num">577</span>,
+  <span class="str">"DONALD"</span>: <span class="num">180</span>,
+  <span class="str">"EAGLE BAY"</span>: <span class="num">593</span>,
+  <span class="str">"FALKLAND"</span>: <span class="num">586</span>,
+  <span class="str">"FIELD"</span>: <span class="num">795</span>,
+  <span class="str">"GALENA BAY"</span>: <span class="num">61</span>,
+  <span class="str">"GOLDEN"</span>: <span class="num">179</span>,
+  <span class="str">"HEYWOODS"</span>: <span class="num">587</span>,
+  <span class="str">"LEANCHOLI"</span>: <span class="num">1056</span>,
+  <span class="str">"LEE CREEK"</span>: <span class="num">597</span>,
+  <span class="str">"MAGNA BAY"</span>: <span class="num">880</span>,
+  <span class="str">"MALAKWA"</span>: <span class="num">185</span>,
+  <span class="str">"MICA CREEK"</span>: <span class="num">183</span>,
+  <span class="str">"NORTH MARA"</span>: <span class="num">584</span>,
+  <span class="str">"NOTCH HILL"</span>: <span class="num">592</span>,
+  <span class="str">"OKANAGAN IR NORTH"</span>: <span class="num">1119</span>,
+  <span class="str">"PARSON"</span>: <span class="num">19</span>,
+  <span class="str">"REVELSTOKE"</span>: <span class="num">181</span>,
+  <span class="str">"ROGERS PASS"</span>: <span class="num">178</span>,
+  <span class="str">"SALMON ARM"</span>: <span class="num">574</span>,
+  <span class="str">"SALMON RIVER IR"</span>: <span class="num">1118</span>,
+  <span class="str">"SCOTCH CREEK"</span>: <span class="num">598</span>,
+  <span class="str">"SEYMOUR ARM"</span>: <span class="num">1065</span>,
+  <span class="str">"SICAMOUS"</span>: <span class="num">583</span>,
+  <span class="str">"SOLSQUA"</span>: <span class="num">186</span>,
+  <span class="str">"SORRENTO"</span>: <span class="num">580</span>,
+  <span class="str">"SOUTH KINBASKET LAKE"</span>: <span class="num">872</span>,
+  <span class="str">"SPALLUMCHEEN"</span>: <span class="num">1075</span>,
+  <span class="str">"ST IVES"</span>: <span class="num">595</span>,
+  <span class="str">"TAPPEN"</span>: <span class="num">576</span>,
+  <span class="str">"THREE VALLEY"</span>: <span class="num">555</span>,
+  <span class="str">"TROUT LAKE"</span>: <span class="num">59</span>,
+  <span class="str">"WHITE LAKE"</span>: <span class="num">582</span>
+};</span>
+
+<span class="code-section" data-section="3"><span class="kw">return</span> <span class="fn">IIF</span>(<span class="fn">HasKey</span>(m, key), <span class="fn">Number</span>(m[key]), <span class="bi">null</span>);</span>
+</pre>
+      </div>
+      <div class="section-popup" id="sectionPopup"></div>
+    </section>
+
+    <!-- Section Breakdown -->
+    <section>
+      <h2>Section Breakdown</h2>
+
+      <div class="breakdown-card reveal" style="border-left-color:var(--amber)" data-section="1">
+        <h4>1. Key Normalization</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 1–4</span>
+          <span class="meta-tag">Input: A3</span>
+          <span class="meta-tag">Output: string or early exit</span>
+        </div>
+        <p>Prepares the municipality name for dictionary lookup. Trims whitespace, strips periods via <code>Replace(key, ".", "")</code>, uppercases with <code>Upper()</code>. Returns <code>null</code> if <code>IsEmpty(key)</code>.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>key = Upper(Replace(Trim($feature.A3), ".", ""))</code></li>
+            <li>If <code>IsEmpty(key)</code> → return null</li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Replace <code>A3</code> with your municipality field. Add more <code>Replace()</code> calls for hyphens, apostrophes, etc. if needed.</li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Case-sensitive: remove <code>Upper()</code> and ensure dictionary keys match.</li>
+            <li>Handle "St." vs "Saint": add <code>Replace(key, "ST ", "SAINT ")</code> before lookup.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-1" style="border-left-color:var(--amber)" data-section="2">
+        <h4>2. Community Lookup Dictionary</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 6–48</span>
+          <span class="meta-tag">39 CSRD communities</span>
+        </div>
+        <p>Hardcoded dictionary mapping community names (uppercase, no periods) to provincial address codes. Keys must match the normalized output of section 1. Codes come from the provincial addressing authority.</p>
+        <div class="breakdown-detail">
+          <strong>Structure</strong>
+          <ul>
+            <li><code>var m = { "ANSTEY ARM": 1066, "BEATON": 60, ... };</code></li>
+            <li>Keys: uppercase, no periods. Values: integer codes.</li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Replace with your region's community list. Keep keys in sync with key normalization (section 1).</li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Add community: add <code>"NEW COMMUNITY": 1234</code> in alphabetical order. Get code from provincial authority.</li>
+            <li>Rename community: update key; ensure A3 values in data match.</li>
+            <li>Remove community: delete the key-value pair; existing features will get null.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-2" style="border-left-color:var(--amber)" data-section="3">
+        <h4>3. Lookup and Return</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Line 50</span>
+          <span class="meta-tag">Output: number or null</span>
+        </div>
+        <p>Checks if the normalized key exists in the dictionary. Returns the numeric code if found, <code>null</code> otherwise.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>return IIF(HasKey(m, key), Number(m[key]), null);</code></li>
+            <li><code>Number()</code> ensures integer return type.</li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Requires <code>HasKey()</code> and <code>IIF</code>. Use <code>null</code> (lowercase) for Arcade.</li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Return string code: use <code>Text(m[key])</code> instead of <code>Number(m[key])</code>.</li>
+            <li>Default fallback: <code>IIF(HasKey(m, key), m[key], 0)</code> to return 0 for unknown.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+  </div><!-- /content-wrap -->
+
+  <!-- ── FOOTER ── -->
+  <footer class="site-footer">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <p>CSRD NG911 Documentation</p>
+    <p class="sub">Columbia Shuswap Regional District — Next Generation 911</p>
+  </footer>
+
+</div><!-- /main -->
+
+<!-- ── BACK TO TOP ── -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<script>
+// ── Scroll-reveal observer ──
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+// ── Reading progress bar ──
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+// ── Back-to-top toggle ──
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+// ── Copy to clipboard ──
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  const text=pre.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+// ── Section hover interaction ──
+(function(){
+  const popup=document.getElementById('sectionPopup');
+  const sections=document.querySelectorAll('.code-section');
+  const cards=document.querySelectorAll('.breakdown-card[data-section]');
+  const META=[
+    {title:'Key Normalization',lines:'Lines 1–4',fields:'A3',desc:'Trims whitespace, strips periods, uppercases municipality name for case-insensitive matching.',maint:'Add Replace() calls if names use special characters.'},
+    {title:'Community Lookup Dictionary',lines:'Lines 6–48',fields:'39 entries',desc:'Hardcoded mapping of all 39 CSRD community names to their numeric address codes.',maint:'Add new entries in alphabetical order when communities are added. Codes come from provincial addressing authority.'},
+    {title:'Lookup and Return',lines:'Line 50',fields:'(derived)',desc:'Uses HasKey() to check the dictionary and returns the numeric code, or null if not found.',maint:'No changes needed unless return type changes.'}
+  ];
+  sections.forEach(span=>{
+    span.addEventListener('mouseenter',function(e){
+      const idx=parseInt(this.dataset.section);const m=META[idx-1];if(!m)return;
+      this.classList.add('active');
+      cards.forEach(c=>c.classList.toggle('highlight',parseInt(c.dataset.section)===idx));
+      popup.innerHTML='<h4><span class="popup-num">'+idx+'</span>'+m.title+'</h4>'
+        +'<div class="popup-meta">'+(m.lines?'<span class="popup-tag">'+m.lines+'</span>':'')
+        +(m.fields?'<span class="popup-tag">Fields: '+m.fields+'</span>':'')+'</div>'
+        +'<p>'+m.desc+'</p>'
+        +(m.maint?'<div class="popup-maint"><strong>Maintenance:</strong> '+m.maint+'</div>':'');
+      popup.classList.add('visible');
+    });
+    span.addEventListener('mousemove',function(e){
+      const x=Math.min(e.clientX+16,window.innerWidth-360);
+      const y=Math.min(e.clientY-10,window.innerHeight-popup.offsetHeight-10);
+      popup.style.left=x+'px';popup.style.top=Math.max(10,y)+'px';
+    });
+    span.addEventListener('mouseleave',function(){
+      this.classList.remove('active');popup.classList.remove('visible');
+      cards.forEach(c=>c.classList.remove('highlight'));
+    });
+  });
+  cards.forEach(card=>{
+    const idx=parseInt(card.dataset.section);
+    const codeSection=document.querySelector('.code-section[data-section="'+idx+'"]');
+    if(codeSection){
+      const reveal=document.createElement('div');
+      reveal.className='breakdown-code-reveal';
+      const pre=document.createElement('pre');
+      pre.textContent=codeSection.textContent;
+      reveal.appendChild(pre);
+      card.parentNode.insertBefore(reveal,card.nextSibling);
+    }
+    card.addEventListener('mouseenter',function(){
+      const idx=parseInt(this.dataset.section);
+      sections.forEach(s=>s.classList.toggle('active',parseInt(s.dataset.section)===idx));
+      this.classList.add('highlight');
+    });
+    card.addEventListener('mouseleave',function(){
+      sections.forEach(s=>s.classList.remove('active'));this.classList.remove('highlight');
+    });
+    card.addEventListener('click',function(e){
+      e.preventDefault();
+      const rev=this.nextElementSibling;
+      if(rev&&rev.classList.contains('breakdown-code-reveal'))rev.classList.toggle('visible');
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

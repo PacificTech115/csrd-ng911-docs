@@ -1,0 +1,83 @@
+// --- Helpers ---
+function isNumericText(val) {
+  if (val == null || Trim(val) == "") return false;
+  var n = Number(val);
+  return !IsNan(n);
+}
+
+// --- Unit ---
+var unitPart = Trim(DefaultValue($feature.Unit, ""));
+
+// --- Address number: prefix + number + suffix (with dash if numeric prefix/suffix) ---
+var pre = Trim(DefaultValue($feature.AddNum_Pre, ""));
+var num = Trim(DefaultValue($feature.Add_Number, ""));
+var suf = Trim(DefaultValue($feature.AddNum_Suf, ""));
+
+var prefixSep = "";
+if (pre != "" && num != "" && isNumericText(pre)) prefixSep = "-";
+
+var suffixSep = "";
+if (num != "" && suf != "" && isNumericText(suf)) suffixSep = "-";
+
+var addrNumPart = Trim(pre + prefixSep + num + suffixSep + suf);
+
+// --- Unit-Address with dash if both exist ---
+var unitAddr = "";
+if (unitPart != "" && addrNumPart != "") unitAddr = unitPart + "-" + addrNumPart;
+else unitAddr = unitPart + addrNumPart;
+
+// --- Street type prefix + separator + street name body ---
+var preTyp = Trim(DefaultValue($feature.St_PreTyp, ""));
+var stName = Trim(DefaultValue($feature.St_Name, ""));
+var sepRaw = DefaultValue($feature.St_PreSep, "");
+var sep = IIF(Trim(sepRaw) == "", " ", sepRaw);
+
+var preTypName = "";
+if (preTyp != "" && stName != "") {
+  preTypName = Trim(preTyp + sep + stName);
+} else {
+  preTypName = Trim(preTyp + stName);
+}
+
+// --- Street part in required sequence ---
+var streetArr = [];
+var v = "";
+
+v = Trim(DefaultValue($feature.St_PreMod, "")); if (v != "") Push(streetArr, v);
+v = Trim(DefaultValue($feature.St_PreDir, "")); if (v != "") Push(streetArr, v);
+if (preTypName != "") Push(streetArr, preTypName);
+v = Trim(DefaultValue($feature.St_PosTyp, "")); if (v != "") Push(streetArr, v);
+v = Trim(DefaultValue($feature.St_PosDir, "")); if (v != "") Push(streetArr, v);
+v = Trim(DefaultValue($feature.St_PosMod, "")); if (v != "") Push(streetArr, v);
+
+var streetPart = Concatenate(streetArr, " ");
+
+// --- Base: Unit-AddrNum, Street ---
+var baseArr = [];
+if (unitAddr != "") Push(baseArr, unitAddr);
+if (streetPart != "") Push(baseArr, streetPart);
+
+var base = Concatenate(baseArr, " ");
+
+// --- Postal (Post_Code + optional -PostCodeEx) ---
+var post = Trim(DefaultValue($feature.Post_Code, ""));
+var postEx = Trim(DefaultValue($feature.PostCodeEx, ""));
+var postalPart = IIF(post != "" && postEx != "", post + "-" + postEx, post);
+
+// --- Tail: muni, prov, postal (muni/prov with comma) ---
+var muni = Trim(DefaultValue($feature.A3, ""));
+var prov = Trim(DefaultValue($feature.A1, ""));
+
+var muniProv = "";
+if (muni != "" && prov != "") muniProv = muni + ", " + prov;
+else muniProv = muni + prov;
+
+var tailArr = [];
+if (muniProv != "") Push(tailArr, muniProv);
+if (postalPart != "") Push(tailArr, postalPart);
+
+var tail = Concatenate(tailArr, " ");
+
+// --- Final: base, tail ---
+var full = IIF(base != "" && tail != "", base + ", " + tail, base + tail);
+return IIF(Trim(full) == "", Null, full);

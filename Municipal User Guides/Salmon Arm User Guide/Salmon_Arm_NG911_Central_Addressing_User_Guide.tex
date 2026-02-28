@@ -1,0 +1,291 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{float}
+
+\setstretch{1.15}
+
+% Pacific Tech Systems brand palette
+\definecolor{BrandNavy}{HTML}{10293A}
+\definecolor{BrandTeal}{HTML}{0B8B9A}
+\definecolor{BrandAqua}{HTML}{4FC3CF}
+\definecolor{BrandSlate}{HTML}{3F5568}
+\definecolor{BrandLight}{HTML}{EEF7F8}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=BrandTeal,
+  urlcolor=BrandTeal,
+  citecolor=BrandTeal
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{24pt}
+\lhead{\textcolor{BrandSlate}{\textbf{NG911 Central Addressing System}}}
+\rhead{\textcolor{BrandTeal}{\textbf{Salmon Arm User Guide}}}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.8pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{BrandAqua}\leaders\hrule height \headrulewidth\hfill}}
+
+\titleformat{\section}{\Large\bfseries\color{BrandNavy}}{\thesection}{0.75em}{}
+\titleformat{\subsection}{\large\bfseries\color{BrandTeal}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{BrandSlate}}{\thesubsubsection}{0.5em}{}
+
+\setlist[itemize]{itemsep=0.3em,topsep=0.3em,leftmargin=1.6em}
+\setlist[enumerate]{itemsep=0.4em,topsep=0.35em,leftmargin=1.8em}
+
+\newcommand{\shotplaceholder}[2]{
+\begin{center}
+\fcolorbox{BrandAqua}{BrandLight}{
+\parbox[c][6.0cm][c]{0.92\textwidth}{
+\centering
+\textbf{Screenshot Placeholder}\\[0.4em]
+\textbf{#1}\\[0.5em]
+\textit{Insert image: #2}
+}}
+\end{center}
+}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+\vspace*{1.2cm}
+{\Huge\bfseries\color{BrandNavy} NG911 Central Addressing System}\\[0.35cm]
+{\Large\bfseries\color{BrandTeal} Salmon Arm User Guide}\\[0.9cm]
+{\large\color{BrandSlate} Author: John Soliman}\\[0.15cm]
+{\normalsize\color{BrandSlate} Pacific Tech Systems}\\[0.15cm]
+{\normalsize\color{BrandSlate} Version: 1.0}\\[1.1cm]
+{\normalsize\color{BrandSlate} For: Salmon Arm NG911 Editors}\\[1.2cm]
+\includegraphics[width=\textwidth]{branding.png}
+\end{center}
+\vfill
+\noindent{\color{BrandTeal}\rule{\textwidth}{1.2pt}}\\[0.25cm]
+\noindent{\color{BrandSlate}\small This guide provides step-by-step instructions for editing the Salmon Arm NG911 address layer through the CSRD portal via the Overwrite Hosted Feature Layer + ETL Reconcile workflow.}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\tableofcontents
+\newpage
+
+\section{Purpose and scope}
+This guide explains the standard Salmon Arm workflow for editing NG911 central addressing data:
+
+\textbf{Editing Workflow: Overwrite Hosted Feature Layer + ETL Reconcile and Post to Central DB Feature Layer}
+\begin{enumerate}
+\item Go to CSRD Portal Home and log in with Editor Credentials.
+\item Click on the content tab at the top of the page.
+\item Click on SalmonArmOverwrite Hosted Feature layer.
+\item On the Overview page of the hosted feature layer, click on update data.
+\item Click on Overwrite Entire Feature Layer.
+\item Upload zipped GDB file of updated Salmon Arm Database.
+\item After uploading, click on Proceed.
+\item Wait for the hosted feature layer to update.
+\item View the Data tab of the hosted feature layer to verify if the updates were reflected.
+\end{enumerate}
+
+\section{System access details}
+\subsection{Portal and item URLs}
+\begin{longtable}{p{4.0cm}p{10.0cm}}
+\toprule
+\textbf{Name} & \textbf{URL} \\
+\midrule\endhead
+CSRD Portal Home & \href{https://apps.csrd.bc.ca/hub/home}{https://apps.csrd.bc.ca/hub/home} \\
+Salmon Arm NG911 Group & \href{https://apps.csrd.bc.ca/hub/home/group.html?id=8bfe21794ce441a2af179df0abcda994#overview}{Open Salmon Arm NG911 Group} \\
+Salmon Arm Central Database Feature layer & \href{https://apps.csrd.bc.ca/hub/home/item.html?id=aa1e950efc324d809ad4e6d005706a3e}{Open Salmon Arm Central Database Feature layer} \\
+Salmon Arm Overwrite Hosted Feature Layer & \href{https://apps.csrd.bc.ca/hub/home/item.html?id=8cf1681215c540878625fdb4ec7434e4}{Open Salmon Arm Overwrite Hosted Feature Layer} \\
+\bottomrule
+\end{longtable}
+
+\subsection{User credentials}
+\begin{longtable}{p{3.2cm}p{4.0cm}p{5.8cm}}
+\toprule
+\textbf{Role} & \textbf{Username} & \textbf{Password} \\
+\midrule\endhead
+Viewer & \texttt{SalmonArm} & \texttt{SamlonArm@2024} \\
+Editor & \texttt{Salmon\_Arm\_Editing} & \texttt{Salmonarm2026} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Role guidance}
+\begin{itemize}
+\item Use the \textbf{Viewer} account for read-only review and validation.
+\item Use the \textbf{Editor} account for production edits and data overwrites.
+\end{itemize}
+
+\clearpage
+\section{Step-by-step editing workflow}
+
+\subsection{Step 1: Log in to the CSRD portal}
+\begin{enumerate}
+\item Go to the CSRD Portal Home.
+\item Log in with your Editor Credentials.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{1 portalhome.png}}}
+\caption{CSRD Portal Home}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Authenticate with your assigned Editor account.}
+
+\clearpage
+\subsection{Step 2: Navigate to Content}
+\begin{enumerate}
+\item Click on the \textbf{Content} tab at the top of the page.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{2 portal content tab.png}}}
+\caption{Content Tab}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Access your organization's content listing.}
+
+\clearpage
+\subsection{Step 3: Open the Overwrite Hosted Feature Layer}
+\begin{enumerate}
+\item Locate and click on the \textbf{SalmonArmOverwrite} Hosted Feature layer.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{3 overwrite layer item.png}}}
+\caption{Hosted Feature Layer Item}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Open the item details page for the Salmon Arm Overwrite layer.}
+
+\clearpage
+\subsection{Step 4: Click Update Data}
+\begin{enumerate}
+\item On the Overview page of the hosted feature layer, click on \textbf{Update Data}.
+\end{enumerate}
+\textbf{Note:} It may take a few seconds for the Update Data button to appear.
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{4 update data menu.png}}}
+\caption{Update Data Menu}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Access the data update options.}
+
+\clearpage
+\subsection{Step 5: Overwrite Entire Feature Layer}
+\begin{enumerate}
+\item Click on \textbf{Overwrite Entire Feature Layer}.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{5 Overwrite Option.png}}}
+\caption{Overwrite Option}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Select the overwrite function.}
+
+\clearpage
+\subsection{Step 6: Upload the updated Database}
+\begin{enumerate}
+\item Upload the zipped GDB file of your updated Salmon Arm Database.
+\end{enumerate}
+\textbf{Important Note:} The Geodatabase name and the feature class name \textbf{must} match perfectly for the overwrite to succeed:
+\begin{itemize}
+\item \textbf{GDB Name:} \texttt{Default.gdb.zip}
+\item \textbf{Feature Class Name:} \texttt{NG911\_AddressPoints\_SalmonArm\_Overwrite}
+\end{itemize}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{6 upload gdb.png}}}
+\caption{Upload GDB}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Drag and drop or browse to select your zipped GDB file.}
+
+\clearpage
+\subsection{Step 7: Proceed with Overwrite}
+\begin{enumerate}
+\item After the file finishes uploading, click on \textbf{Proceed}.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{7 proceed overwrite.png}}}
+\caption{Proceed Button}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Confirm the overwrite action.}
+
+\clearpage
+\subsection{Step 8: Wait for the update}
+\begin{enumerate}
+\item Wait for the hosted feature layer to finish updating. Do not close the window.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{8 updating status.png}}}
+\caption{Updating Status}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} The system will process the uploaded GDB and replace the data.}
+
+\clearpage
+\subsection{Step 9: Verify the updates}
+\begin{enumerate}
+\item Once completed, go to the \textbf{Data} tab of the hosted feature layer.
+\item Verify that the attributes and records correctly reflect your recent updates.
+\item Done! The automated ETL will now safely reconcile and post this overwritten data to the Central Database Feature Layer.
+\end{enumerate}
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{9 data verification.png}}}
+\caption{Data Tab Verification}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Confirm your data was overwritten successfully.}
+
+\clearpage
+\section{ETL Process Verification}
+The automated ETL script runs on a scheduled basis every Saturday at 12:00 AM to synchronize your overwrites from the hosted feature layer directly to the Central Database Feature Layer.
+
+After every scheduled run, the system automatically sends out a status email outlining the complete status of the ETL job, detailing all applied operations including Inserts, Updates, and Deletes. 
+
+\begin{figure}[H]
+\centering
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.5pt}
+\fbox{\includegraphics[width=0.95\textwidth]{\detokenize{10 ETL Process Verification Email.png}}}
+\caption{ETL Process Verification Status Email}
+\end{figure}
+\noindent\textit{\textbf{Annotation:} Example of the automated status email detailing synchronization operations.}
+
+\clearpage
+\section{Version control}
+\begin{longtable}{p{2.0cm}p{2.8cm}p{3.8cm}p{5.0cm}}
+\toprule
+\textbf{Version} & \textbf{Date} & \textbf{Author} & \textbf{Change summary} \\
+\midrule\endhead
+1.0 & 2026-02-22 & John Soliman, Pacific Tech Systems & Initial Salmon Arm NG911 Central Addressing System user guide outlining the Overwrite Hosted Feature Layer workflow. \\
+\bottomrule
+\end{longtable}
+
+\end{document}

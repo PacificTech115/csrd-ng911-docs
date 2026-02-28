@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Version Edits — CSRD NG911 Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="shared.css">
+</head>
+
+<body>
+
+    <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')"
+        aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+            <h2>Docs &amp; Maintenance</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
+            <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+            <div class="nav-group-label">1. Technical Documentation</div>
+            <div class="nav-sub-label">Database</div>
+            <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+            <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute
+                Rules</a>
+            <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+            <div class="nav-sub-label">Automations</div>
+            <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+            <a href="gp-tools.html" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
+            <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+            <div class="nav-group-label">2. Maintenance Guide</div>
+            <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+            <div class="nav-group-label">3. Municipal Guides</div>\n    <a href="guide-golden.html" class="nav-indent"><i class="fas fa-city"></i> Golden</a>\n    <a href="guide-revelstoke.html" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>\n    <a href="guide-salmonarm.html" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>\n    <a href="guide-sicamous.html" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>\n    <div class="nav-group-label">4. Version Control</div>
+            <a href="version-edits.html" class="active"><i class="fas fa-history"></i> Version Edits</a>
+            <div class="nav-group-label">5. Quick Reference</div>
+            <a href="quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
+        </nav>
+        <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <header class="page-header">
+            <div class="page-header-content">
+                <div class="detail-banner">
+                    <div class="banner-icon" style="background:var(--navy)">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="banner-info">
+                        <h1>Version Edits</h1>
+                        <div class="banner-tags">
+                            <span class="banner-tag"><i class="fas fa-pen-nib"></i>&nbsp; Content Changes</span>
+                            <span class="banner-tag"><i class="fas fa-clock"></i>&nbsp; Local Audit Log</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-wrap">
+            <section>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                    <p style="margin: 0; max-width: 600px;">This page displays a chronological log of all content
+                        modifications made while Editor Mode is active. Changes are tracked automatically when an editor
+                        leaves an edited field.</p>
+                    <button onclick="discardAllEdits()" class="btn-danger"
+                        style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 6px; border: none; background: #fee2e2; color: #b91c1c; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(185,28,28,0.1);">
+                        <i class="fas fa-trash-can"></i> Discard All Edits
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon navy"><i class="fas fa-list"></i></div>
+                        <h4>Recent Local Edits</h4>
+                        <span class="card-tag" id="editCount">0 Edits</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table id="editsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%">Date / Time</th>
+                                    <th style="width: 15%">Page</th>
+                                    <th style="width: 10%">Element</th>
+                                    <th style="width: 25%">Original Text</th>
+                                    <th style="width: 25%">New Text</th>
+                                    <th style="width: 10%; text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="editsBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        <div id="noEditsMsg" class="alert info" style="display: none; margin-top: 16px;">
+                            <i class="fas fa-info-circle"></i>
+                            <span>No edits have been recorded in this browser session.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="site-footer">
+            <img src="../csrd-logo.png" alt="NG911 Logo">
+            <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+            <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2026</p>
+        </footer>
+
+    </div>
+
+    <script src="editor-core.js?v=005432"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const edits = JSON.parse(localStorage.getItem('csrd_version_edits') || '[]');
+            const tbody = document.getElementById('editsBody');
+            const msg = document.getElementById('noEditsMsg');
+            const count = document.getElementById('editCount');
+
+            count.textContent = edits.length + (edits.length === 1 ? ' Edit' : ' Edits');
+
+            if (edits.length === 0) {
+                msg.style.display = 'flex';
+                document.getElementById('editsTable').style.display = 'none';
+                return;
+            }
+
+            const formatDate = (iso) => {
+                const d = new Date(iso);
+                return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            };
+
+            const trunc = (str) => (str && str.length > 50) ? str.substring(0, 47) + '...' : (str || '');
+
+            edits.forEach(edit => {
+                const isStructural = (edit.type === "SAVE" || edit.type === "ADD" || edit.type === "DELETE");
+                const reverseBtn = isStructural ?
+                    `<span style="color:var(--text-muted);font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Structural</span>` :
+                    `<button title="Reverse this edit" onclick="reverseEdit('${edit.timestamp}')" style="background:var(--teal-glow);border:none;color:var(--teal);cursor:pointer;font-size:0.85rem;padding:6px 12px;border-radius:20px;font-weight:600;font-family:'Inter',sans-serif;transition:all 0.2s;"><i class="fas fa-rotate-left"></i> Revert</button>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+            <td><strong>${formatDate(edit.timestamp)}</strong></td>
+            <td><code>${edit.page}</code></td>
+            <td><span class="banner-tag" style="background:#e2e8f0;color:var(--text-secondary);border:none;">&lt;${edit.type}&gt;</span></td>
+            <td style="color:var(--text-muted);font-style:italic;" title="${escapeHtml(edit.oldText)}">${escapeHtml(trunc(edit.oldText))}</td>
+            <td style="color:var(--teal);font-weight:500;" title="${escapeHtml(edit.newText)}">${escapeHtml(trunc(edit.newText))}</td>
+            <td style="text-align:center;">${reverseBtn}</td>
+        `;
+                tbody.appendChild(tr);
+            });
+        });
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+
+</html>

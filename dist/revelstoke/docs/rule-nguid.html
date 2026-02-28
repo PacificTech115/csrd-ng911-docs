@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRD NG911 — 2. NGUID Rule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- SIDEBAR -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+      <h2>Revelstoke Portal</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="guide-revelstoke.html" class=""><i class="fas fa-home"></i> User Guide</a>
+      <div class="nav-group-label" style="margin-top:20px;">Technical References</div>
+      <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+      <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+      <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    </nav>
+    <div class="sidebar-footer">CSRD NG911 &copy; 2026 &middot; Pacific Tech Systems</div>
+  </aside>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb"><span class="current">Revelstoke Reference</span></div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--accent)">
+        <i class="fas fa-fingerprint"></i>
+      </div>
+      <div class="banner-info">
+        <h1>2. NGUID</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-bullseye"></i>&nbsp; Target: NGUID</span>
+          <span class="banner-tag"><i class="fas fa-bolt"></i>&nbsp; Triggers: Insert / Update</span>
+          <span class="banner-tag"><i class="fas fa-calculator"></i>&nbsp; Type: Calculation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- DESCRIPTION -->
+<section>
+  <h2 class="reveal">Description</h2>
+  <p class="reveal">Generates the National Geographic Unique Identifier (NGUID) in URN format as specified by NENA standards. The NGUID uniquely identifies each address point using the feature's GlobalID combined with the agency identifier (DiscrpAgID). Format: <code>urn:emergency:uid:gis:SSAP:{GlobalID}:{DiscrpAgID}</code></p>
+</section>
+
+<!-- METADATA -->
+<section>
+  <h2 class="reveal">Metadata</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Target Field</td><td><code>NGUID</code></td></tr>
+        <tr><td>Triggers</td><td>Insert, Update</td></tr>
+        <tr><td>Input Fields</td><td><code>GlobalID</code>, <code>DiscrpAgID</code></td></tr>
+        <tr><td>Output Format</td><td><code>urn:emergency:uid:gis:SSAP:{GlobalID}:{DiscrpAgID}</code></td></tr>
+        <tr><td>Returns</td><td>URN string or <code>Null</code> if DiscrpAgID is empty</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FULL SOURCE CODE -->
+<section>
+  <details class="source-collapse reveal">
+    <summary>Full Source Code</summary>
+    <div class="collapse-content">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-tag">Arcade</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+<pre><span class="code-section" data-section="1"><span class="kw">var</span> ag = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.DiscrpAgID, <span class="str">""</span>));
+<span class="kw">if</span> (ag == <span class="str">""</span>) <span class="kw">return</span> <span class="bi">Null</span>;</span>
+
+<span class="code-section" data-section="2"><span class="cm">// GlobalID sometimes comes with { } — strip them</span>
+<span class="kw">var</span> gid = <span class="fn">Text</span>(<span class="var">$feature</span>.GlobalID);
+gid = <span class="fn">Replace</span>(<span class="fn">Replace</span>(gid, <span class="str">"{"</span>, <span class="str">""</span>), <span class="str">"}"</span>, <span class="str">""</span>);</span>
+
+<span class="code-section" data-section="3"><span class="kw">return</span> <span class="str">"urn:emergency:uid:gis:SSAP:"</span> + gid + <span class="str">":"</span> + ag;</span></pre>
+    </div>
+    <div class="section-popup" id="sectionPopup"></div>
+    </div>
+  </details>
+</section>
+
+<!-- SECTION-BY-SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal">Section-by-Section Breakdown</h2>
+
+  <div class="breakdown-card reveal" data-section="1">
+    <h4>1. Agency Validation</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 1 &ndash; 2</span>
+      <span class="meta-tag">Input: DiscrpAgID</span>
+      <span class="meta-tag">Output: Null (early exit)</span>
+    </div>
+    <p>Ensures the agency identifier exists before building the NGUID. Returns <code>Null</code> immediately if <code>DiscrpAgID</code> is empty or null, preventing invalid URNs.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li><code>ag = Trim(DefaultValue($feature.DiscrpAgID, ""))</code></li>
+        <li>If <code>ag == ""</code> → <code>return Null</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Replace <code>DiscrpAgID</code> with your agency field name. Must run before GlobalID/URN logic.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="2">
+    <h4>2. GlobalID Normalization</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 4 &ndash; 6</span>
+      <span class="meta-tag">Input: GlobalID (system)</span>
+      <span class="meta-tag">Output: string</span>
+    </div>
+    <p>Converts GlobalID to text and strips curly braces <code>{</code> and <code>}</code>. ArcGIS may store GUIDs as <code>{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}</code>; this produces <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</code>.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li><code>gid = Text($feature.GlobalID)</code></li>
+        <li><code>gid = Replace(Replace(gid, "{", ""), "}", "")</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>GlobalID is a system field; do not rename. Brace stripping handles both formats.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal" data-section="3">
+    <h4>3. URN Assembly</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Line 8</span>
+      <span class="meta-tag">Output: NGUID string</span>
+    </div>
+    <p>Builds the NENA-standard NGUID URN. Format: <code>urn:emergency:uid:gis:SSAP:{GlobalID}:{DiscrpAgID}</code>.</p>
+    <div class="breakdown-detail">
+      <strong>URN structure</strong>
+      <ul>
+        <li>Prefix: <code>urn:emergency:uid:gis:SSAP:</code> (fixed)</li>
+        <li>GlobalID: cleaned, no braces</li>
+        <li>Agency: from DiscrpAgID</li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li><code>return "urn:emergency:uid:gis:SSAP:" + gid + ":" + ag;</code></li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Different prefix: change the string literal. Add components: append before the final <code>ag</code> (e.g., <code>+ ":" + region</code>).</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+(function(){
+  var popup = document.getElementById('sectionPopup');
+  var sections = document.querySelectorAll('.code-section');
+  var cards = document.querySelectorAll('.breakdown-card[data-section]');
+  var META = [
+    {title:'Agency Validation',lines:'Lines 1\u20132',fields:'DiscrpAgID',desc:'Checks if the agency identifier is present. Returns Null if empty.',maint:'Update $feature reference if agency field name changes.'},
+    {title:'GlobalID Normalization',lines:'Lines 4\u20136',fields:'GlobalID',desc:'Converts GlobalID to text and strips curly braces for clean GUID format.',maint:'No changes needed. Brace stripping is defensive.'},
+    {title:'URN Assembly',lines:'Line 8',fields:'(derived)',desc:'Concatenates URN prefix, cleaned GlobalID, and agency ID into NENA-standard format.',maint:'Update string literal if URN prefix changes.'}
+  ];
+  var activeSection = null;
+
+  sections.forEach(function(span){
+    span.addEventListener('mouseenter', function(e){
+      var idx = parseInt(this.dataset.section);
+      var m = META[idx - 1];
+      if (!m) return;
+      activeSection = idx;
+      this.classList.add('active');
+      cards.forEach(function(c){ c.classList.toggle('highlight', parseInt(c.dataset.section) === idx); });
+      popup.innerHTML = '<h4><span class="popup-num">' + idx + '</span>' + m.title + '</h4>'
+        + '<div class="popup-meta">' + (m.lines ? '<span class="popup-tag">' + m.lines + '</span>' : '')
+        + (m.fields ? '<span class="popup-tag">Fields: ' + m.fields + '</span>' : '') + '</div>'
+        + '<p>' + m.desc + '</p>'
+        + (m.maint ? '<div class="popup-maint"><strong>Maintenance:</strong> ' + m.maint + '</div>' : '');
+      popup.classList.add('visible');
+    });
+    span.addEventListener('mousemove', function(e){
+      var x = Math.min(e.clientX + 16, window.innerWidth - 360);
+      var y = Math.min(e.clientY - 10, window.innerHeight - popup.offsetHeight - 10);
+      popup.style.left = x + 'px';
+      popup.style.top = Math.max(10, y) + 'px';
+    });
+    span.addEventListener('mouseleave', function(){
+      this.classList.remove('active');
+      popup.classList.remove('visible');
+      cards.forEach(function(c){ c.classList.remove('highlight'); });
+      activeSection = null;
+    });
+  });
+
+  cards.forEach(function(card){
+    var idx = parseInt(card.dataset.section);
+    var codeSection = document.querySelector('.code-section[data-section="'+idx+'"]');
+    if (codeSection) {
+      var reveal = document.createElement('div');
+      reveal.className = 'breakdown-code-reveal';
+      var pre = document.createElement('pre');
+      pre.textContent = codeSection.textContent;
+      reveal.appendChild(pre);
+      card.parentNode.insertBefore(reveal, card.nextSibling);
+    }
+    card.addEventListener('mouseenter', function(){
+      var idx = parseInt(this.dataset.section);
+      sections.forEach(function(s){ s.classList.toggle('active', parseInt(s.dataset.section) === idx); });
+      this.classList.add('highlight');
+    });
+    card.addEventListener('mouseleave', function(){
+      sections.forEach(function(s){ s.classList.remove('active'); });
+      this.classList.remove('highlight');
+    });
+    card.addEventListener('click', function(e){
+      e.preventDefault();
+      var rev = this.nextElementSibling;
+      if (rev && rev.classList.contains('breakdown-code-reveal')) rev.classList.toggle('visible');
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

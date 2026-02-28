@@ -1,0 +1,14 @@
+\contentsline {section}{\numberline {1}Purpose and scope}{2}{section.1}%
+\contentsline {section}{\numberline {2}System access details}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Portal and item URLs}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}User credentials}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Role guidance}{2}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Step-by-step editing workflow}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Step 1: Log in to the CSRD portal}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Step 2: Navigate to the Golden NG911 group}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Step 3: Open the editing feature layer item}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Step 4: Open in ArcGIS Pro}{7}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Step 5: Edit records}{8}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Step 6: Save edits}{10}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Step 7: Verification of changes}{11}{subsection.3.7}%
+\contentsline {section}{\numberline {4}Version control}{12}{section.4}%

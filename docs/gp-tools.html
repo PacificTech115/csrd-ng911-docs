@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArcGIS GP Tools — CSRD NG911 Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <h2>Docs &amp; Maintenance</h2>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
+    <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+    <div class="nav-group-label">1. Technical Documentation</div>
+    <div class="nav-sub-label">Database</div>
+    <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+    <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+    <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    <div class="nav-sub-label">Automations</div>
+    <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+    <a href="gp-tools.html" class="nav-indent active"><i class="fas fa-gears"></i> GP Tools</a>
+    <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+    <div class="nav-group-label">2. Maintenance Guide</div>
+    <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+    <div class="nav-group-label">3. Municipal Guides</div>\n    <a href="guide-golden.html" class="nav-indent"><i class="fas fa-city"></i> Golden</a>\n    <a href="guide-revelstoke.html" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>\n    <a href="guide-salmonarm.html" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>\n    <a href="guide-sicamous.html" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>\n    <div class="nav-group-label">4. Version Control</div>`n    <a href="version-edits.html"><i class="fas fa-history"></i> Version Edits</a>`n    <div class="nav-group-label">5. Quick Reference</div>
+    <a href="quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
+  </nav>
+  <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+<!-- ═══ PAGE HEADER ═══ -->
+<header class="page-header">
+  <div class="page-header-content">
+    <nav class="breadcrumb">
+      <a href="../Documentation.html">Home</a>
+      <i class="fas fa-chevron-right sep"></i>
+      <span>Technical Documentation</span>
+      <i class="fas fa-chevron-right sep"></i>
+      <span class="current">GP Tools</span>
+    </nav>
+    <h1><span>ArcGIS</span> GP Tools</h1>
+    <div class="subtitle">3 server-side geoprocessing services for database operations</div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- INFO ALERT -->
+<section>
+  <div class="alert info reveal">
+    <i class="fas fa-info-circle"></i>
+    <span>These GP services run server-side on ArcGIS Server and are called by the Nightly Orchestrator notebook. They operate directly on the enterprise geodatabase.</span>
+  </div>
+</section>
+
+<!-- GP TOOL CARDS -->
+<section>
+  <div class="grid-2 reveal">
+
+    <a class="link-card" href="script-qa.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon blue"><i class="fas fa-clipboard-check"></i></div>
+          <h4>QA Validation Tool</h4>
+          <span class="card-tag" style="background:var(--accent-glow);color:var(--accent)">GP Service</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Schema validation, NGUID checks, mandatory nulls, duplicate detection</p>
+      </div>
+    </a>
+
+    <a class="link-card reveal-delay-1" href="script-reconcile.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon amber"><i class="fas fa-code-branch"></i></div>
+          <h4>Reconcile/Post Tool</h4>
+          <span class="card-tag" style="background:rgba(245,158,11,.1);color:var(--amber)">GP Service</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Traditional versioning reconcile/post with 3 stage modes</p>
+      </div>
+    </a>
+
+    <a class="link-card reveal" href="script-export.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green"><i class="fas fa-file-export"></i></div>
+          <h4>Export Tool</h4>
+          <span class="card-tag" style="background:rgba(34,197,94,.1);color:var(--green)">GP Service</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Exports DEFAULT to FGDB ZIP, copies to network share</p>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- HOW GP TOOLS FIT THE PIPELINE -->
+<section>
+  <h3 class="reveal">How GP Tools Fit the Pipeline</h3>
+  <p class="reveal">The Nightly Orchestrator notebook (an ArcGIS Notebook Server script) calls these GP tools as server-side operations via their REST endpoints. Each tool runs within the ArcGIS Server context with direct SDE access to the enterprise geodatabase.</p>
+
+  <div class="pipeline reveal">
+    <div class="pipeline-step s1">Orchestrator<small>Notebook</small></div>
+    <div class="pipeline-arrow"><div class="dot"></div></div>
+    <div class="pipeline-step s2">calls<small>REST endpoints</small></div>
+    <div class="pipeline-arrow"><div class="dot" style="animation-delay:.4s"></div></div>
+    <div class="pipeline-step s3">GP Tools<small>QA · Reconcile · Export</small></div>
+    <div class="pipeline-arrow"><div class="dot" style="animation-delay:.8s"></div></div>
+    <div class="pipeline-step s4">operates on<small>Enterprise GDB</small></div>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.reveal').forEach(el=>io.observe(el))})();
+
+(function(){const bar=document.getElementById('progress');function u(){const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=(h>0?Math.min(s/h*100,100):0)+'%'}window.addEventListener('scroll',u,{passive:true});u()})();
+
+(function(){const b=document.getElementById('backToTop');window.addEventListener('scroll',()=>{b.classList.toggle('visible',window.scrollY>400)},{passive:true})})();
+
+(function(){document.querySelectorAll('.sidebar-nav a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.sidebar').classList.remove('open')))})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

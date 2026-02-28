@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRD NG911 — QA Validation Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <h2>Docs &amp; Maintenance</h2>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
+    <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+    <div class="nav-group-label">1. Technical Documentation</div>
+    <div class="nav-sub-label">Database</div>
+    <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+    <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+    <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    <div class="nav-sub-label">Automations</div>
+    <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+    <a href="gp-tools.html" class="nav-indent active"><i class="fas fa-gears"></i> GP Tools</a>
+    <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+    <div class="nav-group-label">2. Maintenance Guide</div>
+    <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+    <div class="nav-group-label">3. Municipal Guides</div>\n    <a href="guide-golden.html" class="nav-indent"><i class="fas fa-city"></i> Golden</a>\n    <a href="guide-revelstoke.html" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>\n    <a href="guide-salmonarm.html" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>\n    <a href="guide-sicamous.html" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>\n    <div class="nav-group-label">4. Version Control</div>`n    <a href="version-edits.html"><i class="fas fa-history"></i> Version Edits</a>`n    <div class="nav-group-label">5. Quick Reference</div>
+    <a href="quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
+  </nav>
+  <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="../Documentation.html">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="gp-tools.html">GP Tools</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">QA Validation Tool</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--accent)">
+        <i class="fas fa-clipboard-check"></i>
+      </div>
+      <div class="banner-info">
+        <h1>QA Validation Tool</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-gear"></i>&nbsp; Type: GP Service</span>
+          <span class="banner-tag"><i class="fas fa-file-code"></i>&nbsp; File: QASSAPGPtool.py</span>
+          <span class="banner-tag"><i class="fas fa-list-ol"></i>&nbsp; Parameters: 15</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- PURPOSE -->
+<section>
+  <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose</h2>
+  <p class="reveal">Comprehensive SSAP data quality validation published as an ArcGIS GP service. Performs schema comparison, NGUID integrity checks, mandatory field validation, and address duplicate detection. Updates the <code>QAStatus</code> field on each feature with a pass/warning/error result and generates CSV artifacts for review.</p>
+</section>
+
+
+<!-- FULL SOURCE CODE (auto-embedded) -->
+<section>
+  <h2 class="reveal"><i class="fas fa-file-code"></i>&nbsp; Full Source Code</h2>
+  <div class="doc-meta reveal">
+    <span><i class="fas fa-ruler-horizontal"></i> 973 lines</span>
+    <span><i class="fas fa-file"></i> QASSAPGPtool.py</span>
+  </div>
+  <button class="doc-toggle reveal" type="button" data-target="fullsrc-script-qa" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show full source (973 lines)</span>
+  </button>
+  <div id="fullsrc-script-qa" class="doc-body collapsed">
+    <div class="code-block">
+      <div class="code-header"><span>Python — QASSAPGPtool.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre># QASSAPGPtool.py
+# QA automation script tool for SSAP.
+# Runs schema/NGUID/mandatory/null/duplicate checks and can update QAStatus.
+#
+# Expected Script Tool parameters (ORDER MATTERS):
+#   0 target_layer          (String)  -&gt; URL/itemid[:layer]/path
+#   1 schema_json           (File)
+#   2 dataset_name          (String, optional)
+#   3 mode                  (String)  -&gt; &quot;all&quot; | &quot;required&quot; | &quot;nonnullable&quot;
+#   4 check_types           (Boolean)
+#   5 check_lengths         (Boolean)
+#   6 check_nguid_format    (Boolean)
+#   7 normalize_nguid       (Boolean)
+#   8 mandatory_fields      (String)  -&gt; semicolon delimited
+#   9 address_dup_field     (String)
+#  10 address_dup_max_rows  (Long)
+#  11 qa_status_field       (String)
+#  12 update_qa_status      (Boolean)
+#  13 out_log_folder        (Folder)
+#  14 result_json           (String, OUTPUT/DERIVED)
+
+import arcpy
+import csv
+import json
+import os
+import re
+import traceback
+from collections import Counter
+from datetime import datetime, timedelta
+
+# Missing fields listed here are warnings only (do not fail QA).
+NON_BLOCKING_MISSING_FIELDS = {&quot;shape&quot;}
+ISSUE_SAMPLE_LIMIT = 5
+# Only newly created rows in this lookback window are included in QA scope.
+NEW_FEATURE_LOOKBACK_HOURS = 24
+CREATED_DATE_FIELD_CANDIDATES = (&quot;created_date&quot;, &quot;createdate&quot;)
+
+
+def _msg(s: str):
+    arcpy.AddMessage(s)
+
+
+def _warn(s: str):
+    arcpy.AddWarning(s)
+
+
+def _err(s: str):
+    arcpy.AddError(s)
+
+
+def _ensure_dir(path: str):
+    if not path:
+        raise ValueError(&quot;out_log_folder is empty or None.&quot;)
+    os.makedirs(path, exist_ok=True)
+
+
+def _normalize_list(s: str) -&gt; str:
+    if not s:
+        return &quot;&quot;
+    parts = [p.strip() for p in s.split(&quot;;&quot;)]
+    parts = [p for p in parts if p]
+    return &quot;;&quot;.join(parts)
+
+
+def _normalize_type(t):
+    if not t:
+        return &quot;&quot;
+    t_low = str(t).lower()
+    mapping = {
+        &quot;esrifieldtypestring&quot;: &quot;String&quot;,
+        &quot;esrifieldtypeinteger&quot;: &quot;Integer&quot;,
+        &quot;esrifieldtypesmallinteger&quot;: &quot;SmallInteger&quot;,
+        &quot;esrifieldtypedouble&quot;: &quot;Double&quot;,
+        &quot;esrifieldtypesingle&quot;: &quot;Single&quot;,
+        &quot;esrifieldtypedate&quot;: &quot;Date&quot;,
+        &quot;esrifieldtypeoid&quot;: &quot;OID&quot;,
+        &quot;esrifieldtypegeometry&quot;: &quot;Geometry&quot;,
+        &quot;esrifieldtypeguid&quot;: &quot;GUID&quot;,
+        &quot;esrifieldtypeglobalid&quot;: &quot;GlobalID&quot;,
+        &quot;string&quot;: &quot;String&quot;,
+        &quot;text&quot;: &quot;String&quot;,
+        &quot;integer&quot;: &quot;Integer&quot;,
+        &quot;smallinteger&quot;: &quot;SmallInteger&quot;,
+        &quot;double&quot;: &quot;Double&quot;,
+        &quot;single&quot;: &quot;Single&quot;,
+        &quot;date&quot;: &quot;Date&quot;,
+        &quot;oid&quot;: &quot;OID&quot;,
+        &quot;geometry&quot;: &quot;Geometry&quot;,
+        &quot;guid&quot;: &quot;GUID&quot;,
+        &quot;globalid&quot;: &quot;GlobalID&quot;,
+    }
+    return mapping.get(t_low, str(t))
+
+
+def _load_expected_fields(schema_path, dataset_name=None, mode=&quot;all&quot;):
+    with open(schema_path, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        schema = json.load(f)
+    datasets = schema.get(&quot;datasets&quot;, [])
+    fcs = [d for d in datasets if d.get(&quot;datasetType&quot;) == &quot;esriDTFeatureClass&quot;]
+    if not fcs:
+        raise ValueError(&quot;No feature classes found in schema JSON.&quot;)
+    if dataset_name:
+        matches = [d for d in fcs if d.get(&quot;name&quot;, &quot;&quot;).lower() == dataset_name.lower()]
+        if not matches:
+            available = &quot;, &quot;.join(d.get(&quot;name&quot;, &quot;&quot;) for d in fcs)
+            raise ValueError(f&quot;Dataset '{dataset_name}' not found. Available: {available}&quot;)
+        ds = matches[0]
+    else:
+        ds = fcs[0]
+    fields = ds.get(&quot;fields&quot;, {}).get(&quot;fieldArray&quot;, [])
+    expected = {}
+    mode = (mode or &quot;all&quot;).lower()
+    for fld in fields:
+        name = fld.get(&quot;name&quot;)
+        if not name:
+            continue
+        fld_type_norm = _normalize_type(fld.get(&quot;type&quot;))
+        required = bool(fld.get(&quot;required&quot;, False))
+        is_nullable = fld.get(&quot;isNullable&quot;, True)
+        include = True
+        if mode == &quot;required&quot;:
+            include = required
+        elif mode == &quot;nonnullable&quot;:
+            include = required or (is_nullable is False)
+        if include:
+            expected[name.lower()] = {
+                &quot;name&quot;: name,
+                &quot;type&quot;: fld_type_norm,
+                &quot;length&quot;: fld.get(&quot;length&quot;),
+                &quot;required&quot;: required,
+                &quot;isNullable&quot;: is_nullable,
+            }
+    return expected
+
+
+def _get_actual_fields(target):
+    if not arcpy.Exists(target):
+        raise ValueError(f&quot;Target does not exist or is not accessible: {target}&quot;)
+    out = []
+    for f in arcpy.ListFields(target):
+        out.append({&quot;name&quot;: f.name, &quot;type&quot;: _normalize_type(f.type), &quot;length&quot;: getattr(f, &quot;length&quot;, None)})
+    return out
+
+
+def _compare_fields(expected, actual, check_types=True, check_lengths=True):
+    actual_map = {f[&quot;name&quot;].lower(): f for f in actual}
+    expected_keys = set(expected.keys())
+    actual_keys = set(actual_map.keys())
+    missing = sorted(expected_keys - actual_keys)
+    extra = sorted(actual_keys - expected_keys)
+    details = []
+    for key in sorted(expected_keys):
+        exp = expected[key]
+        act = actual_map.get(key)
+        status = &quot;OK&quot; if act else &quot;MISSING&quot;
+        act_type = _normalize_type(act[&quot;type&quot;]) if act else &quot;&quot;
+        act_len = act.get(&quot;length&quot;) if act else None
+        type_ok = None
+        len_ok = None
+        if act and check_types:
+            type_ok = (_normalize_type(exp[&quot;type&quot;]) == act_type)
+        if act and check_lengths:
+            exp_len = exp.get(&quot;length&quot;)
+            len_ok = (exp_len == act_len) if exp_len is not None and act_len is not None else None
+        details.append({
+            &quot;Field&quot;: exp[&quot;name&quot;],
+            &quot;Status&quot;: status,
+            &quot;ExpectedType&quot;: exp[&quot;type&quot;],
+            &quot;ActualType&quot;: act_type,
+            &quot;TypeMatch&quot;: type_ok if check_types else None,
+            &quot;ExpectedLength&quot;: exp.get(&quot;length&quot;),
+            &quot;ActualLength&quot;: act_len,
+            &quot;LengthMatch&quot;: len_ok if check_lengths else None,
+            &quot;Required&quot;: exp.get(&quot;required&quot;),
+            &quot;Nullable&quot;: exp.get(&quot;isNullable&quot;),
+        })
+    return missing, extra, details
+
+
+def _norm_guid(val, normalize=True):
+    if val is None:
+        return None
+    s = str(val).strip()
+    if s == &quot;&quot;:
+        return &quot;&quot;
+    return s.upper() if normalize else s
+
+
+def _norm_text(val):
+    if val is None:
+        return None
+    s = str(val).strip()
+    if s == &quot;&quot;:
+        return &quot;&quot;
+    return s.upper()
+
+
+def _is_passed_status(val):
+    if val is None:
+        return False
+    return str(val).strip().lower() == &quot;passed&quot;
+
+
+def _is_newly_created(val, cutoff_dt):
+    if val in (None, &quot;&quot;):
+        return False
+    dt_val = None
+    if isinstance(val, datetime):
+        dt_val = val
+    else:
+        # ArcPy date values are usually datetime; keep a defensive parse fallback.
+        txt = str(val).strip()
+        if txt:
+            try:
+                dt_val = datetime.fromisoformat(txt.replace(&quot;Z&quot;, &quot;+00:00&quot;))
+            except Exception:
+                return False
+    if dt_val is None:
+        return False
+    # Handle timezone-aware datetimes safely by converting cutoff to same tz-awareness.
+    if dt_val.tzinfo is not None and cutoff_dt.tzinfo is None:
+        cutoff_dt = cutoff_dt.replace(tzinfo=dt_val.tzinfo)
+    return dt_val &gt;= cutoff_dt
+
+
+def _resolve_check_scope(target, qa_status_field, lookback_hours=NEW_FEATURE_LOOKBACK_HOURS):
+    oid_field = arcpy.Describe(target).OIDFieldName
+    field_map = {f.name.lower(): f.name for f in arcpy.ListFields(target)}
+    qa_status_actual = field_map.get((qa_status_field or &quot;&quot;).lower())
+    created_actual = None
+    for c in CREATED_DATE_FIELD_CANDIDATES:
+        if c.lower() in field_map:
+            created_actual = field_map[c.lower()]
+            break
+
+    cursor_fields = [oid_field]
+    if qa_status_actual:
+        cursor_fields.append(qa_status_actual)
+    if created_actual:
+        cursor_fields.append(created_actual)
+
+    cutoff_dt = datetime.now() - timedelta(hours=lookback_hours)
+    scoped_oids = set()
+    count_not_passed = 0
+    count_new = 0
+    total_rows = 0
+    status_counts = Counter()
+
+    with arcpy.da.SearchCursor(target, cursor_fields) as cur:
+        for row in cur:
+            total_rows += 1
+            row_map = {cursor_fields[i]: row[i] for i in range(len(cursor_fields))}
+            oid = row_map.get(oid_field)
+            if oid is None:
+                continue
+
+            needs_check = False
+            if qa_status_actual:
+                status_val = row_map.get(qa_status_actual)
+                status_key = str(status_val).strip() if status_val not in (None, &quot;&quot;) else &quot;(blank)&quot;
+                status_counts[status_key] += 1
+                if not _is_passed_status(status_val):
+                    needs_check = True
+                    count_not_passed += 1
+            else:
+                # Without QAStatus field, fall back to checking all rows.
+                needs_check = True
+
+            if created_actual and _is_newly_created(row_map.get(created_actual), cutoff_dt):
+                needs_check = True
+                count_new += 1
+
+            if needs_check:
+                scoped_oids.add(oid)
+
+    return {
+        &quot;oid_field&quot;: oid_field,
+        &quot;qa_status_field_actual&quot;: qa_status_actual,
+        &quot;created_date_field_actual&quot;: created_actual,
+        &quot;lookback_hours&quot;: lookback_hours,
+        &quot;total_rows&quot;: total_rows,
+        &quot;rows_in_scope&quot;: len(scoped_oids),
+        &quot;rows_not_passed&quot;: count_not_passed,
+        &quot;rows_newly_created&quot;: count_new,
+        &quot;status_counts&quot;: dict(status_counts.most_common(50)),
+        &quot;scoped_oids&quot;: scoped_oids,
+    }
+
+
+def _summarize(values, check_format=False):
+    total = len(values)
+    null_count = sum(v is None for v in values)
+    empty_count = sum(v == &quot;&quot; for v in values if v is not None)
+    candidates = [v for v in values if v not in (None, &quot;&quot;)]
+    counts = Counter(candidates)
+    dupes = [(k, c) for k, c in counts.items() if c &gt; 1]
+    dupes.sort(key=lambda x: x[1], reverse=True)
+    invalid = []
+    if check_format:
+        guid_re = re.compile(r&quot;^[{(]?[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}[)}]?$&quot;, re.I)
+        invalid = [v for v in candidates if not guid_re.match(str(v))]
+    return {
+        &quot;total_records&quot;: total,
+        &quot;null_count&quot;: null_count,
+        &quot;empty_count&quot;: empty_count,
+        &quot;nonempty_count&quot;: len(candidates),
+        &quot;unique_nonempty_count&quot;: len(counts),
+        &quot;duplicate_count&quot;: len(dupes),
+        &quot;duplicate_examples&quot;: dupes,
+        &quot;invalid_format_count&quot;: len(invalid),
+        &quot;invalid_examples&quot;: invalid[:50],
+    }
+
+
+def _check_nguid(target, normalize=True, check_format=False, scoped_oids=None):
+    values = []
+    oid_field = arcpy.Describe(target).OIDFieldName
+    with arcpy.da.SearchCursor(target, [oid_field, &quot;NGUID&quot;]) as cur:
+        for oid, v in cur:
+            if scoped_oids is not None and oid not in scoped_oids:
+                continue
+            values.append(_norm_guid(v, normalize))
+    summary = _summarize(values, check_format=check_format)
+    return {
+        &quot;total_records&quot;: summary[&quot;total_records&quot;],
+        &quot;null_nguid&quot;: summary[&quot;null_count&quot;],
+        &quot;empty_nguid&quot;: summary[&quot;empty_count&quot;],
+        &quot;nonempty_nguid&quot;: summary[&quot;nonempty_count&quot;],
+        &quot;unique_nonempty_nguid&quot;: summary[&quot;unique_nonempty_count&quot;],
+        &quot;duplicate_nguid_count&quot;: summary[&quot;duplicate_count&quot;],
+        &quot;duplicate_examples&quot;: summary[&quot;duplicate_examples&quot;],
+        &quot;invalid_format_count&quot;: summary[&quot;invalid_format_count&quot;],
+        &quot;invalid_examples&quot;: summary[&quot;invalid_examples&quot;],
+    }
+
+
+def _check_mandatory_nulls(target, fields, scoped_oids=None):
+    if not fields:
+        return []
+    oid_field = arcpy.Describe(target).OIDFieldName
+    totals = {f: 0 for f in fields}
+    nulls = {f: 0 for f in fields}
+    cursor_fields = [oid_field] + fields
+    with arcpy.da.SearchCursor(target, cursor_fields) as cur:
+        for row in cur:
+            oid = row[0]
+            if scoped_oids is not None and oid not in scoped_oids:
+                continue
+            for idx, val in enumerate(row[1:]):
+                fld = fields[idx]
+                totals[fld] += 1
+                if val in (None, &quot;&quot;):
+                    nulls[fld] += 1
+    return [{&quot;field&quot;: f, &quot;total&quot;: totals[f], &quot;null_count&quot;: nulls[f], &quot;non_null&quot;: totals[f] - nulls[f]} for f in fields]
+
+
+def _collect_null_failures(target, mandatory_fields, max_rows=5000, sample_limit=ISSUE_SAMPLE_LIMIT, scoped_oids=None):
+    if not mandatory_fields:
+        return {&quot;total_failed_features&quot;: 0, &quot;sample_failed_features&quot;: [], &quot;rows&quot;: []}
+    all_fields = {f.name.lower(): f.name for f in arcpy.ListFields(target)}
+    mandatory_present = [all_fields[f.lower()] for f in mandatory_fields if f.lower() in all_fields]
+    oid_field = arcpy.Describe(target).OIDFieldName
+    nguid_field = all_fields.get(&quot;nguid&quot;)
+    cursor_fields = [oid_field] + mandatory_present
+    if nguid_field and nguid_field not in cursor_fields:
+        cursor_fields.append(nguid_field)
+
+    rows = []
+    samples = []
+    with arcpy.da.SearchCursor(target, cursor_fields) as cur:
+        for row in cur:
+            row_map = {cursor_fields[i]: row[i] for i in range(len(cursor_fields))}
+            if scoped_oids is not None and row_map.get(oid_field) not in scoped_oids:
+                continue
+            failing_fields = [f for f in mandatory_present if row_map.get(f) in (None, &quot;&quot;)]
+            if not failing_fields:
+                continue
+            item = {
+                &quot;object_id&quot;: row_map.get(oid_field),
+                &quot;nguid&quot;: row_map.get(nguid_field) if nguid_field else None,
+                &quot;failing_fields&quot;: failing_fields,
+            }
+            rows.append(item)
+            if len(samples) &lt; sample_limit:
+                samples.append(item)
+            if len(rows) &gt;= max_rows:
+                break
+
+    return {
+        &quot;total_failed_features&quot;: len(rows),
+        &quot;sample_failed_features&quot;: samples,
+        &quot;rows&quot;: rows,
+        &quot;truncated&quot;: len(rows) &gt;= max_rows,
+    }
+
+
+def _check_duplicates(target, field_name, scoped_oids=None):
+    if not field_name:
+        return {&quot;skipped&quot;: True, &quot;reason&quot;: &quot;field_name not provided&quot;}
+    fields = [f.name.lower() for f in arcpy.ListFields(target)]
+    if field_name.lower() not in fields:
+        return {&quot;skipped&quot;: True, &quot;reason&quot;: f&quot;field '{field_name}' not found&quot;}
+    fields_map = {f.name.lower(): f.name for f in arcpy.ListFields(target)}
+    oid_field = arcpy.Describe(target).OIDFieldName
+    nguid_field = fields_map.get(&quot;nguid&quot;)
+    values = []
+    value_rows = []
+    cursor_fields = [oid_field, field_name]
+    if nguid_field:
+        cursor_fields.append(nguid_field)
+    with arcpy.da.SearchCursor(target, cursor_fields) as cur:
+        for row in cur:
+            oid = row[0]
+            if scoped_oids is not None and oid not in scoped_oids:
+                continue
+            v = row[1]
+            nguid_val = row[2] if len(row) &gt; 2 else None
+            norm = _norm_text(v)
+            values.append(norm)
+            value_rows.append((norm, oid, nguid_val))
+    summary = _summarize(values, check_format=False)
+    dup_map = {}
+    for val, oid, nguid_val in value_rows:
+        if val in (None, &quot;&quot;):
+            continue
+        dup_map.setdefault(val, []).append({&quot;object_id&quot;: oid, &quot;nguid&quot;: nguid_val})
+    dupes_detail = []
+    for val, items in dup_map.items():
+        if len(items) &gt; 1:
+            dupes_detail.append({
+                &quot;value&quot;: val,
+                &quot;count&quot;: len(items),
+                &quot;object_ids&quot;: [i[&quot;object_id&quot;] for i in items],
+                &quot;nguids&quot;: [i[&quot;nguid&quot;] for i in items],
+            })
+    return {
+        &quot;total_records&quot;: summary[&quot;total_records&quot;],
+        &quot;null_value_count&quot;: summary[&quot;null_count&quot;],
+        &quot;empty_value_count&quot;: summary[&quot;empty_count&quot;],
+        &quot;duplicate_nguid_count&quot;: summary[&quot;duplicate_count&quot;],
+        &quot;duplicate_examples&quot;: summary[&quot;duplicate_examples&quot;],
+        &quot;duplicates_detailed&quot;: dupes_detail,
+    }
+
+
+def _write_address_dup_csv(dup_report, out_log_folder, ts, max_rows):
+    dupes = dup_report.get(&quot;duplicates_detailed&quot;) or []
+    if not dupes:
+        return None
+    csv_path = os.path.join(out_log_folder, f&quot;address_duplicates_{ts}.csv&quot;)
+    rows_written = 0
+    with open(csv_path, &quot;w&quot;, encoding=&quot;utf-8&quot;, newline=&quot;&quot;) as f:
+        writer = csv.writer(f)
+        writer.writerow([&quot;AddressValue&quot;, &quot;ObjectID&quot;, &quot;NGUID&quot;])
+        for d in dupes:
+            val = d.get(&quot;value&quot;)
+            oids = d.get(&quot;object_ids&quot;, [])
+            nguids = d.get(&quot;nguids&quot;, [])
+            for idx, oid in enumerate(oids):
+                nguid = nguids[idx] if idx &lt; len(nguids) else None
+                writer.writerow([val, oid, nguid])
+                rows_written += 1
+                if rows_written &gt;= max_rows:
+                    writer.writerow([&quot;TRUNCATED&quot;, &quot;&quot;, f&quot;Reached max rows {max_rows}&quot;])
+                    return csv_path
+    return csv_path
+
+
+def _write_null_failures_csv(null_report, out_log_folder, ts, max_rows):
+    rows = null_report.get(&quot;rows&quot;) or []
+    if not rows:
+        return None
+    csv_path = os.path.join(out_log_folder, f&quot;mandatory_null_failures_{ts}.csv&quot;)
+    with open(csv_path, &quot;w&quot;, encoding=&quot;utf-8&quot;, newline=&quot;&quot;) as f:
+        writer = csv.writer(f)
+        writer.writerow([&quot;ObjectID&quot;, &quot;NGUID&quot;, &quot;FailingFields&quot;])
+        for idx, item in enumerate(rows):
+            if idx &gt;= max_rows:
+                writer.writerow([&quot;TRUNCATED&quot;, &quot;&quot;, f&quot;Reached max rows {max_rows}&quot;])
+                break
+            writer.writerow([item.get(&quot;object_id&quot;), item.get(&quot;nguid&quot;), &quot;; &quot;.join(item.get(&quot;failing_fields&quot;, []))])
+    return csv_path
+
+
+def _build_email_summary(result, report):
+    nguid = report.get(&quot;nguid_summary&quot;, {})
+    null_fields = [r[&quot;field&quot;] for r in (report.get(&quot;mandatory_nulls&quot;) or []) if r.get(&quot;null_count&quot;, 0) &gt; 0]
+    addr_count = (report.get(&quot;address_duplicates&quot;) or {}).get(&quot;duplicate_nguid_count&quot;, 0)
+    issues_by_agency = report.get(&quot;issues_by_agency&quot;) or {}
+    summary = {
+        &quot;status&quot;: result.get(&quot;status&quot;),
+        &quot;qa_passed&quot;: result.get(&quot;qa_passed&quot;),
+        &quot;missing_fields_count&quot;: len(report.get(&quot;missing_fields&quot;, [])),
+        &quot;missing_warnings_count&quot;: len(report.get(&quot;missing_warnings&quot;, [])),
+        &quot;nguid_duplicate_count&quot;: nguid.get(&quot;duplicate_nguid_count&quot;, 0),
+        &quot;nguid_invalid_count&quot;: nguid.get(&quot;invalid_format_count&quot;, 0),
+        &quot;mandatory_missing_count&quot;: len(report.get(&quot;mandatory_missing&quot;, [])),
+        &quot;mandatory_fields_with_nulls&quot;: null_fields,
+        &quot;failed_null_feature_count&quot;: (report.get(&quot;mandatory_null_failures&quot;) or {}).get(&quot;total_failed_features&quot;, 0),
+        &quot;address_duplicate_count&quot;: addr_count,
+        &quot;address_duplicates_warning_only&quot;: True,
+        &quot;scope_feature_count&quot;: issues_by_agency.get(&quot;scope_feature_count&quot;, 0),
+        &quot;passed_feature_count&quot;: issues_by_agency.get(&quot;passed_feature_count&quot;, 0),
+        &quot;issue_feature_count&quot;: issues_by_agency.get(&quot;issue_feature_count&quot;, 0),
+        &quot;warning_issue_feature_count&quot;: issues_by_agency.get(&quot;warning_issue_feature_count&quot;, 0),
+        &quot;blocking_issue_feature_count&quot;: issues_by_agency.get(&quot;blocking_issue_feature_count&quot;, 0),
+    }
+    lines = [
+        f&quot;QA Status: {result.get('status')}&quot;,
+        f&quot;QA Passed: {result.get('qa_passed')}&quot;,
+        f&quot;Scope: {summary['scope_feature_count']} | Passed: {summary['passed_feature_count']} | With issues: {summary['issue_feature_count']}&quot;,
+        f&quot;Missing fields: {summary['missing_fields_count']} (warnings: {summary['missing_warnings_count']})&quot;,
+        f&quot;NGUID duplicates: {summary['nguid_duplicate_count']} | NGUID invalid format: {summary['nguid_invalid_count']}&quot;,
+        f&quot;Mandatory missing fields: {summary['mandatory_missing_count']}&quot;,
+        f&quot;Mandatory-null failed features: {summary['failed_null_feature_count']}&quot;,
+        f&quot;Address duplicates (warning): {summary['address_duplicate_count']}&quot;,
+    ]
+    return summary, &quot;\n&quot;.join(lines)
+
+
+def _build_qastatus_updates(target, oid_field, qa_status_field, mandatory_fields, normalize_nguid, report, scoped_oids=None):
+    dup_nguid_values = {v for v, c in (report.get(&quot;nguid_summary&quot;, {}).get(&quot;duplicate_examples&quot;) or []) if c &gt; 1}
+    dup_addr_values = set()
+    for d in (report.get(&quot;address_duplicates&quot;) or {}).get(&quot;duplicates_detailed&quot;, []):
+        val = _norm_text(d.get(&quot;value&quot;))
+        if val:
+            dup_addr_values.add(val)
+
+    fields_lower = {f.name.lower(): f.name for f in arcpy.ListFields(target)}
+    mandatory_present = [fields_lower[f.lower()] for f in mandatory_fields if f.lower() in fields_lower]
+    nguid_field = fields_lower.get(&quot;nguid&quot;)
+    addr_field = None
+    if report.get(&quot;address_duplicates&quot;) and report[&quot;address_duplicates&quot;].get(&quot;field_name&quot;):
+        addr_field = fields_lower.get(report[&quot;address_duplicates&quot;][&quot;field_name&quot;].lower())
+
+    global_errors = []
+    if report.get(&quot;missing_fields&quot;):
+        global_errors.append(&quot;Missing fields: &quot; + &quot;, &quot;.join(report[&quot;missing_fields&quot;]))
+    if report.get(&quot;mandatory_missing&quot;):
+        global_errors.append(&quot;Mandatory fields missing: &quot; + &quot;, &quot;.join(report[&quot;mandatory_missing&quot;]))
+
+    fields_to_read = [oid_field] + mandatory_present
+    if nguid_field and nguid_field not in fields_to_read:
+        fields_to_read.append(nguid_field)
+    if addr_field and addr_field not in fields_to_read:
+        fields_to_read.append(addr_field)
+
+    updates = []
+    with arcpy.da.SearchCursor(target, fields_to_read) as cur:
+        for row in cur:
+            row_map = {fields_to_read[i]: row[i] for i in range(len(fields_to_read))}
+            oid = row_map.get(oid_field)
+            if oid is None:
+                continue
+            if scoped_oids is not None and oid not in scoped_oids:
+                continue
+            errors = list(global_errors)
+            warnings = []
+            for f in mandatory_present:
+                if row_map.get(f) in (None, &quot;&quot;):
+                    errors.append(f&quot;{f} is empty&quot;)
+            if nguid_field:
+                nguid_val = _norm_guid(row_map.get(nguid_field), normalize_nguid)
+                if nguid_val in (None, &quot;&quot;):
+                    errors.append(f&quot;{nguid_field} is empty&quot;)
+                elif nguid_val in dup_nguid_values:
+                    errors.append(&quot;Duplicate NGUID&quot;)
+            if addr_field:
+                addr_val = _norm_text(row_map.get(addr_field))
+                if addr_val in dup_addr_values:
+                    warnings.append(&quot;Duplicate address&quot;)
+
+            if errors:
+                status = &quot;; &quot;.join(dict.fromkeys(errors))
+            elif warnings:
+                status = &quot;Warning: &quot; + &quot;; &quot;.join(dict.fromkeys(warnings))
+            else:
+                status = &quot;Passed&quot;
+            updates.append((oid, status))
+    return updates
+
+
+def _apply_qastatus_updates(target, oid_field, qa_status_field, updates):
+    def _run_updates():
+        total_local = len(updates)
+        successes_local = 0
+        failures_local = 0
+        error_samples_local = []
+        upd_map = {oid: status for oid, status in updates}
+        with arcpy.da.UpdateCursor(target, [oid_field, qa_status_field]) as cur:
+            for row in cur:
+                oid = row[0]
+                if oid not in upd_map:
+                    continue
+                try:
+                    row[1] = upd_map[oid]
+                    cur.updateRow(row)
+                    successes_local += 1
+                except Exception as ex:
+                    failures_local += 1
+                    if len(error_samples_local) &lt; 20:
+                        error_samples_local.append(f&quot;OID {oid}: {ex}&quot;)
+        return {
+            &quot;total&quot;: total_local,
+            &quot;successes&quot;: successes_local,
+            &quot;failures&quot;: failures_local,
+            &quot;errors&quot;: error_samples_local,
+        }
+
+    try:
+        return _run_updates()
+    except RuntimeError as ex:
+        # Enterprise/versioned data may require an explicit edit session.
+        if &quot;outside an edit session&quot; not in str(ex).lower():
+            raise
+
+        target_path = str(target)
+        sde_idx = target_path.lower().find(&quot;.sde&quot;)
+        if sde_idx == -1:
+            raise
+        workspace = target_path[:sde_idx + 4]
+        editor = arcpy.da.Editor(workspace)
+        editor.startEditing(False, True)
+        editor.startOperation()
+        try:
+            result = _run_updates()
+            editor.stopOperation()
+            editor.stopEditing(True)
+            result[&quot;used_edit_session&quot;] = True
+            result[&quot;edit_workspace&quot;] = workspace
+            return result
+        except Exception:
+            editor.abortOperation()
+            editor.stopEditing(False)
+            raise
+
+
+def _summarize_issues_by_agency(target, oid_field, updates, agency_field_actual):
+    status_by_oid = {oid: status for oid, status in (updates or [])}
+    if not status_by_oid:
+        return {
+            &quot;agency_field&quot;: agency_field_actual or &quot;Agency&quot;,
+            &quot;scope_feature_count&quot;: 0,
+            &quot;passed_feature_count&quot;: 0,
+            &quot;issue_feature_count&quot;: 0,
+            &quot;warning_issue_feature_count&quot;: 0,
+            &quot;blocking_issue_feature_count&quot;: 0,
+            &quot;agencies&quot;: [],
+        }
+
+    agency_by_oid = {}
+    if agency_field_actual:
+        with arcpy.da.SearchCursor(target, [oid_field, agency_field_actual]) as cur:
+            for oid, agency in cur:
+                if oid in status_by_oid:
+                    agency_by_oid[oid] = agency
+
+    totals = {
+        &quot;scope_feature_count&quot;: len(status_by_oid),
+        &quot;passed_feature_count&quot;: 0,
+        &quot;issue_feature_count&quot;: 0,
+        &quot;warning_issue_feature_count&quot;: 0,
+        &quot;blocking_issue_feature_count&quot;: 0,
+    }
+    buckets = {}
+    for oid, status in status_by_oid.items():
+        status_text = str(status or &quot;&quot;).strip()
+        status_low = status_text.lower()
+        agency_val = agency_by_oid.get(oid)
+        agency_key = str(agency_val).strip() if agency_val not in (None, &quot;&quot;) else &quot;(blank)&quot;
+        b = buckets.setdefault(
+            agency_key,
+            {
+                &quot;agency&quot;: agency_key,
+                &quot;scope_count&quot;: 0,
+                &quot;passed_count&quot;: 0,
+                &quot;issue_count&quot;: 0,
+                &quot;warning_issue_count&quot;: 0,
+                &quot;blocking_issue_count&quot;: 0,
+            },
+        )
+        b[&quot;scope_count&quot;] += 1
+
+        is_passed = (status_low == &quot;passed&quot;)
+        is_warning = status_low.startswith(&quot;warning&quot;)
+        if is_passed:
+            totals[&quot;passed_feature_count&quot;] += 1
+            b[&quot;passed_count&quot;] += 1
+            continue
+
+        totals[&quot;issue_feature_count&quot;] += 1
+        b[&quot;issue_count&quot;] += 1
+        if is_warning:
+            totals[&quot;warning_issue_feature_count&quot;] += 1
+            b[&quot;warning_issue_count&quot;] += 1
+        else:
+            totals[&quot;blocking_issue_feature_count&quot;] += 1
+            b[&quot;blocking_issue_count&quot;] += 1
+
+    agencies = list(buckets.values())
+    agencies.sort(key=lambda x: (-x[&quot;issue_count&quot;], x[&quot;agency&quot;]))
+
+    return {
+        &quot;agency_field&quot;: agency_field_actual or &quot;Agency&quot;,
+        &quot;scope_feature_count&quot;: totals[&quot;scope_feature_count&quot;],
+        &quot;passed_feature_count&quot;: totals[&quot;passed_feature_count&quot;],
+        &quot;issue_feature_count&quot;: totals[&quot;issue_feature_count&quot;],
+        &quot;warning_issue_feature_count&quot;: totals[&quot;warning_issue_feature_count&quot;],
+        &quot;blocking_issue_feature_count&quot;: totals[&quot;blocking_issue_feature_count&quot;],
+        &quot;agencies&quot;: agencies,
+    }
+
+
+def _qa_passed(report):
+    no_missing = len(report.get(&quot;missing_fields&quot;, [])) == 0
+    no_mandatory_missing = len(report.get(&quot;mandatory_missing&quot;, [])) == 0
+    mandatory_nulls_ok = all(item.get(&quot;null_count&quot;, 0) == 0 for item in report.get(&quot;mandatory_nulls&quot;, []))
+    no_nguid_dupes = report.get(&quot;nguid_summary&quot;, {}).get(&quot;duplicate_nguid_count&quot;, 0) == 0
+    no_invalid_nguid = report.get(&quot;nguid_summary&quot;, {}).get(&quot;invalid_format_count&quot;, 0) == 0
+    return no_missing and no_mandatory_missing and mandatory_nulls_ok and no_nguid_dupes and no_invalid_nguid
+
+
+def _safe_int(val, default):
+    if val in (None, &quot;&quot;):
+        return default
+    try:
+        return int(val)
+    except Exception:
+        return default
+
+
+def _set_result_output(result_json_text: str):
+    # Support both current and earlier tool parameter layouts.
+    for idx in (14, 13, 15):
+        try:
+            arcpy.SetParameterAsText(idx, result_json_text)
+            return
+        except Exception:
+            continue
+
+
+def main():
+    target_layer = arcpy.GetParameterAsText(0)
+    schema_json = arcpy.GetParameterAsText(1)
+    dataset_name = arcpy.GetParameterAsText(2)
+    mode = arcpy.GetParameterAsText(3) or &quot;all&quot;
+    check_types = bool(arcpy.GetParameter(4))
+    check_lengths = bool(arcpy.GetParameter(5))
+    check_nguid_format = bool(arcpy.GetParameter(6))
+    normalize_nguid = bool(arcpy.GetParameter(7))
+    mandatory_fields_raw = arcpy.GetParameterAsText(8) or &quot;&quot;
+
+    # Accept either:
+    # A) [9 address_dup_field, 10 address_dup_max_rows, 11 qa_status_field, 12 update_qa_status, 13 out_log_folder]
+    # B) [9 address_dup_max_rows, 10 qa_status_field, 11 update_qa_status, 12 out_log_folder] (older layout)
+    p9 = arcpy.GetParameterAsText(9)
+    p10 = arcpy.GetParameterAsText(10)
+    p11 = arcpy.GetParameterAsText(11)
+    p12 = arcpy.GetParameterAsText(12)
+    p13 = arcpy.GetParameterAsText(13)
+
+    parsed_p10_int = _safe_int(p10, None)
+    if parsed_p10_int is not None:
+        # Current layout A
+        address_dup_field = p9 or &quot;&quot;
+        address_dup_max_rows = parsed_p10_int
+        qa_status_field = p11 or &quot;QAStatus&quot;
+        update_qa_status = bool(arcpy.GetParameter(12))
+        out_log_folder = p13
+    else:
+        # Fallback layout B
+        address_dup_field = &quot;&quot;
+        address_dup_max_rows = _safe_int(p9, 5000)
+        qa_status_field = p10 or &quot;QAStatus&quot;
+        update_qa_status = bool(arcpy.GetParameter(11))
+        out_log_folder = p12
+
+    ts = datetime.now().strftime(&quot;%Y%m%d_%H%M%S&quot;)
+    mandatory_fields = [f.strip() for f in _normalize_list(mandatory_fields_raw).split(&quot;;&quot;) if f.strip()] if mandatory_fields_raw else []
+
+    if not target_layer:
+        raise ValueError(&quot;target_layer is blank.&quot;)
+
+    _ensure_dir(out_log_folder)
+    log_path = os.path.join(out_log_folder, f&quot;qa_run_{ts}.json&quot;)
+    _msg(f&quot;QA target resolved to: {target_layer}&quot;)
+
+    scope_info = _resolve_check_scope(target_layer, qa_status_field, lookback_hours=NEW_FEATURE_LOOKBACK_HOURS)
+    scoped_oids = scope_info.get(&quot;scoped_oids&quot;) or set()
+    _msg(
+        f&quot;QA row scope: {scope_info.get('rows_in_scope')} / {scope_info.get('total_rows')} &quot;
+        f&quot;(newly created: {scope_info.get('rows_newly_created')}, not Passed: {scope_info.get('rows_not_passed')})&quot;
+    )
+
+    result = {
+        &quot;timestamp&quot;: ts,
+        &quot;success&quot;: False,
+        &quot;qa_passed&quot;: False,
+        &quot;status&quot;: &quot;qa_failed&quot;,
+        &quot;log_path&quot;: log_path,
+        &quot;inputs&quot;: {
+            &quot;target_layer&quot;: target_layer,
+            &quot;schema_json&quot;: schema_json,
+            &quot;dataset_name&quot;: dataset_name,
+            &quot;mode&quot;: mode,
+            &quot;check_types&quot;: check_types,
+            &quot;check_lengths&quot;: check_lengths,
+            &quot;check_nguid_format&quot;: check_nguid_format,
+            &quot;normalize_nguid&quot;: normalize_nguid,
+            &quot;mandatory_fields&quot;: mandatory_fields,
+            &quot;address_dup_field&quot;: address_dup_field,
+            &quot;address_dup_max_rows&quot;: address_dup_max_rows,
+            &quot;qa_status_field&quot;: qa_status_field,
+            &quot;update_qa_status&quot;: update_qa_status,
+            &quot;out_log_folder&quot;: out_log_folder,
+        },
+    }
+
+    expected = _load_expected_fields(schema_json, dataset_name=dataset_name, mode=mode)
+    actual = _get_actual_fields(target_layer)
+    missing, extra, details = _compare_fields(expected, actual, check_types, check_lengths)
+    missing_names = [expected[k][&quot;name&quot;] for k in missing]
+    missing_blocking = [n for n in missing_names if n.lower() not in NON_BLOCKING_MISSING_FIELDS]
+    missing_warnings = [n for n in missing_names if n.lower() in NON_BLOCKING_MISSING_FIELDS]
+    actual_map = {f[&quot;name&quot;].lower(): f for f in actual}
+    mandatory_missing = [f for f in mandatory_fields if f.lower() not in actual_map]
+    mandatory_present = [f for f in mandatory_fields if f.lower() in actual_map]
+
+    report = {
+        &quot;expected_field_count&quot;: len(expected),
+        &quot;actual_field_count&quot;: len(actual),
+        &quot;dataset_name&quot;: dataset_name,
+        &quot;scope&quot;: {
+            &quot;lookback_hours&quot;: scope_info.get(&quot;lookback_hours&quot;),
+            &quot;total_rows&quot;: scope_info.get(&quot;total_rows&quot;),
+            &quot;rows_in_scope&quot;: scope_info.get(&quot;rows_in_scope&quot;),
+            &quot;rows_newly_created&quot;: scope_info.get(&quot;rows_newly_created&quot;),
+            &quot;rows_not_passed&quot;: scope_info.get(&quot;rows_not_passed&quot;),
+            &quot;qa_status_field&quot;: scope_info.get(&quot;qa_status_field_actual&quot;),
+            &quot;created_date_field&quot;: scope_info.get(&quot;created_date_field_actual&quot;),
+        },
+        &quot;missing_fields&quot;: missing_blocking,
+        &quot;missing_warnings&quot;: missing_warnings,
+        &quot;extra_fields&quot;: extra,
+        &quot;details&quot;: details,
+        &quot;nguid_summary&quot;: _check_nguid(
+            target_layer,
+            normalize=normalize_nguid,
+            check_format=check_nguid_format,
+            scoped_oids=scoped_oids,
+        ),
+        &quot;mandatory_missing&quot;: mandatory_missing,
+        &quot;mandatory_nulls&quot;: _check_mandatory_nulls(
+            target_layer,
+            mandatory_present,
+            scoped_oids=scoped_oids,
+        ) if mandatory_present else [],
+    }
+    null_failures = _collect_null_failures(
+        target_layer,
+        mandatory_present,
+        max_rows=address_dup_max_rows,
+        sample_limit=ISSUE_SAMPLE_LIMIT,
+        scoped_oids=scoped_oids,
+    )
+    report[&quot;mandatory_null_failures&quot;] = {
+        &quot;total_failed_features&quot;: null_failures.get(&quot;total_failed_features&quot;, 0),
+        &quot;sample_failed_features&quot;: null_failures.get(&quot;sample_failed_features&quot;, []),
+        &quot;truncated&quot;: null_failures.get(&quot;truncated&quot;, False),
+    }
+    null_csv = _write_null_failures_csv(null_failures, out_log_folder, ts, address_dup_max_rows)
+    if null_csv:
+        report[&quot;mandatory_null_failures_csv&quot;] = null_csv
+
+    if address_dup_field:
+        address_dupes = _check_duplicates(target_layer, address_dup_field, scoped_oids=scoped_oids)
+        address_dupes[&quot;field_name&quot;] = address_dup_field
+        if address_dupes.get(&quot;duplicates_detailed&quot;):
+            report[&quot;address_duplicates_samples&quot;] = (address_dupes.get(&quot;duplicates_detailed&quot;) or [])[:ISSUE_SAMPLE_LIMIT]
+        if address_dupes.get(&quot;duplicate_nguid_count&quot;, 0) &gt; 0 and address_dupes.get(&quot;duplicates_detailed&quot;):
+            csv_path = _write_address_dup_csv(address_dupes, out_log_folder, ts, address_dup_max_rows)
+            if csv_path:
+                report[&quot;address_duplicates_csv&quot;] = csv_path
+    else:
+        address_dupes = {&quot;skipped&quot;: True, &quot;reason&quot;: &quot;ADDRESS_DUP_FIELD not set&quot;}
+    report[&quot;address_duplicates&quot;] = address_dupes
+
+    fields_lower = {f.name.lower(): f.name for f in arcpy.ListFields(target_layer)}
+    oid_field = arcpy.Describe(target_layer).OIDFieldName
+    qa_status_actual = fields_lower.get(qa_status_field.lower())
+    agency_field_actual = fields_lower.get(&quot;agency&quot;)
+
+    updates_for_scope = []
+    if qa_status_actual:
+        updates_for_scope = _build_qastatus_updates(
+            target_layer,
+            oid_field,
+            qa_status_actual,
+            mandatory_fields,
+            normalize_nguid,
+            report,
+            scoped_oids=scoped_oids,
+        )
+    report[&quot;issues_by_agency&quot;] = _summarize_issues_by_agency(
+        target_layer,
+        oid_field,
+        updates_for_scope,
+        agency_field_actual,
+    )
+
+    qa_status_update = {&quot;skipped&quot;: True, &quot;reason&quot;: &quot;update disabled&quot;}
+    if update_qa_status:
+        if not qa_status_actual:
+            qa_status_update = {&quot;skipped&quot;: True, &quot;reason&quot;: f&quot;{qa_status_field} not found on target&quot;}
+        else:
+            if not updates_for_scope:
+                qa_status_update = {
+                    &quot;skipped&quot;: True,
+                    &quot;reason&quot;: &quot;No rows in QA scope to update.&quot;,
+                    &quot;rows_in_scope&quot;: len(scoped_oids),
+                }
+            else:
+                qa_status_update = _apply_qastatus_updates(target_layer, oid_field, qa_status_actual, updates_for_scope)
+
+    qa_passed = _qa_passed(report)
+    result[&quot;qa_passed&quot;] = qa_passed
+    result[&quot;status&quot;] = &quot;qa_passed&quot; if qa_passed else &quot;qa_failed&quot;
+    result[&quot;success&quot;] = qa_passed
+    result[&quot;qa_report&quot;] = report
+    result[&quot;qa_status_update&quot;] = qa_status_update
+    email_summary, email_summary_text = _build_email_summary(result, report)
+    result[&quot;email_summary&quot;] = email_summary
+    result[&quot;email_summary_text&quot;] = email_summary_text
+
+    with open(log_path, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+        json.dump(result, f, indent=2)
+
+    _msg(json.dumps({
+        &quot;status&quot;: result[&quot;status&quot;],
+        &quot;email_summary&quot;: email_summary,
+        &quot;missing_fields&quot;: report[&quot;missing_fields&quot;],
+        &quot;missing_warnings&quot;: report[&quot;missing_warnings&quot;],
+        &quot;duplicate_nguid_count&quot;: report[&quot;nguid_summary&quot;][&quot;duplicate_nguid_count&quot;],
+        &quot;address_duplicate_count&quot;: report.get(&quot;address_duplicates&quot;, {}).get(&quot;duplicate_nguid_count&quot;, 0),
+        &quot;qa_status_update&quot;: qa_status_update,
+        &quot;log_path&quot;: log_path,
+    }, indent=2))
+
+    _set_result_output(json.dumps(result))
+
+
+if __name__ == &quot;__main__&quot;:
+    try:
+        main()
+    except Exception as ex:
+        tb = traceback.format_exc()
+        _err(f&quot;Tool failed: {ex}&quot;)
+        _err(tb)
+        fail_result = {
+            &quot;timestamp&quot;: datetime.now().strftime(&quot;%Y%m%d_%H%M%S&quot;),
+            &quot;success&quot;: False,
+            &quot;qa_passed&quot;: False,
+            &quot;status&quot;: &quot;error&quot;,
+            &quot;error&quot;: str(ex),
+            &quot;traceback&quot;: tb,
+        }
+        try:
+            _set_result_output(json.dumps(fail_result))
+        except Exception:
+            pass
+        raise
+
+</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- QA CHECKS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-list-check"></i>&nbsp; QA Checks</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>Check</th><th>Description</th><th>Severity</th></tr></thead>
+      <tbody>
+        <tr><td>Schema Comparison</td><td>Validates field names, types, and lengths against the reference <code>SSAP_Schema.json</code></td><td><span style="color:var(--red);font-weight:600">Blocking</span></td></tr>
+        <tr><td>NGUID Uniqueness</td><td>Ensures no duplicate NGUID values exist across the feature class</td><td><span style="color:var(--red);font-weight:600">Blocking</span></td></tr>
+        <tr><td>NGUID Format</td><td>Validates NGUID matches <code>urn:emergency:uid:gis:SSAP:{GUID}:{AgencyID}</code></td><td><span style="color:var(--red);font-weight:600">Blocking</span></td></tr>
+        <tr><td>Mandatory Nulls</td><td>Checks that all mandatory fields contain non-null, non-empty values</td><td><span style="color:var(--red);font-weight:600">Blocking</span></td></tr>
+        <tr><td>Address Duplicates</td><td>Detects duplicate <code>Full_Addr</code> values (configurable fields and tolerance)</td><td><span style="color:var(--amber);font-weight:600">Warning</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SCOPE LOGIC -->
+<section>
+  <h2 class="reveal"><i class="fas fa-filter"></i>&nbsp; Scope Logic</h2>
+  <div class="card reveal">
+    <p>The QA tool does not re-validate the entire feature class on every run. It scopes to features matching either condition:</p>
+    <ul>
+      <li><code>QAStatus != "Passed"</code> — any feature that hasn't already been approved</li>
+      <li>Created or edited within the <strong>24-hour lookback window</strong> — catches recently touched records even if their QAStatus was manually set</li>
+    </ul>
+    <div class="alert info"><i class="fas fa-info-circle"></i><span>This scoping strategy keeps run times short while ensuring no new or modified data slips through without validation.</span></div>
+  </div>
+</section>
+
+<!-- PARAMETERS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-sliders"></i>&nbsp; Parameters</h2>
+  <button class="doc-toggle reveal" type="button" data-target="tbl-qa-params" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show table (15 rows)</span>
+  </button>
+  <div id="tbl-qa-params" class="doc-body collapsed">
+    <div class="card">
+      <table>
+        <thead><tr><th>#</th><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td><code>target_layer</code></td><td>String</td><td>Feature class path or feature service URL to validate</td></tr>
+          <tr><td>1</td><td><code>schema_json</code></td><td>File</td><td>Path to the reference schema definition JSON file</td></tr>
+          <tr><td>2</td><td><code>dataset_name</code></td><td>String</td><td>Dataset name for labeling (optional, defaults to FC name)</td></tr>
+          <tr><td>3</td><td><code>mode</code></td><td>String</td><td>Validation scope: <code>all</code>, <code>required</code>, or <code>nonnullable</code></td></tr>
+          <tr><td>4</td><td><code>check_types</code></td><td>Boolean</td><td>Validate field data types against schema</td></tr>
+          <tr><td>5</td><td><code>check_lengths</code></td><td>Boolean</td><td>Validate field lengths against schema maximums</td></tr>
+          <tr><td>6</td><td><code>check_nguid</code></td><td>Boolean</td><td>Run NGUID uniqueness and format checks</td></tr>
+          <tr><td>7</td><td><code>normalize_nguid</code></td><td>Boolean</td><td>Normalize NGUID casing before comparison</td></tr>
+          <tr><td>8</td><td><code>mandatory_fields</code></td><td>String</td><td>Semicolon-delimited list of fields to check for nulls</td></tr>
+          <tr><td>9</td><td><code>address_dup_fields</code></td><td>String</td><td>Fields used for duplicate address detection</td></tr>
+          <tr><td>10</td><td><code>address_dup_tolerance</code></td><td>Double</td><td>Spatial tolerance for address duplicate grouping</td></tr>
+          <tr><td>11</td><td><code>qa_status_field</code></td><td>String</td><td>Name of the QAStatus field to write results to</td></tr>
+          <tr><td>12</td><td><code>qa_status_write</code></td><td>Boolean</td><td>Whether to write QAStatus updates back to the layer</td></tr>
+          <tr><td>13</td><td><code>out_log_folder</code></td><td>Folder</td><td>Directory for output logs and CSV artifacts</td></tr>
+          <tr><td>14</td><td><code>result_json</code></td><td>String</td><td>Output JSON string with run summary (derived)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- QASTATUS UPDATE FLOW -->
+<section>
+  <h2 class="reveal"><i class="fas fa-arrows-spin"></i>&nbsp; QAStatus Update Flow</h2>
+  <div class="grid-3 reveal">
+    <div class="card" style="border-left:4px solid var(--green)">
+      <div class="card-header"><div class="card-icon green"><i class="fas fa-check-circle"></i></div><h4>Passed</h4></div>
+      <p>Feature has zero blocking errors and zero warnings. <code>QAStatus</code> is set to <code>"Passed"</code>.</p>
+    </div>
+    <div class="card" style="border-left:4px solid var(--amber)">
+      <div class="card-header"><div class="card-icon amber"><i class="fas fa-exclamation-triangle"></i></div><h4>Warning</h4></div>
+      <p>Feature has non-blocking issues only (e.g., address duplicates). <code>QAStatus</code> is set to <code>"Warning: {details}"</code>.</p>
+    </div>
+    <div class="card" style="border-left:4px solid var(--red)">
+      <div class="card-header"><div class="card-icon red"><i class="fas fa-times-circle"></i></div><h4>Error</h4></div>
+      <p>Feature has one or more blocking errors. <code>QAStatus</code> is set to a semicolon-delimited error list: <code>"Error1; Error2"</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- OUTPUT ARTIFACTS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-file-csv"></i>&nbsp; Output Artifacts</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>File</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>qa_run_{ts}.json</code></td><td>Complete run summary with check results, feature counts, pass/fail/warning totals, and timing</td></tr>
+        <tr><td><code>mandatory_null_failures_{ts}.csv</code></td><td>CSV listing every feature with mandatory null violations — includes OBJECTID, NGUID, and the offending fields</td></tr>
+        <tr><td><code>address_duplicates_{ts}.csv</code></td><td>CSV of detected address duplicate groups with Full_Addr, OBJECTID pairs, and spatial distance</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Section-by-Section Breakdown</h2>
+
+  <div class="card reveal doc-section">
+    <h4>1. Schema Validation</h4>
+    <div class="doc-meta"><span>Lines 95 &ndash; 177</span><span>3 functions</span></div>
+    <div class="breakdown-detail">
+      <strong>Functions</strong>
+      <ul>
+        <li><code>_load_expected_fields(schema_path, dataset_name, mode)</code> &mdash; Reads <code>SSAP_Schema.json</code>. Filters fields by mode: <code>all</code>, <code>required</code>, <code>nonnullable</code>.</li>
+        <li><code>_get_actual_fields(target)</code> &mdash; Uses <code>arcpy.ListFields()</code> to get the live field list.</li>
+        <li><code>_compare_fields(expected, actual)</code> &mdash; Returns missing, extra, and per-field details.</li>
+      </ul>
+      <strong>QA Impact</strong>
+      <ul>
+        <li>Missing schema fields (except <code>Shape</code>) are <strong>blocking</strong>.</li>
+        <li>Type/length mismatches are reported but do not block.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>2. QA Scope Resolution</h4>
+    <div class="doc-meta"><span>Lines 226 &ndash; 287</span><span>Smart row filtering</span></div>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <p>Scopes to rows where <code>QAStatus != "Passed"</code> OR rows created within 24 hours.</p>
+      <strong>Output</strong>
+      <p>Returns <code>scoped_oids</code> set. Reports total rows, rows in scope, not passed, newly created.</p>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>3. NGUID Uniqueness Check</h4>
+    <div class="doc-meta"><span>Lines 315 &ndash; 334</span></div>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>Reads all NGUID values for scoped OIDs via <code>SearchCursor</code>.</li>
+        <li>Counts: null, empty, duplicates (using <code>Counter</code>).</li>
+        <li>Optionally validates GUID format with regex.</li>
+      </ul>
+      <strong>QA Impact</strong>: Any duplicate NGUID is <strong>blocking</strong>.
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>4. Mandatory Null Detection</h4>
+    <div class="doc-meta"><span>Lines 337 &ndash; 394</span><span>2 functions</span></div>
+    <div class="breakdown-detail">
+      <strong>Functions</strong>
+      <ul>
+        <li><code>_check_mandatory_nulls()</code> &mdash; Counts null/empty per mandatory field.</li>
+        <li><code>_collect_null_failures()</code> &mdash; Per-feature failure report. Writes <code>mandatory_null_failures_{ts}.csv</code>.</li>
+      </ul>
+      <strong>QA Impact</strong>: Any mandatory field with nulls is <strong>blocking</strong>.
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>5. Address Duplicate Detection</h4>
+    <div class="doc-meta"><span>Lines 397 &ndash; 466</span></div>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>Normalizes <code>Full_Addr</code> to uppercase, builds duplicate map with OIDs and NGUIDs.</li>
+        <li>Writes <code>address_duplicates_{ts}.csv</code>.</li>
+      </ul>
+      <strong>QA Impact</strong>: <strong>Warnings only</strong> &mdash; do not block QA pass.
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>6. QAStatus Update Engine</h4>
+    <div class="doc-meta"><span>Lines 521 &ndash; 636</span><span>3 functions</span></div>
+    <div class="breakdown-detail">
+      <strong>Functions</strong>
+      <ul>
+        <li><code>_build_qastatus_updates()</code> &mdash; Per-row: <code>"Passed"</code> | <code>"Warning: ..."</code> | <code>"error1; error2"</code></li>
+        <li><code>_apply_qastatus_updates()</code> &mdash; <code>UpdateCursor</code> with edit session fallback for versioned data.</li>
+        <li><code>_summarize_issues_by_agency()</code> &mdash; Aggregates pass/fail/warning per agency.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>7. Main Execution &amp; Output</h4>
+    <div class="doc-meta"><span>Lines 742 &ndash; 973</span></div>
+    <div class="breakdown-detail">
+      <strong>Flow</strong>
+      <ul>
+        <li>Reads all 15 parameters &rarr; resolves QA scope &rarr; runs all checks.</li>
+        <li>Builds QAStatus updates &rarr; summarizes by agency &rarr; optionally applies.</li>
+        <li>Writes JSON log &rarr; sets <code>result_json</code> output parameter.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+// ── Doc toggles ──
+(function(){
+  document.querySelectorAll('.doc-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=this.getAttribute('data-target');
+      var body=id?document.getElementById(id):null;
+      if(!body)return;
+      var isCollapsed=body.classList.contains('collapsed');
+      body.classList.toggle('collapsed',!isCollapsed);
+      this.setAttribute('aria-expanded',isCollapsed?'true':'false');
+      var label=this.querySelector('span');
+      if(label){var show=label.textContent;label.textContent=isCollapsed?(show.replace('Show','Hide')):(show.replace('Hide','Show'))}
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

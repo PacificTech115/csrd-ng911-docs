@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NG911 System Architecture</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --navy: #0f172a;
+            --navy-light: #1e293b;
+            --teal: #0d9488;
+            --teal-light: #14b8a6;
+            --gray: #64748b;
+            --light-bg: #f8fafc;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            --white: #ffffff;
+            --slide-transition: 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background: #080c14;
+        }
+
+        /* ── PARTICLES CANVAS ── */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ── SLIDE WRAPPER ── */
+        .presentation {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 100px;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.97) translateY(18px);
+            transition:
+                opacity var(--slide-transition),
+                transform var(--slide-transition),
+                visibility 0s linear 0.9s;
+            will-change: opacity, transform;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+            transition:
+                opacity var(--slide-transition),
+                transform var(--slide-transition),
+                visibility 0s linear 0s;
+        }
+
+        .slide.exit-up {
+            opacity: 0;
+            transform: scale(0.97) translateY(-24px);
+        }
+
+        .slide.exit-down {
+            opacity: 0;
+            transform: scale(0.97) translateY(24px);
+        }
+
+        /* ── BACKGROUND LAYERS ── */
+        .slide-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .slide-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.06) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 80%, rgba(13,148,136,0.04) 0%, transparent 50%);
+        }
+
+        .slide-bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(148,163,184,0.12) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ── ANIMATIONS FOR CHILD ELEMENTS ── */
+        .slide .anim {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .slide.active .anim {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide.active .anim.d1 { transition-delay: 0.1s; }
+        .slide.active .anim.d2 { transition-delay: 0.22s; }
+        .slide.active .anim.d3 { transition-delay: 0.34s; }
+        .slide.active .anim.d4 { transition-delay: 0.46s; }
+        .slide.active .anim.d5 { transition-delay: 0.58s; }
+        .slide.active .anim.d6 { transition-delay: 0.7s; }
+        .slide.active .anim.d7 { transition-delay: 0.82s; }
+
+        .slide .anim-left {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .slide.active .anim-left { opacity: 1; transform: translateX(0); }
+
+        .slide .anim-right {
+            opacity: 0;
+            transform: translateX(30px);
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .slide.active .anim-right { opacity: 1; transform: translateX(0); }
+
+        .slide .anim-scale {
+            opacity: 0;
+            transform: scale(0.88);
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .slide.active .anim-scale { opacity: 1; transform: scale(1); }
+
+        /* ── TYPOGRAPHY ── */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--white);
+        }
+
+        .slide-title {
+            font-size: 44px;
+            font-weight: 700;
+            margin-bottom: 50px;
+            position: relative;
+            padding-left: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            line-height: 1.2;
+        }
+
+        .slide-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(180deg, var(--accent), var(--teal));
+            border-radius: 3px;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        p, li {
+            font-size: 20px;
+            line-height: 1.7;
+            color: #cbd5e1;
+        }
+
+        li {
+            margin-bottom: 14px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li::before {
+            content: '▸';
+            color: var(--accent);
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        strong {
+            color: var(--white);
+        }
+
+        /* ── LAYOUT ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 70px;
+            align-items: center;
+        }
+
+        /* ── TITLE SLIDE ── */
+        .title-slide {
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(ellipse at center, #111827 0%, #080c14 100%);
+        }
+
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 40px;
+            border-radius: 60px;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 28px;
+            letter-spacing: 2px;
+            box-shadow: 0 0 60px rgba(59,130,246,0.3), 0 20px 40px rgba(0,0,0,0.3);
+            margin-bottom: 50px;
+        }
+
+        .logo-badge i {
+            font-size: 32px;
+        }
+
+        .title-slide h1 {
+            font-size: 68px;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .title-slide h1 span {
+            background: linear-gradient(135deg, var(--accent), var(--teal-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .title-slide .subtitle {
+            font-size: 22px;
+            color: #64748b;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        /* ── TREE / ARCHITECTURE DIAGRAM ── */
+        .arch-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tree-node {
+            padding: 18px 36px;
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tree-node.navy-node {
+            background: linear-gradient(135deg, var(--navy-light), #334155);
+            box-shadow: 0 10px 40px rgba(15,23,42,0.5);
+            min-width: 320px;
+        }
+
+        .tree-node.teal-node {
+            background: linear-gradient(135deg, var(--teal), var(--teal-light));
+            box-shadow: 0 10px 40px rgba(13,148,136,0.3);
+            min-width: 320px;
+        }
+
+        .tree-node.muni-node {
+            background: linear-gradient(135deg, #334155, #475569);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            min-width: 140px;
+            padding: 14px 20px;
+        }
+
+        .tree-node-title {
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .tree-node-sub {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        .tree-connector {
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(180deg, var(--accent), transparent);
+        }
+
+        .tree-h-line {
+            width: 80%;
+            max-width: 750px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gray), transparent);
+        }
+
+        .muni-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .legend-panel {
+            position: absolute;
+            bottom: 50px;
+            right: 80px;
+            background: rgba(15,23,42,0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 20px 28px;
+            border-radius: 16px;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+        }
+
+        /* ── TILE GRID ── */
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .tile {
+            background: rgba(30,41,59,0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 36px 30px;
+            border-radius: 20px;
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .tile:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.25);
+        }
+
+        .tile i {
+            font-size: 38px;
+            margin-bottom: 20px;
+            display: block;
+            background: linear-gradient(135deg, var(--accent), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tile h3 {
+            font-size: 22px;
+            margin-bottom: 14px;
+        }
+
+        .tile p {
+            font-size: 17px;
+            color: #94a3b8;
+        }
+
+        /* ── ICON PANEL (image placeholder) ── */
+        .icon-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            min-height: 320px;
+            background: linear-gradient(135deg, rgba(30,41,59,0.5), rgba(15,23,42,0.8));
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .icon-panel i {
+            font-size: 110px;
+            background: linear-gradient(135deg, var(--accent), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.4;
+        }
+
+        /* ── STACK PANELS ── */
+        .stack-panel {
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .stack-dark { background: linear-gradient(135deg, var(--navy-light), #1a2332); }
+        .stack-glass { background: rgba(30,41,59,0.4); backdrop-filter: blur(10px); }
+
+        .stack-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.3s ease;
+        }
+
+        .stack-row:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .stack-row:last-child { margin-bottom: 0; }
+
+        .stack-row i {
+            font-size: 26px;
+            width: 44px;
+            text-align: center;
+            color: var(--accent);
+        }
+
+        .stack-row .label {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--white);
+        }
+
+        .stack-row .sublabel {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* ── WORKFLOW STEPS ── */
+        .workflow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .wf-step {
+            text-align: center;
+            padding: 36px 28px;
+            border-radius: 20px;
+            width: 280px;
+            background: rgba(30,41,59,0.5);
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(10px);
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .wf-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.25);
+        }
+
+        .wf-step.highlight {
+            border-color: var(--teal);
+            box-shadow: 0 0 40px rgba(13,148,136,0.15);
+        }
+
+        .wf-step.filled {
+            background: linear-gradient(135deg, var(--teal), var(--teal-light));
+            border-color: transparent;
+        }
+
+        .wf-step i {
+            font-size: 28px;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .wf-step h4 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .wf-step p {
+            font-size: 15px;
+        }
+
+        .wf-arrow {
+            font-size: 28px;
+            color: #475569;
+        }
+
+        /* ── GOVERNANCE DARK CARD ── */
+        .gov-card {
+            background: linear-gradient(135deg, var(--navy-light), #0c1220);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 40px;
+        }
+
+        .gov-card h3 {
+            color: var(--white);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        /* ── NENA COMPLIANCE TILES ── */
+        .nena-tile h3 {
+            background: linear-gradient(135deg, var(--accent), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── CLOSING SLIDE ── */
+        .closing-slide {
+            text-align: center;
+            background: radial-gradient(ellipse at center, var(--navy-light) 0%, #080c14 100%);
+        }
+
+        .closing-slide h2 {
+            font-size: 72px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .contact-box {
+            display: inline-block;
+            margin-top: 60px;
+            padding: 40px 60px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+        }
+
+        .contact-box .email {
+            font-size: 30px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 8px;
+        }
+
+        /* ── NAVIGATION UI ── */
+        .nav-controls {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 100;
+            padding: 10px 24px;
+            border-radius: 40px;
+            background: rgba(15,23,42,0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+            transform: scale(1.3);
+        }
+
+        .dot:hover:not(.active) {
+            background: rgba(255,255,255,0.35);
+        }
+
+        .slide-counter {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 46px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── TOP PROGRESS BAR ── */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--teal));
+            box-shadow: 0 0 16px var(--accent-glow);
+            z-index: 200;
+            transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* ── SIDE NAV ARROWS ── */
+        .side-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(15,23,42,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .side-nav:hover {
+            opacity: 1;
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .side-nav.left { left: 24px; }
+        .side-nav.right { right: 24px; }
+
+        /* ── KEYBOARD HINT ── */
+        .kbd-hint {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #475569;
+            font-size: 12px;
+            z-index: 100;
+            opacity: 1;
+            transition: opacity 1s ease;
+            pointer-events: none;
+        }
+
+        .kbd-hint.hidden { opacity: 0; }
+
+        kbd {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #334155;
+            background: rgba(30,41,59,0.6);
+            font-family: inherit;
+            font-size: 11px;
+            margin: 0 2px;
+        }
+
+        /* ── SLIDE 1 → 2 SEAMLESS TRANSITION ── */
+        .slide.title-exit {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.02) translateY(0);
+            transition:
+                opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0s linear 0.8s;
+        }
+
+        .slide.title-exit .slide-content > * {
+            transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .slide.title-exit .slide-content > *:nth-child(1) {
+            opacity: 0;
+            transform: translateY(-24px) scale(0.95);
+            transition-delay: 0s;
+        }
+
+        .slide.title-exit .slide-content > *:nth-child(2) {
+            opacity: 0;
+            transform: translateY(-14px);
+            transition-delay: 0.06s;
+        }
+
+        .slide.title-exit .slide-content > *:nth-child(3) {
+            opacity: 0;
+            transform: translateY(-8px);
+            transition-delay: 0.12s;
+        }
+
+        .slide.title-enter {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+            transition:
+                opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s,
+                transform 0s,
+                visibility 0s;
+        }
+
+        .slide.title-enter-prep {
+            opacity: 0;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+            transition: none;
+        }
+
+        .slide.slide-2-reverse-exit {
+            opacity: 0;
+            transform: scale(1) translateY(0);
+            transition:
+                opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0s linear 0.6s;
+        }
+
+        .slide.slide-2-reverse-exit .slide-content > * {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .slide.title-return {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+            transition:
+                opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s,
+                visibility 0s;
+        }
+
+        .slide.title-return-prep {
+            opacity: 0;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+            transition: none;
+        }
+
+        /* ── CLICKABLE CARD NODES ── */
+        #slide2DefaultNode, #slide2QANode {
+            cursor: pointer;
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        #slide2DefaultNode:hover {
+            transform: scale(1.04);
+            box-shadow: 0 12px 40px rgba(59,130,246,0.2), 0 8px 30px rgba(15,23,42,0.4);
+        }
+
+        #slide2QANode:hover {
+            transform: scale(1.04);
+            box-shadow: 0 12px 40px rgba(13,148,136,0.25), 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .default-hint, .qa-hint {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            margin-top: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #slide2DefaultNode:hover .default-hint,
+        #slide2QANode:hover .qa-hint {
+            opacity: 1;
+        }
+
+        /* ── ZOOM-INTO MORPH TRANSITION ── */
+        .slide.zoom-into {
+            transition:
+                transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s;
+            will-change: transform, opacity;
+            z-index: 10;
+        }
+
+        .slide.zoom-out-from {
+            transition:
+                transform 1.3s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform, opacity;
+            z-index: 10;
+        }
+
+        .slide.morph-target-enter {
+            opacity: 0;
+            visibility: visible;
+            transform: scale(0.98) translateY(0);
+            transition: none;
+        }
+
+        .slide.morph-target-reveal {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .slide.morph-target-reveal .slide-content > * {
+            animation: morphFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .slide.morph-target-reveal .slide-content > *:nth-child(1) { animation-delay: 0.08s; }
+        .slide.morph-target-reveal .slide-content > *:nth-child(2) { animation-delay: 0.22s; }
+
+        @keyframes morphFadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1200px) {
+            .slide { padding: 40px 60px; }
+            .title-slide h1 { font-size: 48px; }
+            .slide-title { font-size: 34px; }
+            .two-col { grid-template-columns: 1fr; gap: 30px; }
+            .tile-grid { grid-template-columns: 1fr 1fr; }
+            .workflow { flex-wrap: wrap; }
+        }
+
+        @media (max-width: 768px) {
+            .slide { padding: 30px; }
+            .title-slide h1 { font-size: 36px; }
+            .tile-grid { grid-template-columns: 1fr; }
+            .muni-row { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="presentation" id="presentation">
+
+        <!-- SLIDE 1: TITLE -->
+        <div class="slide title-slide active" data-index="0">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content" style="display:flex;flex-direction:column;align-items:center;">
+                <div class="anim d1 logo-badge">
+                    <i class="fa-solid fa-phone-volume"></i>
+                    <span>NG9-1-1</span>
+                </div>
+                <h1 class="anim d2">Central System Architecture<br><span>Traditional Versioning Hierarchy</span></h1>
+                <p class="anim d3 subtitle">A comprehensive framework for authoritative GIS data management in NG911 systems.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: ARCHITECTURE HUB -->
+        <div class="slide" data-index="1">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Central Database System Versioning Hierarchy</h2>
+                <div class="two-col" style="gap:50px;align-items:start;">
+                    <div class="arch-tree anim d2" style="gap:8px;">
+                        <div class="tree-node navy-node" id="slide2DefaultNode" onclick="morphToSlide3(event)" style="min-width:280px;padding:14px 30px;">
+                            <i class="fa-solid fa-shield-halved" style="font-size:20px;margin-bottom:6px;display:block;"></i>
+                            <div class="tree-node-title" style="font-size:18px;">DEFAULT</div>
+                            <div class="tree-node-sub">Authoritative / Production</div>
+                            <div class="default-hint">Click to explore ▸</div>
+                        </div>
+                        <div class="tree-connector" style="height:20px;"></div>
+                        <div class="tree-node teal-node" id="slide2QANode" onclick="morphToSlide4(event)" style="min-width:280px;padding:14px 30px;">
+                            <i class="fa-solid fa-vial-circle-check" style="font-size:20px;margin-bottom:6px;display:block;"></i>
+                            <div class="tree-node-title" style="font-size:18px;">QA (Staging / Validation)</div>
+                            <div class="qa-hint">Click to explore ▸</div>
+                        </div>
+                        <div class="tree-connector" style="height:20px;"></div>
+                        <div class="tree-h-line" style="max-width:500px;"></div>
+                        <div class="muni-row" style="gap:10px;">
+                            <div class="tree-node muni-node" style="min-width:100px;padding:10px 14px;font-size:13px;"><i class="fa-solid fa-city" style="display:block;margin-bottom:3px;font-size:14px;"></i>CSRD</div>
+                            <div class="tree-node muni-node" style="min-width:100px;padding:10px 14px;font-size:13px;"><i class="fa-solid fa-city" style="display:block;margin-bottom:3px;font-size:14px;"></i>Salmon Arm</div>
+                            <div class="tree-node muni-node" style="min-width:100px;padding:10px 14px;font-size:13px;"><i class="fa-solid fa-city" style="display:block;margin-bottom:3px;font-size:14px;"></i>Sicamous</div>
+                            <div class="tree-node muni-node" style="min-width:100px;padding:10px 14px;font-size:13px;"><i class="fa-solid fa-city" style="display:block;margin-bottom:3px;font-size:14px;"></i>Golden</div>
+                            <div class="tree-node muni-node" style="min-width:100px;padding:10px 14px;font-size:13px;"><i class="fa-solid fa-city" style="display:block;margin-bottom:3px;font-size:14px;"></i>Revelstoke</div>
+                        </div>
+                    </div>
+                    <div class="anim d3" style="display:flex;flex-direction:column;gap:16px;">
+                        <div class="stack-panel stack-dark" style="padding:22px;">
+                            <div class="stack-row" style="padding:12px;margin-bottom:8px;">
+                                <i class="fa-solid fa-database" style="font-size:22px;width:36px;"></i>
+                                <div>
+                                    <div class="label" style="font-size:16px;">Microsoft SQL Server</div>
+                                    <div class="sublabel">RDBMS</div>
+                                </div>
+                            </div>
+                            <div class="stack-row" style="padding:12px;margin-bottom:8px;">
+                                <i class="fa-solid fa-network-wired" style="font-size:22px;width:36px;"></i>
+                                <div>
+                                    <div class="label" style="font-size:16px;">ArcGIS Enterprise (SDE)</div>
+                                    <div class="sublabel">Multi-user geodatabase</div>
+                                </div>
+                            </div>
+                            <div class="stack-row" style="padding:12px;">
+                                <i class="fa-solid fa-cloud-arrow-up" style="font-size:22px;width:36px;"></i>
+                                <div>
+                                    <div class="label" style="font-size:16px;">Portal Feature Services</div>
+                                    <div class="sublabel">Web-ready GIS endpoints</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stack-panel stack-glass" style="padding:22px;">
+                            <div class="stack-row" style="padding:12px;margin-bottom:8px;">
+                                <i class="fa-solid fa-compass-drafting" style="font-size:22px;width:36px;color:var(--teal);"></i>
+                                <div>
+                                    <div class="label" style="font-size:16px;">ArcGIS Pro</div>
+                                    <div class="sublabel">Primary Desktop GIS Tool</div>
+                                </div>
+                            </div>
+                            <div class="stack-row" style="padding:12px;">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="font-size:22px;width:36px;color:var(--teal);"></i>
+                                <div>
+                                    <div class="label" style="font-size:16px;">Experience Builder</div>
+                                    <div class="sublabel">Web App for Non-GIS Staff</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="legend-panel anim d4">
+                    <div class="legend-row"><div class="legend-dot" style="background:var(--navy-light);"></div>Production View</div>
+                    <div class="legend-row"><div class="legend-dot" style="background:var(--teal);"></div>Validation Area</div>
+                    <div class="legend-row"><div class="legend-dot" style="background:#475569;"></div>Municipal Edits</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: PRODUCTION ENVIRONMENT -->
+        <div class="slide" data-index="2">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">The Authoritative Layer (DEFAULT)</h2>
+                <div class="two-col">
+                    <div class="anim-left d2" style="transition-delay:0.3s;">
+                        <h3 style="margin-bottom:24px;font-size:26px;">Mission-Critical Operations</h3>
+                        <ul>
+                            <li><strong>Authoritative Reporting:</strong> Primary source for all NENA-standard compliance reporting.</li>
+                            <li><strong>Production Services:</strong> Serves live Feature Services to Emergency Call Routing Functions (ECRF).</li>
+                            <li><strong>Published View:</strong> Read-only access for downstream visualization and public-facing maps.</li>
+                            <li><strong>Data Integrity:</strong> Locked from direct editing to ensure absolute system uptime.</li>
+                        </ul>
+                    </div>
+                    <div class="icon-panel anim-right d3" style="transition-delay:0.5s;">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: QA VALIDATION GATE -->
+        <div class="slide" data-index="3">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">The QA Validation Gate</h2>
+                <div class="tile-grid">
+                    <div class="tile anim d2">
+                        <i class="fa-solid fa-gears"></i>
+                        <h3>Automated QA/QC</h3>
+                        <p>Run script-based validation to check topology and mandatory attribute fields before posting.</p>
+                    </div>
+                    <div class="tile anim d3">
+                        <i class="fa-solid fa-code-merge"></i>
+                        <h3>Reconcile & Post</h3>
+                        <p>Strict gatekeeping process ensures that only verified municipal data reaches the production root.</p>
+                    </div>
+                    <div class="tile anim d4">
+                        <i class="fa-solid fa-list-check"></i>
+                        <h3>Validation Rules</h3>
+                        <p>Custom attribute rules in ArcGIS Pro prevent incorrect data entry at the schema level.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: RECONCILE & POST -->
+        <div class="slide" data-index="4">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content" style="text-align:center;">
+                <h2 class="slide-title anim d1" style="text-align:left;">The Reconcile & Post Process</h2>
+                <div class="workflow" style="margin-top:40px;">
+                    <div class="wf-step anim d2">
+                        <i class="fa-solid fa-pen-nib" style="color:#94a3b8;"></i>
+                        <h4>1. Edit</h4>
+                        <p>Staff edit municipal versions.</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right wf-arrow anim d3"></i>
+                    <div class="wf-step highlight anim d4">
+                        <i class="fa-solid fa-sync" style="color:var(--teal);"></i>
+                        <h4 style="color:var(--teal);">2. Reconcile</h4>
+                        <p>Pull changes from QA to check for conflicts.</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right wf-arrow anim d5"></i>
+                    <div class="wf-step filled anim d6">
+                        <i class="fa-solid fa-cloud-upload" style="color:white;"></i>
+                        <h4>3. Post</h4>
+                        <p style="color:rgba(255,255,255,0.9);">Merge changes into the QA version.</p>
+                    </div>
+                </div>
+                <p class="anim d7" style="margin-top:60px;font-style:italic;color:#64748b;font-size:20px;">
+                    This workflow repeats from QA to DEFAULT only after full validation is successful.
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: AUTOMATED DATA PIPELINE -->
+        <div class="slide" data-index="5">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Automated Data Pipeline</h2>
+                <div class="two-col">
+                    <div class="anim-left d2" style="transition-delay:0.3s;">
+                        <h3 style="margin-bottom:24px;font-size:26px;">Nightly Orchestration</h3>
+                        <ul>
+                            <li><strong>ArcGIS Notebooks:</strong> Automated nightly execution of a multi-stage Python orchestrator.</li>
+                            <li><strong>MUNI to QA Transport:</strong> Automatically reconciles and posts municipal edits into the staging QA version.</li>
+                            <li><strong>QA to DEFAULT Transport:</strong> Pushes validated data to the authoritative DEFAULT version.</li>
+                            <li><strong>Bi-Directional Sync:</strong> Syncs final state (including QA statuses) back to municipal editors.</li>
+                        </ul>
+                    </div>
+                    <div class="icon-panel anim-right d3" style="transition-delay:0.5s;">
+                        <i class="fa-solid fa-code-branch"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: AUTOMATED QA CHECKS -->
+        <div class="slide" data-index="6">
+            <style>
+                .anim-container {
+                    position: relative;
+                    width: 100%;
+                    max-width: 800px;
+                    height: 550px;
+                    margin: 0 auto;
+                }
+
+                /* Fixed Hubs (Background empty states) */
+                .hub {
+                    position: absolute;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 280px;
+                    padding: 16px 20px;
+                    border-radius: 16px;
+                    text-align: center;
+                    border: 2px dashed rgba(255,255,255,0.15);
+                    z-index: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .hub-muni { top: 454px; height: 76px; }
+                .hub-qa { top: 240px; height: 76px; }
+                .hub-def { top: 26px; height: 76px; }
+                .hub-label { font-weight: 700; color: #64748b; letter-spacing: 1px; font-size: 14px; }
+
+                /* Active Hub States (Fade in when merging) */
+                .hub-active {
+                    position: absolute;
+                    inset: -2px;
+                    border-radius: 16px;
+                    z-index: 2;
+                    opacity: 0;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    border: none;
+                }
+                .qa-hub-active {
+                    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+                    box-shadow: 0 10px 40px rgba(13,148,136,0.4);
+                }
+                .def-hub-active {
+                    background: linear-gradient(135deg, var(--navy-light), #3b82f6);
+                    box-shadow: 0 10px 40px rgba(59,130,246,0.4);
+                }
+                .muni-hub-active {
+                    background: linear-gradient(135deg, #475569, #64748b);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+                }
+
+                /* Traveling Cards */
+                .travel-card {
+                    position: absolute;
+                    left: 50%;
+                    width: 240px;
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    text-align: center;
+                    z-index: 5;
+                    opacity: 0;
+                    margin-left: -120px; /* center it */
+                    color: white;
+                }
+                .travel-card i { font-size: 18px; margin-bottom: 4px; display: block; }
+                .travel-card .tc-title { font-weight: bold; font-size: 16px; }
+
+                .csrd-card {
+                    background: linear-gradient(135deg, #3b82f6, #0d9488);
+                    box-shadow: 0 10px 30px rgba(13,148,136,0.4);
+                }
+                .valid-card {
+                    background: linear-gradient(135deg, #0d9488, #3b82f6);
+                    box-shadow: 0 10px 30px rgba(59,130,246,0.4);
+                }
+                .sync-card {
+                    background: linear-gradient(135deg, #64748b, #475569);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+                }
+
+                /* Action Labels */
+                .flow-action {
+                    position: absolute;
+                    left: calc(50% + 160px);
+                    background: rgba(30,41,59,0.8);
+                    backdrop-filter: blur(10px);
+                    padding: 12px 20px;
+                    border-radius: 12px;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    color: white;
+                    opacity: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    white-space: nowrap;
+                    font-size: 15px;
+                    z-index: 10;
+                }
+                .flow-action i { font-size: 20px; color: var(--accent); }
+
+                .action-edit { top: 440px; }
+                .action-qa { top: 210px; flex-direction:column; align-items:flex-start; }
+                .action-exp { top: 10px; }
+
+                /* Path Lines */
+                .flow-path {
+                    position: absolute;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 4px;
+                    background: rgba(255,255,255,0.05);
+                    z-index: 1;
+                }
+                .path-1 { top: 316px; height: 138px; }
+                .path-2 { top: 102px; height: 138px; }
+
+                /* Connecting logic texts */
+                .path-text {
+                    position: absolute;
+                    left: calc(50% - 200px);
+                    text-align: right;
+                    color: var(--accent);
+                    font-size: 14px;
+                    font-weight: bold;
+                    opacity: 0;
+                }
+                .pt-1 { top: 360px; }
+                .pt-2 { top: 150px; }
+                .pt-3 { left: calc(50% + 40px); text-align: left; top: 246px; color: var(--teal-light); }
+
+                /* Keyframes - 16s sequence loop */
+
+                /* CSRD Card */
+                .slide.active .csrd-card { animation: kf-csrd 16s infinite; }
+                @keyframes kf-csrd {
+                    0%, 3% { opacity: 0; top: 460px; transform: scale(0.8) scaleX(1); }
+                    5%, 22% { opacity: 1; top: 460px; transform: scale(1) scaleX(1); } /* At MUNI */
+                    25%, 50% { opacity: 1; top: 246px; transform: scale(1) scaleX(1); } /* Moves to QA */
+                    51.4% { opacity: 1; top: 246px; transform: scale(1.1) scaleX(0); } /* Flip out */
+                    51.5%, 100% { opacity: 0; top: 246px; transform: scale(1.1) scaleX(0); }
+                }
+
+                /* Edit Action (0-24%) */
+                .slide.active .action-edit { animation: kf-edit 16s infinite; }
+                @keyframes kf-edit {
+                    0%, 6% { opacity: 0; transform: translateX(-10px); }
+                    8%, 22% { opacity: 1; transform: translateX(0); }
+                    24%, 100% { opacity: 0; transform: translateX(10px); }
+                }
+
+                /* Path Text 1 (22-29%) */
+                .slide.active .pt-1 { animation: kf-pt1 16s infinite; }
+                @keyframes kf-pt1 {
+                    0%, 21% { opacity: 0; transform: translateX(10px); }
+                    22%, 28% { opacity: 1; transform: translateX(0); }
+                    29%, 100% { opacity: 0; transform: translateX(-10px); }
+                }
+
+                /* QA Hub Activation */
+                .slide.active .qa-hub-active { animation: kf-qa-active 16s infinite; }
+                @keyframes kf-qa-active {
+                    0%, 25% { opacity: 0; transform: scale(0.95); }
+                    27%, 62% { opacity: 1; transform: scale(1); }
+                    64%, 100% { opacity: 0; transform: scale(1.05); }
+                }
+
+                /* QA Check Action (30-54%) */
+                .slide.active .action-qa { animation: kf-qacheck 16s infinite; }
+                @keyframes kf-qacheck {
+                    0%, 30% { opacity: 0; transform: translateX(-10px); }
+                    32%, 52% { opacity: 1; transform: translateX(0); }
+                    54%, 100% { opacity: 0; transform: translateX(10px); }
+                }
+
+                /* Validated Card */
+                .slide.active .valid-card { animation: kf-valid 16s infinite; }
+                @keyframes kf-valid {
+                    0%, 51.4% { opacity: 0; top: 246px; transform: scale(1.1) scaleX(0); }
+                    51.5% { opacity: 1; top: 246px; transform: scale(1.1) scaleX(0); } /* Start flip in */
+                    53%, 60% { opacity: 1; top: 246px; transform: scale(1) scaleX(1); } /* Flip in complete */
+                    64%, 80% { opacity: 1; top: 32px; transform: scale(1) scaleX(1); } /* Moves to DEF */
+                    81.4% { opacity: 1; top: 32px; transform: scale(1.1) scaleX(0); } /* Flip out */
+                    81.5%, 100% { opacity: 0; top: 32px; transform: scale(1.1) scaleX(0); }
+                }
+
+                /* Path Text 2 (60-68%) */
+                .slide.active .pt-2 { animation: kf-pt2 16s infinite; }
+                @keyframes kf-pt2 {
+                    0%, 59% { opacity: 0; transform: translateX(10px); }
+                    61%, 67% { opacity: 1; transform: translateX(0); }
+                    68%, 100% { opacity: 0; transform: translateX(-10px); }
+                }
+
+                /* DEFAULT Hub Activation */
+                .slide.active .def-hub-active { animation: kf-def-active 16s infinite; }
+                @keyframes kf-def-active {
+                    0%, 64% { opacity: 0; transform: scale(0.95); }
+                    66%, 88% { opacity: 1; transform: scale(1); }
+                    90%, 100% { opacity: 0; transform: scale(1.05); }
+                }
+
+                /* Export Action (68-84%) */
+                .slide.active .action-exp { animation: kf-exp 16s infinite; }
+                @keyframes kf-exp {
+                    0%, 68% { opacity: 0; transform: translateX(-10px); }
+                    70%, 82% { opacity: 1; transform: translateX(0); }
+                    84%, 100% { opacity: 0; transform: translateX(10px); }
+                }
+
+                /* Sync Card */
+                .slide.active .sync-card { animation: kf-sync-card 25s infinite; }
+                @keyframes kf-sync-card {
+                    0%, 52.1% { opacity: 0; top: 32px; transform: scale(1.1) scaleX(0); }
+                    52.2% { opacity: 1; top: 32px; transform: scale(1.1) scaleX(0); }
+                    53.1%, 55% { opacity: 1; top: 32px; transform: scale(1) scaleX(1); } /* Flip in complete */
+                    57.6%, 61.4% { opacity: 1; top: 460px; transform: scale(1) scaleX(1); } /* Moves to MUNI */
+                    62.7%, 100% { opacity: 0; top: 460px; transform: scale(0.8) scaleX(1); } /* Disappears */
+                }
+
+                /* Path Text 3 */
+                .slide.active .pt-3 { animation: kf-pt3 25s infinite; }
+                @keyframes kf-pt3 {
+                    0%, 54.4% { opacity: 0; transform: translateX(-10px); }
+                    55.7%, 59.5% { opacity: 1; transform: translateX(0); }
+                    60.2%, 100% { opacity: 0; transform: translateX(10px); }
+                }
+
+                /* MUNI Hub Activation */
+                .slide.active .muni-hub-active { animation: kf-muni-active 25s infinite; }
+                @keyframes kf-muni-active {
+                    0%, 57.6% { opacity: 0; transform: scale(0.95); }
+                    58.9%, 62.7% { opacity: 1; transform: scale(1); box-shadow: 0 0 30px var(--teal-light); }
+                    64%, 100% { opacity: 0; transform: scale(1.05); }
+                }
+
+                /* Email Notification Anim */
+                .slide.active .action-email { animation: kf-action-email 25s infinite; }
+                @keyframes kf-action-email {
+                    0%, 65% { opacity: 0; transform: translateX(-10px); visibility: hidden; pointer-events: none; }
+                    66%, 72% { opacity: 1; transform: translateX(0); visibility: visible; pointer-events: auto; }
+                    74%, 100% { opacity: 0; transform: translateX(10px); visibility: hidden; pointer-events: none; }
+                }
+
+                .email-icon {
+                    position: absolute;
+                    top: 260px;
+                    left: 50%;
+                    font-size: 60px;
+                    z-index: 24;
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none;
+                }
+                .slide.active .email-icon { animation: kf-email 25s infinite; }
+                @keyframes kf-email {
+                    0%, 64% { opacity: 0; visibility: hidden; transform: translateX(-50%) translateY(0) scale(0.5); }
+                    66%, 68% { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-60px) scale(1.5); }
+                    70%, 100% { opacity: 0; visibility: hidden; transform: translateX(-50%) translateY(-60px) scale(2); }
+                }
+
+                .qa-screenshot {
+                    position: absolute;
+                    top: 20px;
+                    left: 50%;
+                    width: 700px;
+                    max-height: 500px;
+                    object-fit: contain;
+                    border-radius: 8px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1);
+                    z-index: 20;
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none;
+                    background: #fff;
+                    transform: translateX(-50%) translateY(10px) scale(0.9);
+                }
+                .slide.active .qa-screenshot { animation: kf-screenshot 25s infinite; }
+                @keyframes kf-screenshot {
+                    0%, 68% { opacity: 0; visibility: hidden; transform: translateX(-50%) translateY(10px) scale(0.9); pointer-events: none; }
+                    70%, 92% { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0) scale(1); pointer-events: auto; }
+                    94%, 100% { opacity: 0; visibility: hidden; transform: translateX(-50%) translateY(-10px) scale(0.95); pointer-events: none; }
+                }
+
+            </style>
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content" style="height:100%;">
+                <h2 class="slide-title anim d1">Data Flow & Automation Tree</h2>
+                
+                <div class="anim-container anim d2">
+                    <!-- Paths -->
+                    <div class="flow-path path-1"></div>
+                    <div class="flow-path path-2"></div>
+
+                    <!-- Hubs (Background empty states) -->
+                    <div class="hub hub-def"><div class="hub-label">DEFAULT HUB</div></div>
+                    <div class="hub hub-qa"><div class="hub-label">QA HUB</div></div>
+                    <div class="hub hub-muni"><div class="hub-label">MUNICIPAL HUB</div></div>
+
+                    <!-- Active Hub States (They fade in when merging) -->
+                    <div class="hub hub-def hub-active def-hub-active">
+                        <i class="fa-solid fa-shield-halved" style="font-size:22px;margin-bottom:4px;"></i>
+                        <div style="font-weight:700;font-size:16px;">DEFAULT</div>
+                        <div style="font-size:12px;opacity:0.9;">Authoritative Layer</div>
+                    </div>
+                    <div class="hub hub-qa hub-active qa-hub-active">
+                        <i class="fa-solid fa-vial-circle-check" style="font-size:22px;margin-bottom:4px;"></i>
+                        <div style="font-weight:700;font-size:16px;">QA</div>
+                        <div style="font-size:12px;opacity:0.9;">Staging & Validation</div>
+                    </div>
+                    <div class="hub hub-muni hub-active muni-hub-active">
+                        <i class="fa-solid fa-city" style="font-size:22px;margin-bottom:4px;"></i>
+                        <div style="font-weight:700;font-size:16px;">CSRD</div>
+                        <div style="font-size:12px;opacity:0.9;">Local Sync Complete</div>
+                    </div>
+
+                    <!-- Traveling Cards -->
+                    <div class="travel-card csrd-card">
+                        <i class="fa-solid fa-city"></i>
+                        <div class="tc-title">CSRD Edits</div>
+                        <div style="font-size:12px;">Local Geometry/Attributes</div>
+                    </div>
+                    <div class="travel-card valid-card">
+                        <i class="fa-solid fa-check-double"></i>
+                        <div class="tc-title">Validated Data</div>
+                        <div style="font-size:12px;">Passed Auto-Checks</div>
+                    </div>
+                    <div class="travel-card sync-card">
+                        <i class="fa-solid fa-tags"></i>
+                        <div class="tc-title">Sync Packet</div>
+                        <div style="font-size:12px;">Updated QAStatuses</div>
+                    </div>
+
+                    <!-- Action Labels -->
+                    <div class="flow-action action-edit">
+                        <i class="fa-solid fa-pen-nib"></i>
+                        <div>
+                            <div style="font-weight:bold;">1. Editing Phase</div>
+                            <div style="font-size:12px;color:#94a3b8;">Staff updates local version</div>
+                        </div>
+                    </div>
+
+                    <div class="flow-action action-qa">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fa-solid fa-clipboard-check" style="color:var(--teal-light);"></i>
+                            <div style="font-weight:bold;">2. Auto QA Checks</div>
+                        </div>
+                        <div style="font-size:12.5px;color:#94a3b8; line-height:1.5; margin-top:6px; margin-left:30px;">
+                            • Verify Schema & Lengths<br>
+                            • Check Mandatory Fields<br>
+                            • Formatting & Duplicates<br>
+                            • Update QAStatus Tag
+                        </div>
+                    </div>
+
+                    <div class="flow-action action-exp">
+                        <i class="fa-solid fa-file-zipper"></i>
+                        <div>
+                            <div style="font-weight:bold;">4. Nightly Export</div>
+                            <div style="font-size:12px;color:#94a3b8;">Extract FGDB Snapshot</div>
+                        </div>
+                    </div>
+
+                    <div class="flow-action action-email" style="top:250px; left:calc(50% + 160px); z-index:25;">
+                        <i class="fa-solid fa-envelope-circle-check"></i>
+                        <div>
+                            <div style="font-weight:bold;">5. Notification Sent</div>
+                            <div style="font-size:12px;color:#94a3b8;">Email Dispatch with Report</div>
+                        </div>
+                    </div>
+
+                    <div class="email-icon">
+                        <i class="fa-solid fa-envelope" style="color:var(--accent); filter:drop-shadow(0 0 20px rgba(59,130,246,0.8));"></i>
+                    </div>
+
+                    <img src="QAScreenshot.png" class="qa-screenshot" alt="QA Report" />
+
+                    <!-- Path Texts -->
+                    <div class="path-text pt-1">Stage 1: Reconcile & Post<br><i class="fa-solid fa-arrow-up" style="margin-top:6px;"></i></div>
+                    <div class="path-text pt-2">Stage 3: Post to DEFAULT<br><i class="fa-solid fa-arrow-up" style="margin-top:6px;"></i></div>
+                    <div class="path-text pt-3">Stage 5: Bi-Directional Sync<br><i class="fa-solid fa-arrow-down" style="margin-top:6px;"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: AUTOMATED EXPORTS -->
+        <div class="slide" data-index="7">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Automated Data Exports</h2>
+                <div class="two-col">
+                    <div class="anim-left d2" style="transition-delay:0.3s;">
+                        <h3 style="margin-bottom:24px;font-size:26px;">Nightly Distribution</h3>
+                        <ul>
+                            <li><strong>Nightly Snapshots:</strong> Exports the fully reconciled and validated DEFAULT layer.</li>
+                            <li><strong>File Geodatabase (FGDB):</strong> Packages authoritative data into a zipped FGDB format.</li>
+                            <li><strong>Predictable Delivery:</strong> Standardized output files ready for downstream consumption.</li>
+                            <li><strong>ECRF Readiness:</strong> Ensures the latest clean dataset is continuously available for emergency routing systems.</li>
+                        </ul>
+                    </div>
+                    <div class="icon-panel anim-right d3" style="transition-delay:0.5s;">
+                        <i class="fa-solid fa-file-zipper"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: NOTIFICATION SYSTEM -->
+        <div class="slide" data-index="8">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Automated Notification System</h2>
+                <div class="tile-grid">
+                    <div class="tile anim d2">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                        <h3>Power Automate</h3>
+                        <p>Seamless integration with Microsoft Power Automate for immediate email dispatch upon completion.</p>
+                    </div>
+                    <div class="tile anim d3">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <h3>Run Summaries</h3>
+                        <p>Captures success/fail metrics for every stage: Transport, QA, and Export with detailed logs.</p>
+                    </div>
+                    <div class="tile anim d4">
+                        <i class="fa-solid fa-link"></i>
+                        <h3>Direct Access</h3>
+                        <p>Includes generated URLs to access detailed JSON run logs and downloaded datasets directly from the alert.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: INTRO TO SCHEMA GUIDE -->
+        <div class="slide title-slide" data-index="9">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content" style="display:flex;flex-direction:column;align-items:center;">
+                <div class="anim d1 logo-badge">
+                    <i class="fa-solid fa-database"></i>
+                    <span>NG9-1-1</span>
+                </div>
+                <h1 class="anim d2">Database Schema Guide<br><span>and Attribute Rules</span></h1>
+                <p class="anim d3 subtitle">An overview of conventions, validation gates, and platform structures.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: QA VALIDATION GATE -->
+        <div class="slide" data-index="10">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Multi-Agency Conventions</h2>
+                <div class="tile-grid">
+                    <div class="tile anim d2">
+                        <i class="fa-solid fa-users"></i>
+                        <h3>Agency Ownership</h3>
+                        <p>The Agency field represents who owns/maintains the record. Used for web maps and QA dashboards.</p>
+                    </div>
+                    <div class="tile anim d3">
+                        <i class="fa-solid fa-id-card"></i>
+                        <h3>DiscrpAgID</h3>
+                        <p>Agency domain embedded in NGUID. Must be stable and consistent per agency.</p>
+                    </div>
+                    <div class="tile anim d4">
+                        <i class="fa-solid fa-link"></i>
+                        <h3>Domains</h3>
+                        <p>For example, CSRD uses "csrd.bc.ca", Revelstoke uses "revelstoke.ca".</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: MUNICIPAL INTEGRATION -->
+        <div class="slide" data-index="11">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Key Attribute Rules</h2>
+                <div class="two-col">
+                    <div class="icon-panel anim-left d2" style="transition-delay:0.3s;">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <div class="anim-right d3" style="transition-delay:0.5s;">
+                        <h3 style="margin-bottom:24px;font-size:26px;">Auto-Filled on Save</h3>
+                        <p style="margin-bottom:24px;">These fields are automatically computed and should be read-only in editing views:</p>
+                        <ul>
+                            <li><strong>Full Addr:</strong> Built from Unit, civic number, street, locality, province, and postal.</li>
+                            <li><strong>NGUID:</strong> Globally Unique ID requiring DiscrpAgID and GlobalID.</li>
+                            <li><strong>AddCode:</strong> Derived from A3 using a fixed lookup table.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: PLATFORM STACK -->
+        <div class="slide" data-index="12">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Web Form Structure</h2>
+                <div class="two-col">
+                    <div class="stack-panel stack-dark anim-left d2" style="transition-delay:0.3s;">
+                        <div class="stack-row">
+                            <i class="fa-solid fa-star"></i>
+                            <div>
+                                <div class="label">Quick Entry</div>
+                                <div class="sublabel">Agency, DiscrpAgID, Add Number, St Name</div>
+                            </div>
+                        </div>
+                        <div class="stack-row">
+                            <i class="fa-solid fa-road"></i>
+                            <div>
+                                <div class="label">Street Components</div>
+                                <div class="sublabel">St PreDir, St PreTyp, St PosTyp, St PosDir</div>
+                            </div>
+                        </div>
+                        <div class="stack-row">
+                            <i class="fa-solid fa-map"></i>
+                            <div>
+                                <div class="label">Jurisdiction & Postal</div>
+                                <div class="sublabel">Country, A1, A2, Post Comm, Post Code</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stack-panel stack-glass anim-right d3" style="transition-delay:0.5s;">
+                        <div class="stack-row">
+                            <i class="fa-solid fa-building" style="color:var(--teal);"></i>
+                            <div>
+                                <div class="label">Unit / Interior</div>
+                                <div class="sublabel">Building, Floor, Room, Seat</div>
+                            </div>
+                        </div>
+                        <div class="stack-row">
+                            <i class="fa-solid fa-clock" style="color:var(--teal);"></i>
+                            <div>
+                                <div class="label">Effective Dates & Notes</div>
+                                <div class="sublabel">Effective, Expire, Addressnotes, Featureid</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: ARCGIS PRO WORKFLOW -->
+        <div class="slide" data-index="13">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Street Components</h2>
+                <div class="two-col">
+                    <div class="anim-left d2" style="transition-delay:0.3s;">
+                        <h3 style="margin-bottom:24px;font-size:26px;">No Abbreviations</h3>
+                        <p style="margin-bottom:24px;">For NENA street component fields, abbreviations are strictly not accepted.</p>
+                        <ul>
+                            <li><strong>Directionals:</strong> Use full words like "Southwest", "North" (not SW or N).</li>
+                            <li><strong>Types:</strong> Use full types like "Road", "Street", "Avenue" (not Rd, St, Ave).</li>
+                            <li><strong>Pre/Post:</strong> Applies to Pre Directional, Pre Type, Post Type, Post Directional.</li>
+                        </ul>
+                    </div>
+                    <div class="icon-panel anim-right d3" style="transition-delay:0.5s;">
+                        <i class="fa-solid fa-signs-post"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 15: EXPERIENCE BUILDER -->
+        <div class="slide" data-index="14">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Jurisdiction & Communities</h2>
+                <div class="two-col">
+                    <div class="icon-panel anim-left d2" style="transition-delay:0.3s;">
+                        <i class="fa-solid fa-earth-americas"></i>
+                    </div>
+                    <div class="anim-right d3" style="transition-delay:0.5s;">
+                        <h3 style="margin-bottom:24px;font-size:26px;">Standard Regional Fields</h3>
+                        <p style="margin-bottom:24px;">Consistency is critical for routing and mapping across boundaries.</p>
+                        <ul>
+                            <li><strong>Country & A1 (Province):</strong> Typically default to "CA" and "BC".</li>
+                            <li><strong>A2 (Regional District):</strong> E.g. Columbia Shuswap Regional District.</li>
+                            <li><strong>A3 (Locality):</strong> Must precisely match the AddCode lookup values.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 16: RECONCILE & POST -->
+        <div class="slide" data-index="15">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content" style="text-align:center;">
+                <h2 class="slide-title anim d1" style="text-align:left;">What Happens on Save</h2>
+                <div class="workflow" style="margin-top:40px;">
+                    <div class="wf-step anim d2">
+                        <i class="fa-solid fa-pen-nib" style="color:#94a3b8;"></i>
+                        <h4>1. Input</h4>
+                        <p>User enters core civic and street data.</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right wf-arrow anim d3"></i>
+                    <div class="wf-step highlight anim d4">
+                        <i class="fa-solid fa-gears" style="color:var(--teal);"></i>
+                        <h4 style="color:var(--teal);">2. Execute</h4>
+                        <p>Arcade attribute rules fire automatically.</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right wf-arrow anim d5"></i>
+                    <div class="wf-step filled anim d6">
+                        <i class="fa-solid fa-check-double" style="color:white;"></i>
+                        <h4>3. Output</h4>
+                        <p style="color:rgba(255,255,255,0.9);">NGUID, Full Addr, AddCode, Lat/Long are generated.</p>
+                    </div>
+                </div>
+                <p class="anim d7" style="margin-top:60px;font-style:italic;color:#64748b;font-size:20px;">
+                    Ensures NENA data compliance dynamically on every edit.
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 17: GOVERNANCE -->
+        <div class="slide" data-index="16">
+            <div class="slide-bg"><div class="slide-bg-grid"></div></div>
+            <div class="slide-content">
+                <h2 class="slide-title anim d1">Quality Check Status</h2>
+                <div class="two-col">
+                    <div class="anim-left d2" style="transition-delay:0.3s;">
+                        <h3 style="margin-bottom:20px;font-size:24px;">QAStatus Rule</h3>
+                        <p style="margin-bottom:30px;">An optional automated rule to track record quality and pending reviews.</p>
+                        <h3 style="margin-bottom:20px;font-size:24px;">Workflow Reset</h3>
+                        <p>Defaults to Pending on new records. Resets to Pending when key business fields change.</p>
+                    </div>
+                    <div class="gov-card anim-right d3" style="transition-delay:0.5s;">
+                        <h3>System Fields</h3>
+                        <ul>
+                            <li style="color:#cbd5e1;">OBJECTID, GlobalID</li>
+                            <li style="color:#cbd5e1;">Editor tracking (created_user, last_edited_date)</li>
+                            <li style="color:#cbd5e1;">Shape (NAD 1983 UTM Zone 11N)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NAVIGATION UI -->
+    <button class="side-nav left" id="prevBtn" onclick="changeSlide(-1)">
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="side-nav right" id="nextBtn" onclick="changeSlide(1)">
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="slide-dots" id="slideDots"></div>
+        <span class="slide-counter" id="slideCounter">1 / 17</span>
+        <button class="nav-btn" onclick="changeSlide(1)"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <div class="kbd-hint" id="kbdHint">
+        Use <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> to navigate
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+        let isTransitioning = false;
+        let hubState = 0;
+
+        function initDots() {
+            const dotsContainer = document.getElementById('slideDots');
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                dot.addEventListener('click', () => goToSlide(i));
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateUI() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+
+            document.getElementById('slideCounter').textContent =
+                `${currentSlide + 1} / ${totalSlides}`;
+
+            const pct = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = pct + '%';
+
+            document.getElementById('prevBtn').style.opacity = currentSlide === 0 ? '0.2' : '';
+            document.getElementById('prevBtn').style.pointerEvents = currentSlide === 0 ? 'none' : '';
+            document.getElementById('nextBtn').style.opacity = currentSlide === totalSlides - 1 ? '0.2' : '';
+            document.getElementById('nextBtn').style.pointerEvents = currentSlide === totalSlides - 1 ? 'none' : '';
+        }
+
+        function goToSlide(index) {
+            if (index === currentSlide || isTransitioning) return;
+
+            if (currentSlide === 0 && index === 1) { seamlessForward(); return; }
+            if (currentSlide === 1 && index === 0) { seamlessReverse(); return; }
+            if (currentSlide === 1 && index === 2) { morphTransitionDefault(); return; }
+            if (currentSlide === 2 && index === 1) { morphTransitionDefaultReverse(); return; }
+            if (currentSlide === 1 && index === 3) { morphTransitionQA(); return; }
+            if (currentSlide === 3 && index === 1) { morphTransitionQAReverse(); return; }
+
+            isTransitioning = true;
+            const direction = index > currentSlide ? 'up' : 'down';
+            const oldSlide = slides[currentSlide];
+            const newSlide = slides[index];
+
+            oldSlide.classList.add(direction === 'up' ? 'exit-up' : 'exit-down');
+            oldSlide.classList.remove('active');
+            newSlide.classList.add('active');
+            newSlide.classList.remove('exit-up', 'exit-down');
+
+            currentSlide = index;
+            updateUI();
+
+            setTimeout(() => {
+                oldSlide.classList.remove('exit-up', 'exit-down');
+                isTransitioning = false;
+            }, 950);
+        }
+
+        function seamlessForward() {
+            isTransitioning = true;
+            const s1 = slides[0], s2 = slides[1];
+            s2.classList.add('title-enter-prep');
+            s2.classList.remove('exit-up', 'exit-down');
+            requestAnimationFrame(() => {
+                s1.classList.remove('active');
+                s1.classList.add('title-exit');
+                requestAnimationFrame(() => {
+                    s2.classList.remove('title-enter-prep');
+                    s2.classList.add('title-enter');
+                });
+            });
+            currentSlide = 1;
+            updateUI();
+            setTimeout(() => {
+                s2.classList.remove('title-enter');
+                s2.classList.add('active');
+                s1.classList.remove('title-exit');
+                isTransitioning = false;
+            }, 1050);
+        }
+
+        function seamlessReverse() {
+            isTransitioning = true;
+            const s2 = slides[1], s1 = slides[0];
+            s1.classList.add('title-return-prep');
+            requestAnimationFrame(() => {
+                s2.classList.remove('active');
+                s2.classList.add('slide-2-reverse-exit');
+                requestAnimationFrame(() => {
+                    s1.classList.remove('title-return-prep');
+                    s1.classList.add('title-return');
+                });
+            });
+            currentSlide = 0;
+            updateUI();
+            setTimeout(() => {
+                s1.classList.remove('title-return');
+                s1.classList.add('active');
+                s2.classList.remove('slide-2-reverse-exit');
+                isTransitioning = false;
+            }, 950);
+        }
+
+        function morphToSlide3(e) {
+            e.stopPropagation();
+            if (currentSlide !== 1 || isTransitioning) return;
+            goToSlide(2);
+        }
+
+        function morphToSlide4(e) {
+            e.stopPropagation();
+            if (currentSlide !== 1 || isTransitioning) return;
+            goToSlide(3);
+        }
+
+        function zoomIntoCard(cardEl, hub, target, targetIdx) {
+            isTransitioning = true;
+            const r = cardEl.getBoundingClientRect();
+            const cx = (r.left + r.width / 2) / window.innerWidth * 100;
+            const cy = (r.top + r.height / 2) / window.innerHeight * 100;
+
+            hub.style.transformOrigin = `${cx}% ${cy}%`;
+            hub.style.transform = 'scale(1)';
+            hub.style.opacity = '1';
+            hub.classList.add('zoom-into');
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    hub.style.transform = 'scale(7)';
+                    hub.style.opacity = '0';
+                });
+            });
+
+            setTimeout(() => {
+                target.classList.add('morph-target-enter');
+            }, 600);
+
+            setTimeout(() => {
+                target.classList.add('morph-target-reveal');
+            }, 700);
+
+            setTimeout(() => {
+                hub.classList.remove('active', 'zoom-into');
+                hub.style.transform = '';
+                hub.style.opacity = '';
+                hub.style.transformOrigin = '';
+
+                target.classList.remove('morph-target-enter', 'morph-target-reveal');
+                target.classList.add('active');
+
+                currentSlide = targetIdx;
+                updateUI();
+                isTransitioning = false;
+            }, 1500);
+        }
+
+        function zoomOutToCard(cardEl, from, hub, fromIdx) {
+            isTransitioning = true;
+
+            from.classList.remove('active');
+            from.style.opacity = '0';
+            from.style.transition = 'opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1)';
+
+            hub.classList.add('active', 'zoom-out-from');
+
+            const r = cardEl.getBoundingClientRect();
+            const cx = (r.left + r.width / 2) / window.innerWidth * 100;
+            const cy = (r.top + r.height / 2) / window.innerHeight * 100;
+
+            hub.style.transformOrigin = `${cx}% ${cy}%`;
+            hub.style.transform = 'scale(7)';
+            hub.style.opacity = '0';
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    hub.style.transform = 'scale(1)';
+                    hub.style.opacity = '1';
+                });
+            });
+
+            setTimeout(() => {
+                hub.classList.remove('zoom-out-from');
+                hub.style.transform = '';
+                hub.style.opacity = '';
+                hub.style.transformOrigin = '';
+
+                from.style.opacity = '';
+                from.style.transition = '';
+                from.classList.remove('exit-up', 'exit-down');
+
+                currentSlide = 1;
+                updateUI();
+                isTransitioning = false;
+            }, 1400);
+        }
+
+        function morphTransitionDefault() {
+            zoomIntoCard(
+                document.getElementById('slide2DefaultNode'),
+                slides[1], slides[2], 2
+            );
+        }
+
+        function morphTransitionDefaultReverse() {
+            zoomOutToCard(
+                document.getElementById('slide2DefaultNode'),
+                slides[2], slides[1], 2
+            );
+        }
+
+        function morphTransitionQA() {
+            zoomIntoCard(
+                document.getElementById('slide2QANode'),
+                slides[1], slides[3], 3
+            );
+        }
+
+        function morphTransitionQAReverse() {
+            zoomOutToCard(
+                document.getElementById('slide2QANode'),
+                slides[3], slides[1], 3
+            );
+        }
+
+        function changeSlide(dir) {
+            if (isTransitioning) return;
+
+            if (dir === 1) {
+                if (currentSlide === 1 && hubState === 0) {
+                    goToSlide(2);
+                } else if (currentSlide === 2) {
+                    hubState = 1;
+                    goToSlide(1);
+                } else if (currentSlide === 1 && hubState === 1) {
+                    goToSlide(3);
+                } else if (currentSlide === 3) {
+                    hubState = 2;
+                    goToSlide(4);
+                } else {
+                    const next = currentSlide + 1;
+                    if (next >= totalSlides) return;
+                    goToSlide(next);
+                }
+            } else {
+                if (currentSlide === 4) {
+                    goToSlide(3);
+                } else if (currentSlide === 3) {
+                    hubState = 1;
+                    goToSlide(1);
+                } else if (currentSlide === 1 && hubState >= 1) {
+                    hubState = 0;
+                    goToSlide(2);
+                } else if (currentSlide === 2) {
+                    goToSlide(1);
+                } else {
+                    const prev = currentSlide - 1;
+                    if (prev < 0) return;
+                    goToSlide(prev);
+                }
+            }
+        }
+
+        // ── Keyboard Navigation ──
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                changeSlide(-1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                goToSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                goToSlide(totalSlides - 1);
+            }
+
+            document.getElementById('kbdHint').classList.add('hidden');
+        });
+
+        // ── Mouse Wheel Navigation ──
+        let wheelTimeout;
+        document.addEventListener('wheel', (e) => {
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(() => {
+                if (e.deltaY > 30) changeSlide(1);
+                else if (e.deltaY < -30) changeSlide(-1);
+            }, 80);
+        }, { passive: true });
+
+        // ── Touch Navigation ──
+        let touchStartY = 0;
+        document.addEventListener('touchstart', e => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            const diff = touchStartY - e.changedTouches[0].clientY;
+            if (Math.abs(diff) > 50) {
+                changeSlide(diff > 0 ? 1 : -1);
+            }
+        }, { passive: true });
+
+        // ── Hide keyboard hint after delay ──
+        setTimeout(() => {
+            document.getElementById('kbdHint').classList.add('hidden');
+        }, 6000);
+
+        // ── Particle Background ──
+        (function initParticles() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h, particles = [];
+            const PARTICLE_COUNT = 60;
+            const MAX_DIST = 140;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+
+            function createParticle() {
+                return {
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    r: Math.random() * 2 + 0.5,
+                    alpha: Math.random() * 0.4 + 0.1
+                };
+            }
+
+            function init() {
+                resize();
+                particles = [];
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    particles.push(createParticle());
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0) p.x = w;
+                    if (p.x > w) p.x = 0;
+                    if (p.y < 0) p.y = h;
+                    if (p.y > h) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(59,130,246,${p.alpha})`;
+                    ctx.fill();
+
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const q = particles[j];
+                        const dx = p.x - q.x;
+                        const dy = p.y - q.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < MAX_DIST) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(q.x, q.y);
+                            ctx.strokeStyle = `rgba(59,130,246,${0.06 * (1 - dist / MAX_DIST)})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            window.addEventListener('resize', resize);
+            init();
+            draw();
+        })();
+
+        // ── Init ──
+        initDots();
+        updateUI();
+    </script>
+</body>
+
+</html>

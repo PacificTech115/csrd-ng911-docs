@@ -1,0 +1,56 @@
+// Longitude (WGS84/GRS80 decimal degrees) from NAD83 / UTM Zone 11N (26911)
+// Assumes Northern Hemisphere (BC is Northern)
+
+var g = Geometry($feature);
+if (IsEmpty(g)) return Null;
+if (TypeOf(g) != "Point") g = Centroid(g);
+
+var xUTM = g.x;
+var yUTM = g.y;
+if (IsEmpty(xUTM) || IsEmpty(yUTM)) return Null;
+
+// If coordinates already look like lat/long, keep them
+if (Abs(xUTM) <= 180 && Abs(yUTM) <= 90) return Round(xUTM, 6);
+
+// ---- GRS80 (NAD83) constants ----
+var a  = 6378137.0;
+var f  = 1.0 / 298.257222101;
+var e2 = 2*f - f*f;
+var ep2 = e2 / (1 - e2);
+var k0 = 0.9996;
+
+// UTM zone 11N
+var zone = 11;
+var lon0 = (zone - 1) * 6 - 180 + 3;   // -117 degrees central meridian
+
+var x = xUTM - 500000.0;
+var y = yUTM;
+
+var M  = y / k0;
+var mu = M / (a * (1 - e2/4 - 3*Pow(e2,2)/64 - 5*Pow(e2,3)/256));
+
+var e1 = (1 - Sqrt(1 - e2)) / (1 + Sqrt(1 - e2));
+
+var J1 = (3*e1/2 - 27*Pow(e1,3)/32);
+var J2 = (21*Pow(e1,2)/16 - 55*Pow(e1,4)/32);
+var J3 = (151*Pow(e1,3)/96);
+var J4 = (1097*Pow(e1,4)/512);
+
+var fp = mu + J1*Sin(2*mu) + J2*Sin(4*mu) + J3*Sin(6*mu) + J4*Sin(8*mu);
+
+var sinfp = Sin(fp);
+var cosfp = Cos(fp);
+var tanfp = Tan(fp);
+
+var C1 = ep2 * Pow(cosfp, 2);
+var T1 = Pow(tanfp, 2);
+
+var N1 = a / Sqrt(1 - e2 * Pow(sinfp, 2));
+var D  = x / (N1 * k0);
+
+var lonRad =
+  (D
+   - (1 + 2*T1 + C1) * Pow(D,3) / 6
+   + (5 - 2*C1 + 28*T1 - 3*Pow(C1,2) + 8*ep2 + 24*Pow(T1,2)) * Pow(D,5) / 120) / cosfp;
+
+return Round(lon0 + (lonRad * 180 / PI), 6);

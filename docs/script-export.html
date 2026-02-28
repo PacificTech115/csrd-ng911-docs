@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRD NG911 — Export Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <h2>Docs &amp; Maintenance</h2>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
+    <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+    <div class="nav-group-label">1. Technical Documentation</div>
+    <div class="nav-sub-label">Database</div>
+    <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+    <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+    <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    <div class="nav-sub-label">Automations</div>
+    <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+    <a href="gp-tools.html" class="nav-indent active"><i class="fas fa-gears"></i> GP Tools</a>
+    <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+    <div class="nav-group-label">2. Maintenance Guide</div>
+    <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+    <div class="nav-group-label">3. Municipal Guides</div>\n    <a href="guide-golden.html" class="nav-indent"><i class="fas fa-city"></i> Golden</a>\n    <a href="guide-revelstoke.html" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>\n    <a href="guide-salmonarm.html" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>\n    <a href="guide-sicamous.html" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>\n    <div class="nav-group-label">4. Version Control</div>`n    <a href="version-edits.html"><i class="fas fa-history"></i> Version Edits</a>`n    <div class="nav-group-label">5. Quick Reference</div>
+    <a href="quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
+  </nav>
+  <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="../Documentation.html">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="gp-tools.html">GP Tools</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Export Tool</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--green)">
+        <i class="fas fa-file-export"></i>
+      </div>
+      <div class="banner-info">
+        <h1>Export Tool</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-gear"></i>&nbsp; Type: GP Service</span>
+          <span class="banner-tag"><i class="fas fa-file-code"></i>&nbsp; File: ExportGPtool.py</span>
+          <span class="banner-tag"><i class="fas fa-list-ol"></i>&nbsp; Parameters: 4</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- PURPOSE -->
+<section>
+  <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose</h2>
+  <p class="reveal">Exports the DEFAULT feature class to a File Geodatabase, compresses it into a ZIP archive, and copies the result to the network share for distribution. This creates a nightly snapshot of the authoritative NG911 data that can be consumed by external agencies and backup systems.</p>
+</section>
+
+
+<!-- FULL SOURCE CODE (auto-embedded) -->
+<section>
+  <h2 class="reveal"><i class="fas fa-file-code"></i>&nbsp; Full Source Code</h2>
+  <div class="doc-meta reveal">
+    <span><i class="fas fa-ruler-horizontal"></i> 181 lines</span>
+    <span><i class="fas fa-file"></i> ExportGPtool.py</span>
+  </div>
+  <button class="doc-toggle reveal" type="button" data-target="fullsrc-script-export" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show full source (181 lines)</span>
+  </button>
+  <div id="fullsrc-script-export" class="doc-body collapsed">
+    <div class="code-block">
+      <div class="code-header"><span>Python — ExportGPtool.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>import arcpy, os, json, traceback, zipfile, shutil
+from datetime import datetime
+
+FINAL_DROP_DIR = r&quot;\\GIS\Scripts\Geoshare\NG911 Exports&quot;
+DEFAULT_TARGET_FC = r&quot;SDE.CSRD_SSAP_V3_VersionTesting&quot;
+
+def _msg(s): arcpy.AddMessage(s)
+def _warn(s): arcpy.AddWarning(s)
+def _err(s): arcpy.AddError(s)
+
+def ensure_dir(p): os.makedirs(p, exist_ok=True)
+
+def write_test(folder: str, label: str):
+    ensure_dir(folder)
+    p = os.path.join(folder, f&quot;__write_test_{label}.txt&quot;)
+    with open(p, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+        f.write(&quot;ok&quot;)
+    ok = os.path.exists(p)
+    try:
+        os.remove(p)
+    except Exception:
+        pass
+    return ok
+
+def zip_folder_skip_locks(folder_path: str, zip_path: str):
+    with zipfile.ZipFile(zip_path, &quot;w&quot;, compression=zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(folder_path):
+            for fn in files:
+                if fn.lower().endswith(&quot;.lock&quot;):
+                    continue
+                full = os.path.join(root, fn)
+                rel = os.path.relpath(full, os.path.dirname(folder_path))
+                zf.write(full, rel)
+
+def release_gdb_locks():
+    try:
+        arcpy.env.workspace = None
+    except Exception:
+        pass
+    try:
+        arcpy.ClearWorkspaceCache_management()
+    except Exception:
+        pass
+
+def _resolve_target_fc_input(sde_conn: str, target_fc_param_text: str) -&gt; str:
+    &quot;&quot;&quot;
+    Accept target_fc as either:
+    - dataset path text, or
+    - JSON text with {&quot;url&quot;: &quot;...&quot;}.
+    Returns a path usable under arcpy.env.workspace = sde_conn.
+    &quot;&quot;&quot;
+    raw = (target_fc_param_text or &quot;&quot;).strip()
+    if not raw:
+        return &quot;&quot;
+
+    if raw.startswith(&quot;{&quot;):
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, dict) and parsed.get(&quot;url&quot;):
+                raw = str(parsed[&quot;url&quot;]).strip()
+        except Exception:
+            # Keep raw string if it is not valid JSON.
+            pass
+
+    raw_norm = raw.replace(&quot;/&quot;, &quot;\\&quot;)
+    sde_norm = (sde_conn or &quot;&quot;).replace(&quot;/&quot;, &quot;\\&quot;).rstrip(&quot;\\&quot;)
+    prefix = sde_norm + &quot;\\&quot;
+    if sde_norm and raw_norm.lower().startswith(prefix.lower()):
+        # Convert full path to workspace-relative dataset path.
+        return raw_norm[len(prefix):]
+    return raw_norm
+
+def export_feature_class_from_sde(sde_conn: str, target_fc_name: str, out_fgdb: str):
+    arcpy.env.workspace = sde_conn
+
+    if not arcpy.Exists(target_fc_name):
+        sample = (arcpy.ListFeatureClasses() or [])[:25]
+        raise RuntimeError(
+            f&quot;Feature class not found in SDE workspace: {target_fc_name}\n&quot;
+            f&quot;Sample FCs visible: {sample}&quot;
+        )
+
+    desc = arcpy.Describe(target_fc_name)
+    dt = getattr(desc, &quot;datasetType&quot;, None)
+    if str(dt).lower() != &quot;featureclass&quot;:
+        raise RuntimeError(f&quot;Target is not a FeatureClass. datasetType={dt}&quot;)
+
+    out_name = os.path.basename(target_fc_name)
+    _msg(f&quot;Exporting Feature Class: {target_fc_name} -&gt; {out_name}&quot;)
+    arcpy.conversion.FeatureClassToFeatureClass(target_fc_name, out_fgdb, out_name)
+
+    return {&quot;feature_class&quot;: target_fc_name, &quot;output_name&quot;: out_name}
+
+def main():
+    # Republish this as:
+    #   0 sde_conn    (File / GPDataFile)
+    #   1 target_fc   (String path, e.g. SDE.NG911\\SDE.NG911_SiteAddress
+    #                  or full path under same SDE connection)
+    #   2 name_prefix (String)
+    #   3 result_json (Derived output String)
+    sde_conn = arcpy.GetParameterAsText(0)
+    target_fc_text = arcpy.GetParameterAsText(1)
+    name_prefix = arcpy.GetParameterAsText(2)
+
+    if not sde_conn:
+        raise ValueError(&quot;sde_conn is required.&quot;)
+    if not name_prefix:
+        raise ValueError(&quot;name_prefix is required.&quot;)
+
+    ts = datetime.now().strftime(&quot;%Y%m%d_%H%M%S&quot;)
+    target_fc_name = _resolve_target_fc_input(sde_conn, target_fc_text)
+    if not target_fc_name:
+        _warn(f&quot;target_fc was blank; falling back to DEFAULT_TARGET_FC='{DEFAULT_TARGET_FC}'&quot;)
+        target_fc_name = DEFAULT_TARGET_FC
+
+    # Use ArcGIS scratch (most reliable for GP execution)
+    scratch_folder = arcpy.env.scratchFolder or arcpy.env.scratchWorkspace
+    if not scratch_folder:
+        raise RuntimeError(&quot;No scratchFolder/scratchWorkspace available in this GP runtime.&quot;)
+
+    _msg(f&quot;scratchFolder: {scratch_folder}&quot;)
+
+    # Verify scratch is writable
+    if not write_test(scratch_folder, ts):
+        raise RuntimeError(f&quot;Scratch folder is not writable: {scratch_folder}&quot;)
+
+    ensure_dir(FINAL_DROP_DIR)
+
+    fgdb_name = f&quot;{name_prefix}_{ts}.gdb&quot;
+    fgdb_path = os.path.join(scratch_folder, fgdb_name)
+
+    if os.path.exists(fgdb_path):
+        _warn(f&quot;Removing existing FGDB folder: {fgdb_path}&quot;)
+        shutil.rmtree(fgdb_path, ignore_errors=True)
+
+    _msg(f&quot;Creating FGDB in scratch: {fgdb_path}&quot;)
+    arcpy.management.CreateFileGDB(scratch_folder, fgdb_name)
+
+    export_info = export_feature_class_from_sde(sde_conn, target_fc_name, fgdb_path)
+
+    release_gdb_locks()
+
+    zip_name = f&quot;{name_prefix}_{ts}.zip&quot;
+    zip_path_local = os.path.join(scratch_folder, zip_name)
+
+    _msg(f&quot;Zipping (skipping .lock files): {zip_path_local}&quot;)
+    zip_folder_skip_locks(fgdb_path, zip_path_local)
+
+    zip_path_final = os.path.join(FINAL_DROP_DIR, zip_name)
+    shutil.copy2(zip_path_local, zip_path_final)
+    _msg(f&quot;Copied ZIP to: {zip_path_final}&quot;)
+
+    result = {
+        &quot;success&quot;: True,
+        &quot;timestamp&quot;: ts,
+        &quot;sde_conn&quot;: sde_conn,
+        &quot;target_feature_class&quot;: target_fc_name,
+        &quot;scratch_folder&quot;: scratch_folder,
+        &quot;local_fgdb&quot;: fgdb_path,
+        &quot;local_zip&quot;: zip_path_local,
+        &quot;final_zip&quot;: zip_path_final,
+        &quot;final_drop_dir&quot;: FINAL_DROP_DIR,
+        &quot;export&quot;: export_info
+    }
+
+    # result_json output param index (4th parameter / index 3)
+    arcpy.SetParameterAsText(3, json.dumps(result))
+
+if __name__ == &quot;__main__&quot;:
+    try:
+        main()
+    except Exception as ex:
+        tb = traceback.format_exc()
+        _err(str(ex))
+        _err(tb)
+        try:
+            arcpy.SetParameterAsText(3, json.dumps({&quot;success&quot;: False, &quot;error&quot;: str(ex), &quot;traceback&quot;: tb}))
+        except Exception:
+            pass
+        raise
+</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- WORKFLOW -->
+<section>
+  <h2 class="reveal"><i class="fas fa-list-ol"></i>&nbsp; Workflow</h2>
+  <div class="card reveal">
+    <div class="grid-2">
+      <div>
+        <h4>Export Pipeline</h4>
+        <ol>
+          <li><strong>Create FGDB</strong> — Creates a new File Geodatabase in the scratch workspace folder</li>
+          <li><strong>Export Feature Class</strong> — Copies the DEFAULT feature class into the FGDB using <code>FeatureClassToFeatureClass</code></li>
+          <li><strong>Release Locks</strong> — Explicitly releases any geodatabase locks to allow file operations</li>
+          <li><strong>ZIP the FGDB</strong> — Compresses the FGDB folder into a ZIP archive, skipping any <code>.lock</code> files</li>
+          <li><strong>Copy to Network Share</strong> — Copies the ZIP to <code>\\GIS\Scripts\Geoshare\NG911 Exports</code></li>
+        </ol>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <div class="card" style="margin-top:8px;border-left:4px solid var(--green)">
+          <p><strong>File name:</strong> <code>{prefix}_{timestamp}.zip</code></p>
+          <p><strong>Location:</strong> <code>\\GIS\Scripts\Geoshare\NG911 Exports</code></p>
+          <p style="margin-top:8px">The timestamp format is <code>YYYYMMDD_HHmmss</code>, giving each export a unique file name tied to the exact run time.</p>
+        </div>
+        <div class="alert info" style="margin-top:12px"><i class="fas fa-info-circle"></i><span>The <code>.lock</code> file skip ensures the ZIP is never corrupted by stale geodatabase lock files from the scratch workspace.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARAMETERS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-sliders"></i>&nbsp; Parameters</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>#</th><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td><code>sde_conn</code></td><td>File</td><td>Path to the SDE connection file (.sde)</td></tr>
+        <tr><td>1</td><td><code>target_fc</code></td><td>String</td><td>Fully qualified feature class name (e.g., <code>SDE.NG911\SDE.NG911_SiteAddress</code>)</td></tr>
+        <tr><td>2</td><td><code>name_prefix</code></td><td>String</td><td>Prefix for the output ZIP file name (e.g., <code>NG911_SSAP</code>)</td></tr>
+        <tr><td>3</td><td><code>result_json</code></td><td>String</td><td>Output JSON with export result details (derived parameter)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Section-by-Section Breakdown</h2>
+
+  <div class="card reveal doc-section">
+    <h4>1. Utility Functions</h4>
+    <div class="doc-meta"><span>Lines 1 &ndash; 44</span><span>5 functions</span></div>
+    <div class="breakdown-detail">
+      <strong>Functions</strong>
+      <ul>
+        <li><code>write_test(folder, label)</code> &mdash; Writes a temp file to verify write access, then deletes it.</li>
+        <li><code>zip_folder_skip_locks(folder_path, zip_path)</code> &mdash; Walks the FGDB folder, writes all files to ZIP except <code>.lock</code> files.</li>
+        <li><code>release_gdb_locks()</code> &mdash; Clears ArcPy workspace and cache to release file locks.</li>
+        <li><code>_resolve_target_fc_input(sde_conn, text)</code> &mdash; Accepts dataset path or JSON with <code>{"url":"..."}</code>. Converts full SDE paths to workspace-relative paths.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>2. Export Engine</h4>
+    <div class="doc-meta"><span>Lines 73 &ndash; 92</span></div>
+    <div class="breakdown-detail">
+      <strong>Function</strong>
+      <ul>
+        <li><code>export_feature_class_from_sde(sde_conn, target_fc, out_fgdb)</code> &mdash; Sets workspace, verifies FC exists (lists sample FCs on failure), validates <code>datasetType</code>, runs <code>FeatureClassToFeatureClass</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>3. Main Pipeline</h4>
+    <div class="doc-meta"><span>Lines 94 &ndash; 181</span></div>
+    <div class="breakdown-detail">
+      <strong>Flow</strong>
+      <ul>
+        <li>Reads parameters &rarr; resolves target FC &rarr; falls back to <code>DEFAULT_TARGET_FC</code> if blank.</li>
+        <li>Uses <code>arcpy.env.scratchFolder</code> for temp FGDB &rarr; exports &rarr; releases locks &rarr; zips &rarr; copies to <code>FINAL_DROP_DIR</code>.</li>
+      </ul>
+      <strong>Key constants</strong>
+      <ul>
+        <li><code>FINAL_DROP_DIR</code> = <code>\\GIS\Scripts\Geoshare\NG911 Exports</code></li>
+        <li><code>DEFAULT_TARGET_FC</code> = <code>SDE.CSRD_SSAP_V3_VersionTesting</code></li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Change output location: update <code>FINAL_DROP_DIR</code>.</li>
+        <li>Export additional feature classes: add more <code>FeatureClassToFeatureClass</code> calls.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+// ── Doc toggles ──
+(function(){
+  document.querySelectorAll('.doc-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=this.getAttribute('data-target');
+      var body=id?document.getElementById(id):null;
+      if(!body)return;
+      var isCollapsed=body.classList.contains('collapsed');
+      body.classList.toggle('collapsed',!isCollapsed);
+      this.setAttribute('aria-expanded',isCollapsed?'true':'false');
+      var label=this.querySelector('span');
+      if(label){var show=label.textContent;label.textContent=isCollapsed?(show.replace('Show','Hide')):(show.replace('Hide','Show'))}
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

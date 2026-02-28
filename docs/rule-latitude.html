@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRD NG911 — 4. Latitude Rule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <h2>Docs &amp; Maintenance</h2>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
+    <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+    <div class="nav-group-label">1. Technical Documentation</div>
+    <div class="nav-sub-label">Database</div>
+    <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+    <a href="attribute-rules.html" class="nav-indent active"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+    <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    <div class="nav-sub-label">Automations</div>
+    <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+    <a href="gp-tools.html" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
+    <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+    <div class="nav-group-label">2. Maintenance Guide</div>
+    <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+    <div class="nav-group-label">3. Municipal Guides</div>\n    <a href="guide-golden.html" class="nav-indent"><i class="fas fa-city"></i> Golden</a>\n    <a href="guide-revelstoke.html" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>\n    <a href="guide-salmonarm.html" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>\n    <a href="guide-sicamous.html" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>\n    <div class="nav-group-label">4. Version Control</div>`n    <a href="version-edits.html"><i class="fas fa-history"></i> Version Edits</a>`n    <div class="nav-group-label">5. Quick Reference</div>
+    <a href="quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
+  </nav>
+  <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="../Documentation.html">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="attribute-rules.html">Attribute Rules</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">4. Latitude</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--green)">
+        <i class="fas fa-location-crosshairs"></i>
+      </div>
+      <div class="banner-info">
+        <h1>4. Latitude</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-bullseye"></i>&nbsp; Target: Lat</span>
+          <span class="banner-tag"><i class="fas fa-bolt"></i>&nbsp; Triggers: Insert / Update</span>
+          <span class="banner-tag"><i class="fas fa-calculator"></i>&nbsp; Type: Calculation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- DESCRIPTION -->
+<section>
+  <h2 class="reveal">Description</h2>
+  <p class="reveal">Extracts the Y coordinate (latitude) from feature geometry. Uses identical logic to the Longitude rule, including Web Mercator conversion, but returns the latitude component (<code>ll[0]</code>) instead of longitude (<code>ll[1]</code>). The current source file contains the same code as Longitude &mdash; during deployment, the return values should reference <code>ll[0]</code> for latitude and <code>g.y</code> for the direct-degree path.</p>
+</section>
+
+<!-- METADATA -->
+<section>
+  <h2 class="reveal">Metadata</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Target Field</td><td><code>Lat</code></td></tr>
+        <tr><td>Triggers</td><td>Insert, Update</td></tr>
+        <tr><td>Input</td><td>Feature Geometry (Y coordinate)</td></tr>
+        <tr><td>Precision</td><td>6 decimal places</td></tr>
+        <tr><td>Relationship</td><td>Mirror of Longitude rule (returns Y instead of X)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FULL SOURCE CODE -->
+<section>
+  <h2 class="reveal">Full Source Code</h2>
+
+  <div class="alert warning reveal">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span><strong>Deployment Note:</strong> The deployed rule should return <code>Round(ll[0], 6)</code> for the Web Mercator path and <code>Round(g.y, 6)</code> for the direct-degree path. The source below currently mirrors the Longitude file &mdash; verify return indices before publishing.</span>
+  </div>
+
+  <div class="reveal">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-tag">Arcade</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+<pre><span class="code-section" data-section="1"><span class="kw">var</span> g = <span class="fn">Geometry</span>(<span class="var">$feature</span>);
+<span class="kw">if</span> (<span class="fn">IsEmpty</span>(g)) <span class="kw">return</span> <span class="bi">Null</span>;
+
+<span class="kw">if</span> (<span class="fn">TypeOf</span>(g) != <span class="str">"Point"</span>) g = <span class="fn">Centroid</span>(g);</span>
+
+<span class="code-section" data-section="2"><span class="kw">var</span> sr = g.spatialReference;
+<span class="kw">var</span> wkid = <span class="fn">DefaultValue</span>(sr.wkid, <span class="fn">DefaultValue</span>(sr.latestWkid, <span class="num">-1</span>));</span>
+
+<span class="code-section" data-section="3"><span class="kw">function</span> <span class="fn">WebMercatorToLatLon</span>(x, y) {
+  <span class="kw">var</span> originShift = <span class="num">2.0</span> * PI * <span class="num">6378137.0</span> / <span class="num">2.0</span>;
+  <span class="kw">var</span> lon = (x / originShift) * <span class="num">180.0</span>;
+  <span class="kw">var</span> lat = (y / originShift) * <span class="num">180.0</span>;
+  lat = <span class="num">180.0</span> / PI * (<span class="num">2.0</span> * <span class="fn">Atan</span>(<span class="fn">Exp</span>(lat * PI / <span class="num">180.0</span>)) - PI / <span class="num">2.0</span>);
+  <span class="kw">return</span> [lat, lon];
+}
+
+<span class="kw">var</span> x = g.x;
+<span class="kw">var</span> y = g.y;
+
+<span class="cm">// Web Mercator stored coords → convert</span>
+<span class="kw">if</span> (wkid == <span class="num">3857</span> || wkid == <span class="num">102100</span> || wkid == <span class="num">102113</span>) {
+  <span class="kw">var</span> ll = <span class="fn">WebMercatorToLatLon</span>(x, y);
+  <span class="kw">return</span> <span class="fn">Round</span>(ll[<span class="num">1</span>], <span class="num">6</span>); <span class="cm">// ⚠ Should be ll[0] for latitude</span>
+}</span>
+
+<span class="code-section" data-section="4"><span class="cm">// Already looks like degrees → use directly</span>
+<span class="kw">if</span> (<span class="fn">Abs</span>(x) &lt;= <span class="num">180</span> &amp;&amp; <span class="fn">Abs</span>(y) &lt;= <span class="num">90</span>) {
+  <span class="kw">return</span> <span class="fn">Round</span>(x, <span class="num">6</span>); <span class="cm">// ⚠ Should be Round(g.y, 6) for latitude</span>
+}
+
+<span class="cm">// Other projected CRS (UTM/state plane/etc) → cannot reliably convert here</span>
+<span class="kw">return</span> <span class="bi">Null</span>;</span></pre>
+    </div>
+    <div class="section-popup" id="sectionPopup"></div>
+    </div>
+  </details>
+</section>
+
+<!-- SECTION-BY-SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal">Section-by-Section Breakdown</h2>
+
+  <div class="alert info reveal">
+    <i class="fas fa-info-circle"></i>
+    <span>This rule mirrors the Longitude rule. Any changes to the Web Mercator conversion function should be applied to both rules simultaneously.</span>
+  </div>
+
+  <div class="breakdown-card reveal" data-section="1">
+    <h4>1. Geometry Extraction</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 1 &ndash; 4</span>
+      <span class="meta-tag">Input: Geometry</span>
+      <span class="meta-tag">Output: Point or Null</span>
+    </div>
+    <p>Identical to Longitude rule. Gets geometry; returns Null if empty; uses <code>Centroid(g)</code> for non-points.</p>
+    <div class="breakdown-detail">
+      <strong>Keep in sync</strong>
+      <ul>
+        <li>Any change to Longitude rule section 1 must be applied here.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="2">
+    <h4>2. Spatial Reference Detection</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 6 &ndash; 7</span>
+      <span class="meta-tag">Input: g.spatialReference</span>
+    </div>
+    <p>Identical to Longitude rule. Reads wkid with latestWkid fallback.</p>
+    <div class="breakdown-detail">
+      <strong>Keep in sync</strong>
+      <ul>
+        <li>Match Longitude rule section 2.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal" data-section="3">
+    <h4>3. Web Mercator Conversion</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 9 &ndash; 24</span>
+      <span class="meta-tag">Input: g.x, g.y (meters)</span>
+      <span class="meta-tag">Output: latitude (degrees)</span>
+    </div>
+    <p>Same <code>WebMercatorToLatLon</code> as Longitude. <strong>Critical:</strong> returns <code>ll[0]</code> (latitude), not <code>ll[1]</code> (longitude). The function returns <code>[lat, lon]</code>.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>If wkid in {3857, 102100, 102113}: return <code>Round(ll[0], 6)</code> (latitude)</li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Copy from Longitude rule but change <code>ll[1]</code> to <code>ll[0]</code>. Any CRS/conversion change must be applied to both rules.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="4">
+    <h4>4. Direct Degree Handling and Fallback</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 26 &ndash; 32</span>
+      <span class="meta-tag">Input: x, y</span>
+      <span class="meta-tag">Output: number or Null</span>
+    </div>
+    <p>For degree-like coords (<code>|x| ≤ 180</code>, <code>|y| ≤ 90</code>), returns <code>Round(y, 6)</code>—latitude is the Y component in decimal degrees. For other CRS, returns Null.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>If degree-like: return <code>Round(y, 6)</code> (not x—Longitude returns x)</li>
+        <li>Else: return Null</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Add UTM/other CRS: add conversion branch; apply same change to Longitude rule.</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+(function(){
+  var popup = document.getElementById('sectionPopup');
+  var sections = document.querySelectorAll('.code-section');
+  var cards = document.querySelectorAll('.breakdown-card[data-section]');
+  var META = [
+    {title:'Geometry Extraction',lines:'Lines 1\u20134',fields:'Geometry',desc:'Returns Null if no geometry. Uses centroid for non-point features.',maint:'Works for all geometry types. Keep in sync with the Longitude rule.'},
+    {title:'Spatial Reference Detection',lines:'Lines 6\u20137',fields:'spatialReference',desc:'Reads the WKID of the coordinate system with latestWkid fallback.',maint:'No changes needed. Identical to Longitude rule.'},
+    {title:'Web Mercator Conversion',lines:'Lines 9\u201324',fields:'X, Y coordinates',desc:'Inverse Mercator projection converting meters to decimal degrees. Returns ll[0] (latitude).',maint:'Standard math \u2014 do not modify. Keep in sync with Longitude rule.'},
+    {title:'Direct Degree Handling',lines:'Lines 26\u201332',fields:'X, Y coordinates',desc:'If coords look like degrees, returns g.y directly for latitude. Returns Null for unsupported CRS.',maint:'Add conversion branch for new CRS WKIDs. Apply same change to Longitude rule.'}
+  ];
+  var activeSection = null;
+
+  sections.forEach(function(span){
+    span.addEventListener('mouseenter', function(e){
+      var idx = parseInt(this.dataset.section);
+      var m = META[idx - 1];
+      if (!m) return;
+      activeSection = idx;
+      this.classList.add('active');
+      cards.forEach(function(c){ c.classList.toggle('highlight', parseInt(c.dataset.section) === idx); });
+      popup.innerHTML = '<h4><span class="popup-num">' + idx + '</span>' + m.title + '</h4>'
+        + '<div class="popup-meta">' + (m.lines ? '<span class="popup-tag">' + m.lines + '</span>' : '')
+        + (m.fields ? '<span class="popup-tag">Fields: ' + m.fields + '</span>' : '') + '</div>'
+        + '<p>' + m.desc + '</p>'
+        + (m.maint ? '<div class="popup-maint"><strong>Maintenance:</strong> ' + m.maint + '</div>' : '');
+      popup.classList.add('visible');
+    });
+    span.addEventListener('mousemove', function(e){
+      var x = Math.min(e.clientX + 16, window.innerWidth - 360);
+      var y = Math.min(e.clientY - 10, window.innerHeight - popup.offsetHeight - 10);
+      popup.style.left = x + 'px';
+      popup.style.top = Math.max(10, y) + 'px';
+    });
+    span.addEventListener('mouseleave', function(){
+      this.classList.remove('active');
+      popup.classList.remove('visible');
+      cards.forEach(function(c){ c.classList.remove('highlight'); });
+      activeSection = null;
+    });
+  });
+
+  cards.forEach(function(card){
+    var idx = parseInt(card.dataset.section);
+    var codeSection = document.querySelector('.code-section[data-section="'+idx+'"]');
+    if (codeSection) {
+      var reveal = document.createElement('div');
+      reveal.className = 'breakdown-code-reveal';
+      var pre = document.createElement('pre');
+      pre.textContent = codeSection.textContent;
+      reveal.appendChild(pre);
+      card.parentNode.insertBefore(reveal, card.nextSibling);
+    }
+    card.addEventListener('mouseenter', function(){
+      var idx = parseInt(this.dataset.section);
+      sections.forEach(function(s){ s.classList.toggle('active', parseInt(s.dataset.section) === idx); });
+      this.classList.add('highlight');
+    });
+    card.addEventListener('mouseleave', function(){
+      sections.forEach(function(s){ s.classList.remove('active'); });
+      this.classList.remove('highlight');
+    });
+    card.addEventListener('click', function(e){
+      e.preventDefault();
+      var rev = this.nextElementSibling;
+      if (rev && rev.classList.contains('breakdown-code-reveal')) rev.classList.toggle('visible');
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

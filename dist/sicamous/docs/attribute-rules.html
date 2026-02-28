@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attribute Rules — CSRD NG911 Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- ── SIDEBAR ── -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+      <h2>Sicamous Portal</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="guide-sicamous.html" class=""><i class="fas fa-home"></i> User Guide</a>
+      <div class="nav-group-label" style="margin-top:20px;">Technical References</div>
+      <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+      <a href="attribute-rules.html" class="active nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+      <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    </nav>
+    <div class="sidebar-footer">CSRD NG911 &copy; 2026 &middot; Pacific Tech Systems</div>
+  </aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+<!-- ═══ PAGE HEADER ═══ -->
+<header class="page-header">
+  <div class="page-header-content">
+    <nav class="breadcrumb">
+      <a href="../Documentation.html">Home</a>
+      <i class="fas fa-chevron-right sep"></i>
+      <span class="current">Attribute Rules</span>
+    </nav>
+    <h1><span>Attribute</span> Rules</h1>
+    <div class="subtitle">9 Arcade attribute rules &mdash; 8 calculations + 1 constraint</div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<section>
+  <div class="alert info reveal"><i class="fas fa-info-circle"></i><span>Attribute rules execute in order. Full_Addr depends on component fields and QAStatus watches Full_Addr, so ordering matters. Rules run server-side within the geodatabase on every Insert and Update.</span></div>
+
+  <h3 class="section-label reveal" style="margin-top:24px;margin-bottom:12px;font-size:.95rem;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.08em"><i class="fas fa-calculator"></i> Calculation Rules</h3>
+  <div class="grid-2" style="margin-top:8px">
+
+    <!-- 1. Full Address -->
+    <a class="link-card reveal" href="rule-full-address.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon teal"><i class="fas fa-map-location-dot"></i></div>
+          <h4>1. Full Address</h4>
+          <span class="card-tag">Full_Addr</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Concatenates 16 address component fields into a formatted string</p>
+      </div>
+    </a>
+
+    <!-- 2. NGUID -->
+    <a class="link-card reveal reveal-delay-1" href="rule-nguid.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon blue"><i class="fas fa-fingerprint"></i></div>
+          <h4>2. NGUID</h4>
+          <span class="card-tag">NGUID</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Generates URN-format National Geographic Unique Identifier</p>
+      </div>
+    </a>
+
+    <!-- 3. Longitude -->
+    <a class="link-card reveal" href="rule-longitude.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green"><i class="fas fa-location-crosshairs"></i></div>
+          <h4>3. Longitude</h4>
+          <span class="card-tag">Long</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Extracts X coordinate, converts Web Mercator to degrees</p>
+      </div>
+    </a>
+
+    <!-- 4. Latitude -->
+    <a class="link-card reveal reveal-delay-1" href="rule-latitude.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green"><i class="fas fa-location-crosshairs"></i></div>
+          <h4>4. Latitude</h4>
+          <span class="card-tag">Lat</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Extracts Y coordinate, converts Web Mercator to degrees</p>
+      </div>
+    </a>
+
+    <!-- 5. AddCode -->
+    <a class="link-card reveal" href="rule-addcode.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon amber"><i class="fas fa-hashtag"></i></div>
+          <h4>5. AddCode</h4>
+          <span class="card-tag">AddCode</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Maps municipality name to numeric code (39 communities)</p>
+      </div>
+    </a>
+
+    <!-- 6. DateUpdate -->
+    <a class="link-card reveal reveal-delay-1" href="rule-dateupdate.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon navy"><i class="fas fa-calendar"></i></div>
+          <h4>6. DateUpdate</h4>
+          <span class="card-tag">DateUpdate</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Sets to last_edited_date on every save</p>
+      </div>
+    </a>
+
+    <!-- 7. QAStatus -->
+    <a class="link-card reveal" href="rule-qastatus.html">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon red"><i class="fas fa-shield-halved"></i></div>
+          <h4>7. QAStatus</h4>
+          <span class="card-tag">QAStatus</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Business logic: Pending on insert, reset on field changes, preserve explicit edits</p>
+      </div>
+    </a>
+
+    <!-- 8. Default Agency (INACTIVE) -->
+    <a class="link-card reveal reveal-delay-1" href="rule-defaultagency.html">
+      <div class="card" style="border-left:4px solid var(--gray);opacity:.75">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--gray)"><i class="fas fa-user-tag"></i></div>
+          <h4>8. Default Agency</h4>
+          <span class="card-tag" style="background:rgba(100,116,139,.12);color:var(--gray)">INACTIVE</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Auto-populates Agency, A3, DiscrpAgID on insert based on editing user</p>
+      </div>
+    </a>
+
+  </div>
+
+  <hr class="rule-separator reveal" aria-hidden="true">
+  <h3 class="section-label reveal" style="margin-top:24px;margin-bottom:12px;font-size:.95rem;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.08em"><i class="fas fa-ban"></i> Constraint Rules</h3>
+
+  <!-- A. Mandatory (full-width constraint) -->
+  <a class="link-card reveal" href="rule-mandatory.html">
+    <div class="card" style="border-left:4px solid var(--red)">
+      <div class="card-header">
+        <div class="card-icon red"><i class="fas fa-exclamation-circle"></i></div>
+        <h4>A. Mandatory Fields</h4>
+        <span class="card-tag" style="background:rgba(239,68,68,.1);color:var(--red)">Constraint</span>
+        <i class="fas fa-arrow-right card-arrow"></i>
+      </div>
+      <p>Blocks save if any of 8 mandatory fields (Full_Addr, Agency, DiscrpAgID, NGUID, Country, A1, A2, A3) are blank</p>
+    </div>
+  </a>
+
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+// ── Scroll reveal ──
+(function(){const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.reveal').forEach(el=>io.observe(el))})();
+
+// ── Progress bar ──
+(function(){const bar=document.getElementById('progress');function u(){const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=(h>0?Math.min(s/h*100,100):0)+'%'}window.addEventListener('scroll',u,{passive:true});u()})();
+
+// ── Back to top ──
+(function(){const b=document.getElementById('backToTop');window.addEventListener('scroll',()=>{b.classList.toggle('visible',window.scrollY>400)},{passive:true})})();
+
+// ── Mobile toggle ──
+
+// ── Copy code ──
+function copyCode(btn){const pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.textContent).then(()=>{btn.textContent='Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500)})}
+
+// ── Sidebar active on scroll ──
+(function(){
+  document.querySelectorAll('.sidebar-nav a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.sidebar').classList.remove('open')));
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRD NG911 — Revelstoke User Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div id="progress"></div>
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="assets/revelstoke/Revelstoke.png" alt="Revelstoke Logo">
+    <h2>Docs &amp; Maintenance</h2>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
+    <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+    <div class="nav-group-label">1. Technical Documentation</div>
+    <div class="nav-sub-label">Database</div>
+    <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+    <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+    <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    <div class="nav-sub-label">Automations</div>
+    <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+    <a href="gp-tools.html" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
+    <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+    <div class="nav-group-label">2. Maintenance Guide</div>
+    <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+    <div class="nav-group-label">3. Municipal Guides</div>
+    <a href="guide-golden.html" class="nav-indent"><i class="fas fa-city"></i> Golden</a>\n    <a href="guide-revelstoke.html" class="active nav-indent"><i class="fas fa-city"></i> Revelstoke</a>\n    <a href="guide-salmonarm.html" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>\n    <a href="guide-sicamous.html" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>
+    <div class="nav-group-label">4. Version Control</div>
+    <a href="version-edits.html"><i class="fas fa-history"></i> Version Edits</a>
+    <div class="nav-group-label">5. Quick Reference</div>
+    <a href="quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
+  </nav>
+  <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+</aside>
+<div class="main">
+
+<div class="hero-wrapper" id="hero">
+  <div class="hero-card">
+    <div class="hero-card-inner">
+      <div class="hero-text">
+        <h1>City of Revelstoke <span>NG9-1-1</span> Central<br>Addressing System</h1>
+        <div class="subtitle">Editor User Guide &amp; Workflow Timeline</div>
+        <div class="hero-actions" style="margin-top: 24px;">
+          <a href="../DownloadFiles/Revelstoke_NG911_Central_Addressing_User_Guide.pdf" download class="btn" style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">
+            <i class="fas fa-download"></i> Download Original PDF
+          </a>
+        </div>
+      </div>
+      <div class="hero-graphic">
+        <img src="hero-illustration.png" alt="GIS Documentation Illustration">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<section>
+  <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Pipeline Timeline</h2>
+  <div class="pipeline reveal">
+    <div class="pipeline-step s1">Revelstoke SDE<small>Local Edits</small></div>
+    <div class="pipeline-arrow"><div class="dot"></div></div>
+    <div class="pipeline-step s2">Reconcile &amp; Post<small>MUNI_TO_QA</small></div>
+    <div class="pipeline-arrow"><div class="dot"></div></div>
+    <div class="pipeline-step s3">QA SDE<small>Validation</small></div>
+    <div class="pipeline-arrow"><div class="dot"></div></div>
+    <div class="pipeline-step s4">DEFAULT SDE<small>Production</small></div>
+    <div class="pipeline-arrow"><div class="dot"></div></div>
+    <div class="pipeline-step s5">Provincial Export<small>NextGen 911</small></div>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-video"></i>&nbsp; Workflow Walkthrough (Revelstoke)</h2>
+  <div class="video-container reveal" style="margin-top: 20px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+      <iframe src="https://www.youtube.com/embed/M2ruVVObXP8?rel=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  </div>
+</section>
+<section>
+  <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose and Scope</h2>
+  <div class="card reveal">
+    <p>This guide explains the standard Revelstoke workflow for editing the NG911 central addressing data:</p>
+    <ol style="margin-top:10px; margin-left: 20px;">
+      <li>Log in to the CSRD portal.</li>
+      <li>Open the Revelstoke NG911 group.</li>
+      <li>Open the <code>NG911_Address_Revelstoke_Edit</code> feature layer.</li>
+      <li>Choose <strong>Open in ArcGIS Pro</strong>.</li>
+      <li>Edit attributes/geometry and save edits.</li>
+      <li>Verify changes in the Feature Layers Data tab on the CSRD Portal.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-key"></i>&nbsp; System Access Details</h2>
+  
+  <div class="grid-2 reveal">
+    <div class="card">
+      <h4>Portal & Item URLs</h4>
+      <table style="margin-top: 10px;">
+        <tbody>
+          <tr><td><strong>CSRD Portal Home</strong></td><td><a href="https://apps.csrd.bc.ca/hub/home" target="_blank" style="word-break: break-all;">https://apps.csrd.bc.ca/hub/home</a></td></tr>
+          <tr><td><strong>Revelstoke Group</strong></td><td><a href="https://apps.csrd.bc.ca/hub/home/content.html?sortField=modified&sortOrder=desc&view=table&group=3a80dc645aff4c31b688c2d5a81217cf#group" target="_blank">Open Group</a></td></tr>
+          <tr><td><strong>Editing Layer Item</strong></td><td><a href="https://apps.csrd.bc.ca/hub/home/item.html?id=f0c4a2487440451d81a7e1a8bf04b81e" target="_blank">Open NG911_Address_Revelstoke_Edit</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h4>User Credentials</h4>
+      <table style="margin-top: 10px;">
+        <thead><tr><th>Role</th><th>Username</th><th>Password</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="card-tag" style="background:rgba(14,165,233,.1);color:var(--blue)">Viewer</span></td>
+            <td><code>Revelstoke</code></td>
+            <td><code>Revelstoke@2024</code></td>
+          </tr>
+          <tr>
+            <td><span class="card-tag" style="background:rgba(16,185,129,.1);color:var(--green)">Editor</span></td>
+            <td><code>Revelstoke_Editing</code></td>
+            <td><code>RevelstokeEdit#@2026</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="alert info" style="margin-top:15px; margin-bottom:0;"><i class="fas fa-info-circle"></i><span>Use the <strong>Viewer</strong> account for read-only validation. Only use the <strong>Editor</strong> account for production edits to the address layer.</span></div>
+    </div>
+  </div>
+</section>
+<section>
+  <h2 class="reveal"><i class="fas fa-list-ol"></i>&nbsp; Step-by-Step Editing Workflow</h2>
+  
+  <div class="card reveal">
+    <h4>Step 1: Log in to the CSRD portal</h4>
+    <ol style="margin-top:10px; margin-left: 20px;">
+      <li>Open a web browser and navigate to the CSRD Portal Home URL.</li>
+      <li>Click <strong>Sign In</strong> in the top-right corner.</li>
+      <li>Enter your assigned username and password.</li>
+      <li>Confirm you are logged in successfully before proceeding.</li>
+    </ol>
+    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="assets/revelstoke/1-CSRD Portal Home Page.png" alt="CSRD Portal Home Page" style="width: 100%; display: block;">
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Step 2: Navigate to the Revelstoke NG911 group</h4>
+    <ol style="margin-top:10px; margin-left: 20px;">
+      <li>From the Groups tab, locate the Revelstoke NG911 group.</li>
+      <li>Verify the page shows the Revelstoke group content list.</li>
+    </ol>
+    <div class="grid-2" style="margin-top: 15px;">
+        <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <img src="assets/revelstoke/2-Portal Groups.png" alt="Portal Groups" style="width: 100%; display: block;">
+        </div>
+        <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <img src="assets/revelstoke/3-Revelstoke Group.png" alt="Revelstoke Group" style="width: 100%; display: block;">
+        </div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Step 3: Open the editing feature layer item</h4>
+    <ol style="margin-top:10px; margin-left: 20px;">
+      <li>In the group content, click the <code>NG911_Address_Revelstoke_Edit</code> item.</li>
+      <li>Review the item details to confirm it is the correct editing layer.</li>
+      <li>Confirm layer ownership and metadata match Revelstoke editing workflow.</li>
+    </ol>
+    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="assets/revelstoke/4-Revelstoke Edit layer overview.png" alt="Edit Feature Layer" style="width: 100%; display: block;">
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Step 4: Open in ArcGIS Pro</h4>
+    <ol style="margin-top:10px; margin-left: 20px;">
+      <li>On the item page, click the highlighted <strong>Open in ArcGIS Pro</strong> action on the right.</li>
+      <li>Allow ArcGIS Pro to launch (or switch to it if already open).</li>
+      <li>Sign in to ArcGIS Pro if prompted to authenticate against the CSRD portal.</li>
+      <li>Confirm the layer loads successfully into your map/project.</li>
+    </ol>
+    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="assets/revelstoke/5-Confirm CSRD Portal Sign in in Arcgis Pro.png" alt="Open in Pro" style="width: 100%; display: block;">
+    </div>
+    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="assets/revelstoke/6- Revelstoke ArcGIS pro.png" alt="Layer in Pro Context" style="width: 100%; display: block;">
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Step 5: Edit records</h4>
+    <ol style="margin-top:10px; margin-left: 20px;">
+      <li>In ArcGIS Pro, open the <strong>Edit</strong> tab and start an edit session if required.</li>
+      <li>Use the <strong>Modify Features</strong> pane to select an existing point to update fields, or create a new address point if needed.</li>
+      <li>Update required addressing fields according to local standards.</li>
+      <li>Validate geometry placement and attribute completeness before saving.</li>
+    </ol>
+    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="assets/revelstoke/7-Revelstoke ArcGISPro Edit.png" alt="Editing in ArcGIS Pro" style="width: 100%; display: block;">
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Step 6: Save edits</h4>
+    <ol style="margin-top:10px; margin-left: 20px;">
+      <li>Click <strong>Save</strong> in the ArcGIS Pro Edit tab to commit changes.</li>
+      <li>Confirm no validation errors remain from attribute rules.</li>
+      <li>Optionally review the updated feature in the attribute table or map popup.</li>
+    </ol>
+    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="assets/revelstoke/8-Revelstoke ArcGISPro Save Edits.png" alt="Save Edits" style="width: 100%; display: block;">
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Step 7: Verification of changes</h4>
+    <ol style="margin-top:10px; margin-left: 20px;">
+      <li>Return to the CSRD Portal in your web browser.</li>
+      <li>Navigate to the Revelstoke editing feature layer item page.</li>
+      <li>Open the <strong>Data</strong> tab.</li>
+      <li>Review the records to confirm your recent edits from ArcGIS Pro are successfully reflected in the central portal.</li>
+    </ol>
+  </div>
+</section>
+<section>
+  <div class="grid-2 reveal">
+    <div class="card" style="border-left: 4px solid var(--teal);">
+      <div class="card-header"><div class="card-icon teal"><i class="fas fa-check-double"></i></div><h4>Quality Checklist Before Save</h4></div>
+      <ul style="margin-top: 10px; margin-left: 20px; line-height: 1.6;">
+        <li><strong>Correct layer:</strong> <code>NG911_Address_Revelstoke_Edit</code></li>
+        <li><strong>Correct account:</strong> Editor account for edits</li>
+        <li><strong>Required fields populated:</strong> Agency, Address Number, Street Name, Locality</li>
+        <li>No obvious typos in civic address or locality</li>
+        <li>Point location is accurate on the building footprint</li>
+      </ul>
+    </div>
+    
+    <div class="card" style="border-left: 4px solid var(--amber);">
+      <div class="card-header"><div class="card-icon amber"><i class="fas fa-life-ring"></i></div><h4>Troubleshooting</h4></div>
+      
+      <div class="doc-section" style="margin-top:15px">
+        <button class="doc-toggle" data-target="ts1" aria-expanded="false" style="padding:10px; background:#f9fafb; font-weight:600; width:100%; text-align:left; border-radius:6px; border:1px solid var(--border);">
+            <i class="fas fa-chevron-down" style="margin-right:8px; font-size:12px;"></i> Cannot sign in
+        </button>
+        <div id="ts1" class="doc-body collapsed" style="padding:10px 15px;">
+          <ul style="margin-left:15px; line-height:1.5;">
+            <li>Confirm username/password are entered exactly (case-sensitive).</li>
+            <li>Ensure you are using the correct role account (Viewer vs Editor).</li>
+            <li>Retry sign-in from the CSRD portal home page.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="doc-section" style="margin-top:8px">
+        <button class="doc-toggle" data-target="ts2" aria-expanded="false" style="padding:10px; background:#f9fafb; font-weight:600; width:100%; text-align:left; border-radius:6px; border:1px solid var(--border);">
+            <i class="fas fa-chevron-down" style="margin-right:8px; font-size:12px;"></i> Open in ArcGIS Pro does not launch
+        </button>
+        <div id="ts2" class="doc-body collapsed" style="padding:10px 15px;">
+          <ul style="margin-left:15px; line-height:1.5;">
+            <li>Ensure ArcGIS Pro is installed on the workstation.</li>
+            <li>Ensure the machine is associated with the correct portal/account access.</li>
+            <li>Try launching ArcGIS Pro first, then re-click <strong>Open in ArcGIS Pro</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="doc-section" style="margin-top:8px">
+        <button class="doc-toggle" data-target="ts3" aria-expanded="false" style="padding:10px; background:#f9fafb; font-weight:600; width:100%; text-align:left; border-radius:6px; border:1px solid var(--border);">
+            <i class="fas fa-chevron-down" style="margin-right:8px; font-size:12px;"></i> Edits fail to save
+        </button>
+        <div id="ts3" class="doc-body collapsed" style="padding:10px 15px;">
+          <ul style="margin-left:15px; line-height:1.5;">
+            <li>Verify you are signed in with the Editor account.</li>
+            <li>Check required fields and geometry validity.</li>
+            <li>Confirm the layer is editable and not opened read-only.</li>
+          </ul>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+</div><!-- /content-wrap -->
+
+<footer class="site-footer">
+  <img src="assets/revelstoke/Revelstoke.png" alt="Revelstoke Logo" style="max-height: 48px;">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">Pacific Tech Systems &middot; Last updated February 2026</p>
+</footer>
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+// Doc toggles
+(function(){
+  document.querySelectorAll('.doc-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=this.getAttribute('data-target');
+      var body=id?document.getElementById(id):null;
+      if(!body)return;
+      var isCollapsed=body.classList.contains('collapsed');
+      body.classList.toggle('collapsed',!isCollapsed);
+      this.setAttribute('aria-expanded',isCollapsed?'true':'false');
+      var icon=this.querySelector('i');
+      if(icon){
+         icon.className = isCollapsed ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+      }
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

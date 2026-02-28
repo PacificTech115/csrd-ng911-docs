@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRD NG911 — Quick Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <h2>Docs &amp; Maintenance</h2>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
+    <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+    <div class="nav-group-label">1. Technical Documentation</div>
+    <div class="nav-sub-label">Database</div>
+    <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+    <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+    <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    <div class="nav-sub-label">Automations</div>
+    <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+    <a href="gp-tools.html" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
+    <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+    <div class="nav-group-label">2. Maintenance Guide</div>
+    <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+    <div class="nav-group-label">3. Municipal Guides</div>\n    <a href="guide-golden.html" class="nav-indent"><i class="fas fa-city"></i> Golden</a>\n    <a href="guide-revelstoke.html" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>\n    <a href="guide-salmonarm.html" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>\n    <a href="guide-sicamous.html" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>\n    <div class="nav-group-label">4. Version Control</div>`n    <a href="version-edits.html"><i class="fas fa-history"></i> Version Edits</a>`n    <div class="nav-group-label">5. Quick Reference</div>
+    <a href="quick-reference.html" class="active"><i class="fas fa-bolt"></i> Quick Reference</a>
+  </nav>
+  <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="../Documentation.html">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Quick Reference</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--purple)">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <div class="banner-info">
+        <h1>Quick Reference</h1>
+        <div class="subtitle">Pipeline stages, version naming, file paths, and cheat sheets</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- PIPELINE STAGES & VERSION NAMING -->
+<section>
+  <div class="grid-2">
+    <div>
+      <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Pipeline Stages</h2>
+      <div class="card reveal">
+        <table>
+          <thead><tr><th>#</th><th>GP Service</th><th>Task</th><th>Post?</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>ReconcilePost</td><td>MUNI_TO_QA</td><td>Yes</td></tr>
+            <tr><td>2</td><td>QA SSAP</td><td>qa</td><td>N/A</td></tr>
+            <tr><td>3</td><td>ReconcilePost</td><td>QA_TO_DEFAULT</td><td>Yes</td></tr>
+            <tr><td>4</td><td>ExportSSAP</td><td>export_ssap</td><td>N/A</td></tr>
+            <tr><td>5</td><td>ReconcilePost</td><td>DEFAULT_TO_MUNI</td><td>No</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h2 class="reveal"><i class="fas fa-code-branch"></i>&nbsp; Version Naming</h2>
+      <button class="doc-toggle reveal" type="button" data-target="tbl-versions" aria-expanded="false">
+        <i class="fas fa-chevron-right"></i><span>Show table (7 rows)</span>
+      </button>
+      <div id="tbl-versions" class="doc-body collapsed">
+        <div class="card">
+          <table>
+            <thead><tr><th>Version</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>sde.DEFAULT</code></td><td>Production authoritative</td></tr>
+              <tr><td><code>SDE.QA</code></td><td>QA staging gate</td></tr>
+              <tr><td><code>SDE.CSRD</code></td><td>CSRD regional editor</td></tr>
+              <tr><td><code>SDE.Salmon Arm</code></td><td>City of Salmon Arm</td></tr>
+              <tr><td><code>SDE.Sicamous</code></td><td>District of Sicamous</td></tr>
+              <tr><td><code>SDE.Golden</code></td><td>Town of Golden</td></tr>
+              <tr><td><code>SDE.Revelstoke</code></td><td>City of Revelstoke</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FILE PATHS & GP URLS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-folder-open"></i>&nbsp; File Paths &amp; GP URLs</h2>
+  <div class="card reveal">
+    <div class="grid-2">
+      <div>
+        <h4>File Paths</h4>
+        <table>
+          <thead><tr><th>Resource</th><th>Path</th></tr></thead>
+          <tbody>
+            <tr><td>SDE Connection</td><td><code>\\GIS\Scripts\NG911\...\sde@regional.sde</code></td></tr>
+            <tr><td>Schema JSON</td><td><code>\\GIS\Scripts\NG911\...\SSAP_Schema.json</code></td></tr>
+            <tr><td>Export Directory</td><td><code>\\GIS\Scripts\Geoshare\NG911 Exports</code></td></tr>
+            <tr><td>Run Summaries</td><td><code>/arcgis/home/run_summaries/</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>GP Service URLs</h4>
+        <table>
+          <thead><tr><th>GP Service</th><th>URL</th></tr></thead>
+          <tbody>
+            <tr><td>Reconcile</td><td><code>apps.csrd.bc.ca/.../ReconcilePost.../GPServer</code></td></tr>
+            <tr><td>QA</td><td><code>apps.csrd.bc.ca/.../Regional/QA/GPServer</code></td></tr>
+            <tr><td>Export</td><td><code>apps.csrd.bc.ca/.../ExportSSAP/GPServer</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ATTRIBUTE RULES SUMMARY -->
+<section>
+  <h2 class="reveal"><i class="fas fa-wand-magic-sparkles"></i>&nbsp; Attribute Rules Summary</h2>
+  <button class="doc-toggle reveal" type="button" data-target="tbl-attr-rules" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show table (9 rows)</span>
+  </button>
+  <div id="tbl-attr-rules" class="doc-body collapsed">
+    <div class="card">
+      <table>
+        <thead><tr><th>#</th><th>Rule</th><th>Target Field</th><th>Type</th><th>Depends On</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Full Address</td><td><code>Full_Addr</code></td><td>Calculation</td><td>16 component fields (Unit, Add_Number, St_Name, A3, A1, etc.)</td></tr>
+          <tr><td>2</td><td>NGUID</td><td><code>NGUID</code></td><td>Calculation</td><td>GlobalID, DiscrpAgID</td></tr>
+          <tr><td>3</td><td>Longitude</td><td><code>Long</code></td><td>Calculation</td><td>Geometry (X coordinate)</td></tr>
+          <tr><td>4</td><td>Latitude</td><td><code>Lat</code></td><td>Calculation</td><td>Geometry (Y coordinate)</td></tr>
+          <tr><td>5</td><td>AddCode</td><td><code>AddCode</code></td><td>Calculation</td><td>A3 (municipality name)</td></tr>
+          <tr><td>6</td><td>DateUpdate</td><td><code>DateUpdate</code></td><td>Calculation</td><td>last_edited_date</td></tr>
+          <tr><td>7</td><td>QAStatus</td><td><code>QAStatus</code></td><td>Calculation</td><td>7 watched fields (DiscrpAgID, NGUID, Country, A1, A2, A3, Full_Addr)</td></tr>
+          <tr><td>8</td><td>Default Agency</td><td><code>Agency, A3, DiscrpAgID</code></td><td>Calculation</td><td>GetUser() username (INACTIVE)</td></tr>
+          <tr><td>A</td><td>Mandatory Fields</td><td><code>(validation)</code></td><td>Constraint</td><td>Full_Addr, Agency, DiscrpAgID, NGUID, Country, A1, A2, A3</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- MANDATORY QA FIELDS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-asterisk"></i>&nbsp; Mandatory QA Fields</h2>
+  <div class="card reveal">
+    <p>These fields are checked for null or empty values during every QA validation run. Any feature missing one of these fields will receive a blocking error status.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-id-badge"></i>&nbsp; DiscrpAgID</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-calendar"></i>&nbsp; DateUpdate</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-fingerprint"></i>&nbsp; NGUID</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-globe"></i>&nbsp; Country</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-city"></i>&nbsp; A3</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-map"></i>&nbsp; A2</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-flag"></i>&nbsp; A1</span>
+    </div>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+// ── Doc toggles ──
+(function(){
+  document.querySelectorAll('.doc-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=this.getAttribute('data-target');
+      var body=id?document.getElementById(id):null;
+      if(!body)return;
+      var isCollapsed=body.classList.contains('collapsed');
+      body.classList.toggle('collapsed',!isCollapsed);
+      this.setAttribute('aria-expanded',isCollapsed?'true':'false');
+      var label=this.querySelector('span');
+      if(label){var show=label.textContent;label.textContent=isCollapsed?(show.replace('Show','Hide')):(show.replace('Hide','Show'))}
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

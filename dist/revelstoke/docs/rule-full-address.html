@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRD NG911 — 1. Full Address Rule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- SIDEBAR -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+      <h2>Revelstoke Portal</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="guide-revelstoke.html" class=""><i class="fas fa-home"></i> User Guide</a>
+      <div class="nav-group-label" style="margin-top:20px;">Technical References</div>
+      <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+      <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+      <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    </nav>
+    <div class="sidebar-footer">CSRD NG911 &copy; 2026 &middot; Pacific Tech Systems</div>
+  </aside>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb"><span class="current">Revelstoke Reference</span></div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--teal)">
+        <i class="fas fa-map-location-dot"></i>
+      </div>
+      <div class="banner-info">
+        <h1>1. Full Address</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-bullseye"></i>&nbsp; Target: Full_Addr</span>
+          <span class="banner-tag"><i class="fas fa-bolt"></i>&nbsp; Triggers: Insert / Update</span>
+          <span class="banner-tag"><i class="fas fa-calculator"></i>&nbsp; Type: Calculation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- DESCRIPTION -->
+<section>
+  <h2 class="reveal">Description</h2>
+  <p class="reveal">This rule concatenates up to 16 address component fields into a single formatted address string following the NENA standard sequence. The output format is: <code>Unit-Number Street, Municipality, Province PostalCode</code>. It handles conditional dash separators between numeric prefixes/suffixes and assembles street components in the required NENA order.</p>
+</section>
+
+<!-- METADATA -->
+<section>
+  <h2 class="reveal">Metadata</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Target Field</td><td><code>Full_Addr</code></td></tr>
+        <tr><td>Triggers</td><td>Insert, Update</td></tr>
+        <tr><td>Input Fields</td><td><code>Unit</code>, <code>AddNum_Pre</code>, <code>Add_Number</code>, <code>AddNum_Suf</code>, <code>St_PreTyp</code>, <code>St_PreSep</code>, <code>St_Name</code>, <code>St_PreMod</code>, <code>St_PreDir</code>, <code>St_PosTyp</code>, <code>St_PosDir</code>, <code>St_PosMod</code>, <code>Post_Code</code>, <code>PostCodeEx</code>, <code>A3</code>, <code>A1</code></td></tr>
+        <tr><td>Returns</td><td>Formatted address string or <code>Null</code> if empty</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FULL SOURCE CODE -->
+<section>
+  <details class="source-collapse reveal">
+    <summary>Full Source Code</summary>
+    <div class="collapse-content">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-tag">Arcade</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+<pre><span class="code-section" data-section="1"><span class="cm">// --- Helpers ---</span>
+<span class="kw">function</span> <span class="fn">isNumericText</span>(val) {
+  <span class="kw">if</span> (val == <span class="bi">null</span> || <span class="fn">Trim</span>(val) == <span class="str">""</span>) <span class="kw">return</span> <span class="bi">false</span>;
+  <span class="kw">var</span> n = <span class="fn">Number</span>(val);
+  <span class="kw">return</span> !<span class="fn">IsNan</span>(n);
+}</span>
+
+<span class="code-section" data-section="2"><span class="cm">// --- Unit ---</span>
+<span class="kw">var</span> unitPart = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.Unit, <span class="str">""</span>));</span>
+
+<span class="code-section" data-section="3"><span class="cm">// --- Address number: prefix + number + suffix (with dash if numeric prefix/suffix) ---</span>
+<span class="kw">var</span> pre = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.AddNum_Pre, <span class="str">""</span>));
+<span class="kw">var</span> num = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.Add_Number, <span class="str">""</span>));
+<span class="kw">var</span> suf = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.AddNum_Suf, <span class="str">""</span>));
+
+<span class="kw">var</span> prefixSep = <span class="str">""</span>;
+<span class="kw">if</span> (pre != <span class="str">""</span> &amp;&amp; num != <span class="str">""</span> &amp;&amp; <span class="fn">isNumericText</span>(pre)) prefixSep = <span class="str">"-"</span>;
+
+<span class="kw">var</span> suffixSep = <span class="str">""</span>;
+<span class="kw">if</span> (num != <span class="str">""</span> &amp;&amp; suf != <span class="str">""</span> &amp;&amp; <span class="fn">isNumericText</span>(suf)) suffixSep = <span class="str">"-"</span>;
+
+<span class="kw">var</span> addrNumPart = <span class="fn">Trim</span>(pre + prefixSep + num + suffixSep + suf);</span>
+
+<span class="code-section" data-section="4"><span class="cm">// --- Unit-Address with dash if both exist ---</span>
+<span class="kw">var</span> unitAddr = <span class="str">""</span>;
+<span class="kw">if</span> (unitPart != <span class="str">""</span> &amp;&amp; addrNumPart != <span class="str">""</span>) unitAddr = unitPart + <span class="str">"-"</span> + addrNumPart;
+<span class="kw">else</span> unitAddr = unitPart + addrNumPart;</span>
+
+<span class="code-section" data-section="5"><span class="cm">// --- Street type prefix + separator + street name body ---</span>
+<span class="kw">var</span> preTyp = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.St_PreTyp, <span class="str">""</span>));
+<span class="kw">var</span> stName = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.St_Name, <span class="str">""</span>));
+<span class="kw">var</span> sepRaw = <span class="fn">DefaultValue</span>(<span class="var">$feature</span>.St_PreSep, <span class="str">""</span>);
+<span class="kw">var</span> sep = <span class="fn">IIF</span>(<span class="fn">Trim</span>(sepRaw) == <span class="str">""</span>, <span class="str">" "</span>, sepRaw);
+
+<span class="kw">var</span> preTypName = <span class="str">""</span>;
+<span class="kw">if</span> (preTyp != <span class="str">""</span> &amp;&amp; stName != <span class="str">""</span>) {
+  preTypName = <span class="fn">Trim</span>(preTyp + sep + stName);
+} <span class="kw">else</span> {
+  preTypName = <span class="fn">Trim</span>(preTyp + stName);
+}
+
+<span class="cm">// --- Street part in required sequence ---</span>
+<span class="kw">var</span> streetArr = [];
+<span class="kw">var</span> v = <span class="str">""</span>;
+
+v = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.St_PreMod, <span class="str">""</span>)); <span class="kw">if</span> (v != <span class="str">""</span>) <span class="fn">Push</span>(streetArr, v);
+v = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.St_PreDir, <span class="str">""</span>)); <span class="kw">if</span> (v != <span class="str">""</span>) <span class="fn">Push</span>(streetArr, v);
+<span class="kw">if</span> (preTypName != <span class="str">""</span>) <span class="fn">Push</span>(streetArr, preTypName);
+v = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.St_PosTyp, <span class="str">""</span>)); <span class="kw">if</span> (v != <span class="str">""</span>) <span class="fn">Push</span>(streetArr, v);
+v = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.St_PosDir, <span class="str">""</span>)); <span class="kw">if</span> (v != <span class="str">""</span>) <span class="fn">Push</span>(streetArr, v);
+v = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.St_PosMod, <span class="str">""</span>)); <span class="kw">if</span> (v != <span class="str">""</span>) <span class="fn">Push</span>(streetArr, v);
+
+<span class="kw">var</span> streetPart = <span class="fn">Concatenate</span>(streetArr, <span class="str">" "</span>);</span>
+
+<span class="code-section" data-section="6"><span class="cm">// --- Base: Unit-AddrNum, Street ---</span>
+<span class="kw">var</span> baseArr = [];
+<span class="kw">if</span> (unitAddr != <span class="str">""</span>) <span class="fn">Push</span>(baseArr, unitAddr);
+<span class="kw">if</span> (streetPart != <span class="str">""</span>) <span class="fn">Push</span>(baseArr, streetPart);
+
+<span class="kw">var</span> base = <span class="fn">Concatenate</span>(baseArr, <span class="str">" "</span>);</span>
+
+<span class="code-section" data-section="7"><span class="cm">// --- Postal (Post_Code + optional -PostCodeEx) ---</span>
+<span class="kw">var</span> post = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.Post_Code, <span class="str">""</span>));
+<span class="kw">var</span> postEx = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.PostCodeEx, <span class="str">""</span>));
+<span class="kw">var</span> postalPart = <span class="fn">IIF</span>(post != <span class="str">""</span> &amp;&amp; postEx != <span class="str">""</span>, post + <span class="str">"-"</span> + postEx, post);
+
+<span class="cm">// --- Tail: muni, prov, postal (muni/prov with comma) ---</span>
+<span class="kw">var</span> muni = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.A3, <span class="str">""</span>));
+<span class="kw">var</span> prov = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.A1, <span class="str">""</span>));
+
+<span class="kw">var</span> muniProv = <span class="str">""</span>;
+<span class="kw">if</span> (muni != <span class="str">""</span> &amp;&amp; prov != <span class="str">""</span>) muniProv = muni + <span class="str">", "</span> + prov;
+<span class="kw">else</span> muniProv = muni + prov;
+
+<span class="kw">var</span> tailArr = [];
+<span class="kw">if</span> (muniProv != <span class="str">""</span>) <span class="fn">Push</span>(tailArr, muniProv);
+<span class="kw">if</span> (postalPart != <span class="str">""</span>) <span class="fn">Push</span>(tailArr, postalPart);
+
+<span class="kw">var</span> tail = <span class="fn">Concatenate</span>(tailArr, <span class="str">" "</span>);
+
+<span class="cm">// --- Final: base, tail ---</span>
+<span class="kw">var</span> full = <span class="fn">IIF</span>(base != <span class="str">""</span> &amp;&amp; tail != <span class="str">""</span>, base + <span class="str">", "</span> + tail, base + tail);
+<span class="kw">return</span> <span class="fn">IIF</span>(<span class="fn">Trim</span>(full) == <span class="str">""</span>, <span class="bi">Null</span>, full);</span></pre>
+    </div>
+    <div class="section-popup" id="sectionPopup"></div>
+    </div>
+  </details>
+</section>
+
+<!-- SECTION-BY-SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal">Section-by-Section Breakdown</h2>
+
+  <div class="breakdown-card reveal" data-section="1">
+    <h4>1. Helper: isNumericText</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 1 &ndash; 6</span>
+      <span class="meta-tag">Input: any value</span>
+      <span class="meta-tag">Output: boolean</span>
+    </div>
+    <p>Tests whether a value is a valid number. Returns <code>false</code> for null, empty string, or non-numeric text. Used to decide if address number prefix/suffix should use a dash separator (e.g., "5-1234" vs "A1234").</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>If <code>val == null</code> or <code>Trim(val) == ""</code> → return false</li>
+        <li>Convert to number: <code>n = Number(val)</code></li>
+        <li>Return <code>!IsNan(n)</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Copy the function verbatim. Arcade uses <code>IsNan</code> (capital N).</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Change separator logic: edit the <code>prefixSep</code> / <code>suffixSep</code> conditions in section 3 that call this function.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="2">
+    <h4>2. Unit Component</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 8 &ndash; 9</span>
+      <span class="meta-tag">Input: Unit</span>
+      <span class="meta-tag">Output: string</span>
+    </div>
+    <p>Extracts the unit/suite identifier. Handles null via <code>DefaultValue($feature.Unit, "")</code>, then trims whitespace. Examples: "101", "A", "Suite 200".</p>
+    <div class="breakdown-detail">
+      <strong>To replicate</strong>
+      <ul>
+        <li><code>var unitPart = Trim(DefaultValue($feature.Unit, ""));</code></li>
+        <li>Replace <code>Unit</code> with your unit field name if different.</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Always prefix with "#": <code>IIF(unitPart != "", "#" + unitPart, "")</code></li>
+        <li>Different null handling: change the second argument of <code>DefaultValue</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal" data-section="3">
+    <h4>3. Address Number Assembly</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 11 &ndash; 22</span>
+      <span class="meta-tag">Input: AddNum_Pre, Add_Number, AddNum_Suf</span>
+      <span class="meta-tag">Output: string</span>
+    </div>
+    <p>Combines prefix, number, and suffix into a single address number. <strong>Dash rule:</strong> Use "-" between parts only when the adjacent part is numeric (via <code>isNumericText</code>). Examples: "5-1234-2" (all numeric), "A1234" (letter prefix), "1234B" (letter suffix).</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li><code>prefixSep = "-"</code> only if pre≠"" AND num≠"" AND <code>isNumericText(pre)</code></li>
+        <li><code>suffixSep = "-"</code> only if num≠"" AND suf≠"" AND <code>isNumericText(suf)</code></li>
+        <li>Final: <code>pre + prefixSep + num + suffixSep + suf</code>, trimmed</li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Requires <code>isNumericText</code> helper (section 1). Field names: <code>AddNum_Pre</code>, <code>Add_Number</code>, <code>AddNum_Suf</code>.</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Different separator: change <code>"-"</code> to e.g. <code>" "</code> in prefixSep/suffixSep assignments.</li>
+        <li>Always use dash: set <code>prefixSep = "-"</code> when both exist, ignore <code>isNumericText</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="4">
+    <h4>4. Unit-Address Join</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 24 &ndash; 27</span>
+      <span class="meta-tag">Input: unitPart, addrNumPart (derived)</span>
+      <span class="meta-tag">Output: string</span>
+    </div>
+    <p>Joins unit and address number. If both exist, uses a dash (e.g., "101-1234"). If only one exists, uses it alone. No trailing/leading separators.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>If unitPart≠"" AND addrNumPart≠"" → <code>unitPart + "-" + addrNumPart</code></li>
+        <li>Else → <code>unitPart + addrNumPart</code> (one may be empty)</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Different separator: change <code>"-"</code> to e.g. <code>" Unit "</code> or <code>" #"</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal" data-section="5">
+    <h4>5. Street Components</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 29 &ndash; 53</span>
+      <span class="meta-tag">Input: St_PreTyp, St_PreSep, St_Name, St_PreMod, St_PreDir, St_PosTyp, St_PosDir, St_PosMod</span>
+      <span class="meta-tag">Output: string</span>
+    </div>
+    <p>Assembles the street name in <strong>NENA order</strong>: PreMod → PreDir → (PreTyp + Sep + Name) → PosTyp → PosDir → PosMod. <code>St_PreSep</code> controls the separator between type prefix and name (default space). Only non-empty values are pushed to <code>streetArr</code>.</p>
+    <div class="breakdown-detail">
+      <strong>Order in streetArr</strong>
+      <ul>
+        <li>1. St_PreMod, 2. St_PreDir, 3. preTypName (St_PreTyp + St_PreSep + St_Name), 4. St_PosTyp, 5. St_PosDir, 6. St_PosMod</li>
+      </ul>
+      <strong>preTypName logic</strong>
+      <ul>
+        <li><code>sep = IIF(Trim(St_PreSep)=="", " ", St_PreSep)</code></li>
+        <li>If preTyp≠"" AND stName≠"" → <code>Trim(preTyp + sep + stName)</code>; else <code>Trim(preTyp + stName)</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Build <code>streetArr</code> with <code>Push(streetArr, v)</code> for each component; <code>Concatenate(streetArr, " ")</code> for final string.</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Add a new street field: insert a new <code>v = Trim(DefaultValue($feature.NewField, "")); if (v != "") Push(streetArr, v);</code> in the correct NENA position.</li>
+        <li>Change separator between components: edit the <code>Concatenate(streetArr, " ")</code> second argument.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="6">
+    <h4>6. Base Address</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 55 &ndash; 60</span>
+      <span class="meta-tag">Input: unitAddr, streetPart (derived)</span>
+      <span class="meta-tag">Output: string</span>
+    </div>
+    <p>Combines the unit-address portion and street portion with a space. Format: <code>UnitAddr StreetPart</code> or either alone if the other is empty.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>Push unitAddr and streetPart to baseArr if non-empty; <code>Concatenate(baseArr, " ")</code></li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Different separator: change <code>" "</code> in Concatenate.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal" data-section="7">
+    <h4>7. Postal and Tail Assembly</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 62 &ndash; 83</span>
+      <span class="meta-tag">Input: Post_Code, PostCodeEx, A3, A1</span>
+      <span class="meta-tag">Output: string or Null</span>
+    </div>
+    <p>Builds the tail: municipality + province (comma if both), then postal code. Postal format: <code>Post_Code</code> or <code>Post_Code-PostCodeEx</code> if both exist. Final address: <code>base + ", " + tail</code> when both exist; else <code>base + tail</code>. Returns <code>Null</code> if entire result is empty.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>postalPart: <code>IIF(post!="" && postEx!="", post+"-"+postEx, post)</code></li>
+        <li>muniProv: <code>muni + ", " + prov</code> if both; else <code>muni + prov</code></li>
+        <li>tailArr: muniProv, postalPart (space-separated)</li>
+        <li>full: base + ", " + tail if both; else base + tail</li>
+        <li>Return <code>IIF(Trim(full)=="", Null, full)</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Standard format: <code>Unit-Number Street, Municipality, Province PostalCode</code></li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Add country: <code>var country = Trim(DefaultValue($feature.Country, ""));</code> and push to tailArr in desired position.</li>
+        <li>Different postal format: edit the postalPart IIF expression.</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+(function(){
+  var popup = document.getElementById('sectionPopup');
+  var sections = document.querySelectorAll('.code-section');
+  var cards = document.querySelectorAll('.breakdown-card[data-section]');
+  var META = [
+    {title:'Helper: isNumericText',lines:'Lines 1\u20136',fields:'none',desc:'Tests if a value is a valid number. Used to determine whether prefix/suffix separators should be dashes.',maint:'No changes needed unless separator logic changes.'},
+    {title:'Unit Component',lines:'Lines 8\u20139',fields:'Unit',desc:'Extracts and trims the unit/suite number (e.g., "101", "A").',maint:'Modify if unit formatting changes (e.g., always prefix with "#").'},
+    {title:'Address Number Assembly',lines:'Lines 11\u201322',fields:'AddNum_Pre, Add_Number, AddNum_Suf',desc:'Combines prefix, number, suffix with conditional dash separators for numeric values.',maint:'Adjust separator logic if address numbering conventions change.'},
+    {title:'Unit-Address Join',lines:'Lines 24\u201327',fields:'(derived)',desc:'Joins unit and address number with a dash when both exist (e.g., "101-1234").',maint:'Change the dash to another separator if needed.'},
+    {title:'Street Components',lines:'Lines 29\u201353',fields:'St_PreTyp, St_PreSep, St_Name, St_PreMod, St_PreDir, St_PosTyp, St_PosDir, St_PosMod',desc:'Assembles the street name following NENA field ordering: PreMod, PreDir, PreTyp+Name, PosTyp, PosDir, PosMod.',maint:'Most complex section. Insert new fields into streetArr in the correct NENA position.'},
+    {title:'Base Address',lines:'Lines 55\u201360',fields:'(derived)',desc:'Combines the unit-address and street portions with a space.',maint:'Rarely needs changes.'},
+    {title:'Postal and Tail Assembly',lines:'Lines 62\u201383',fields:'Post_Code, PostCodeEx, A3, A1',desc:'Municipality + province (comma-separated), postal code, then final base+tail assembly.',maint:'Add new tail fields by pushing them into tailArr.'}
+  ];
+  var activeSection = null;
+
+  sections.forEach(function(span){
+    span.addEventListener('mouseenter', function(e){
+      var idx = parseInt(this.dataset.section);
+      var m = META[idx - 1];
+      if (!m) return;
+      activeSection = idx;
+      this.classList.add('active');
+      cards.forEach(function(c){ c.classList.toggle('highlight', parseInt(c.dataset.section) === idx); });
+      popup.innerHTML = '<h4><span class="popup-num">' + idx + '</span>' + m.title + '</h4>'
+        + '<div class="popup-meta">' + (m.lines ? '<span class="popup-tag">' + m.lines + '</span>' : '')
+        + (m.fields ? '<span class="popup-tag">Fields: ' + m.fields + '</span>' : '') + '</div>'
+        + '<p>' + m.desc + '</p>'
+        + (m.maint ? '<div class="popup-maint"><strong>Maintenance:</strong> ' + m.maint + '</div>' : '');
+      popup.classList.add('visible');
+    });
+    span.addEventListener('mousemove', function(e){
+      var x = Math.min(e.clientX + 16, window.innerWidth - 360);
+      var y = Math.min(e.clientY - 10, window.innerHeight - popup.offsetHeight - 10);
+      popup.style.left = x + 'px';
+      popup.style.top = Math.max(10, y) + 'px';
+    });
+    span.addEventListener('mouseleave', function(){
+      this.classList.remove('active');
+      popup.classList.remove('visible');
+      cards.forEach(function(c){ c.classList.remove('highlight'); });
+      activeSection = null;
+    });
+  });
+
+  cards.forEach(function(card){
+    var idx = parseInt(card.dataset.section);
+    var codeSection = document.querySelector('.code-section[data-section="'+idx+'"]');
+    if (codeSection) {
+      var reveal = document.createElement('div');
+      reveal.className = 'breakdown-code-reveal';
+      var pre = document.createElement('pre');
+      pre.textContent = codeSection.textContent;
+      reveal.appendChild(pre);
+      card.parentNode.insertBefore(reveal, card.nextSibling);
+    }
+    card.addEventListener('mouseenter', function(){
+      var idx = parseInt(this.dataset.section);
+      sections.forEach(function(s){ s.classList.toggle('active', parseInt(s.dataset.section) === idx); });
+      this.classList.add('highlight');
+    });
+    card.addEventListener('mouseleave', function(){
+      sections.forEach(function(s){ s.classList.remove('active'); });
+      this.classList.remove('highlight');
+    });
+    card.addEventListener('click', function(e){
+      e.preventDefault();
+      var rev = this.nextElementSibling;
+      if (rev && rev.classList.contains('breakdown-code-reveal')) rev.classList.toggle('visible');
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

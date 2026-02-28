@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSRD NG911 — 3. Longitude Rule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- SIDEBAR -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+      <h2>Sicamous Portal</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="guide-sicamous.html" class=""><i class="fas fa-home"></i> User Guide</a>
+      <div class="nav-group-label" style="margin-top:20px;">Technical References</div>
+      <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+      <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+      <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    </nav>
+    <div class="sidebar-footer">CSRD NG911 &copy; 2026 &middot; Pacific Tech Systems</div>
+  </aside>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb"><span class="current">Sicamous Reference</span></div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--green)">
+        <i class="fas fa-location-crosshairs"></i>
+      </div>
+      <div class="banner-info">
+        <h1>3. Longitude</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-bullseye"></i>&nbsp; Target: Long</span>
+          <span class="banner-tag"><i class="fas fa-bolt"></i>&nbsp; Triggers: Insert / Update</span>
+          <span class="banner-tag"><i class="fas fa-calculator"></i>&nbsp; Type: Calculation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- DESCRIPTION -->
+<section>
+  <h2 class="reveal">Description</h2>
+  <p class="reveal">Automatically extracts the X coordinate (longitude) from each feature's geometry. If the data is stored in Web Mercator (WKID 3857, 102100, or 102113), it converts to decimal degrees using the inverse Mercator projection formula. Returns the value rounded to 6 decimal places for NENA compliance.</p>
+</section>
+
+<!-- METADATA -->
+<section>
+  <h2 class="reveal">Metadata</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Target Field</td><td><code>Long</code></td></tr>
+        <tr><td>Triggers</td><td>Insert, Update</td></tr>
+        <tr><td>Input</td><td>Feature Geometry (X coordinate)</td></tr>
+        <tr><td>Precision</td><td>6 decimal places</td></tr>
+        <tr><td>Supported CRS</td><td>WGS84 (4326), Web Mercator (3857 / 102100 / 102113)</td></tr>
+        <tr><td>Returns</td><td>Decimal degrees longitude or <code>Null</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FULL SOURCE CODE -->
+<section>
+  <details class="source-collapse reveal">
+    <summary>Full Source Code</summary>
+    <div class="collapse-content">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-tag">Arcade</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+<pre><span class="code-section" data-section="1"><span class="kw">var</span> g = <span class="fn">Geometry</span>(<span class="var">$feature</span>);
+<span class="kw">if</span> (<span class="fn">IsEmpty</span>(g)) <span class="kw">return</span> <span class="bi">Null</span>;
+
+<span class="kw">if</span> (<span class="fn">TypeOf</span>(g) != <span class="str">"Point"</span>) g = <span class="fn">Centroid</span>(g);</span>
+
+<span class="code-section" data-section="2"><span class="kw">var</span> sr = g.spatialReference;
+<span class="kw">var</span> wkid = <span class="fn">DefaultValue</span>(sr.wkid, <span class="fn">DefaultValue</span>(sr.latestWkid, <span class="num">-1</span>));</span>
+
+<span class="code-section" data-section="3"><span class="kw">function</span> <span class="fn">WebMercatorToLatLon</span>(x, y) {
+  <span class="kw">var</span> originShift = <span class="num">2.0</span> * PI * <span class="num">6378137.0</span> / <span class="num">2.0</span>;
+  <span class="kw">var</span> lon = (x / originShift) * <span class="num">180.0</span>;
+  <span class="kw">var</span> lat = (y / originShift) * <span class="num">180.0</span>;
+  lat = <span class="num">180.0</span> / PI * (<span class="num">2.0</span> * <span class="fn">Atan</span>(<span class="fn">Exp</span>(lat * PI / <span class="num">180.0</span>)) - PI / <span class="num">2.0</span>);
+  <span class="kw">return</span> [lat, lon];
+}
+
+<span class="kw">var</span> x = g.x;
+<span class="kw">var</span> y = g.y;
+
+<span class="cm">// Web Mercator stored coords → convert</span>
+<span class="kw">if</span> (wkid == <span class="num">3857</span> || wkid == <span class="num">102100</span> || wkid == <span class="num">102113</span>) {
+  <span class="kw">var</span> ll = <span class="fn">WebMercatorToLatLon</span>(x, y);
+  <span class="kw">return</span> <span class="fn">Round</span>(ll[<span class="num">1</span>], <span class="num">6</span>); <span class="cm">// lon</span>
+}</span>
+
+<span class="code-section" data-section="4"><span class="cm">// Already looks like degrees → use directly</span>
+<span class="kw">if</span> (<span class="fn">Abs</span>(x) &lt;= <span class="num">180</span> &amp;&amp; <span class="fn">Abs</span>(y) &lt;= <span class="num">90</span>) {
+  <span class="kw">return</span> <span class="fn">Round</span>(x, <span class="num">6</span>); <span class="cm">// lon</span>
+}
+
+<span class="cm">// Other projected CRS (UTM/state plane/etc) → cannot reliably convert here</span>
+<span class="kw">return</span> <span class="bi">Null</span>;</span></pre>
+    </div>
+    <div class="section-popup" id="sectionPopup"></div>
+    </div>
+  </details>
+</section>
+
+<!-- SECTION-BY-SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal">Section-by-Section Breakdown</h2>
+
+  <div class="breakdown-card reveal" data-section="1">
+    <h4>1. Geometry Extraction</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 1 &ndash; 4</span>
+      <span class="meta-tag">Input: Geometry</span>
+      <span class="meta-tag">Output: Point or Null</span>
+    </div>
+    <p>Gets the feature geometry. Returns <code>Null</code> if empty. For polygons/lines, uses <code>Centroid(g)</code> to get a representative point. Points use their coordinates directly.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li><code>g = Geometry($feature)</code></li>
+        <li>If <code>IsEmpty(g)</code> → return Null</li>
+        <li>If <code>TypeOf(g) != "Point"</code> → <code>g = Centroid(g)</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Use <code>Geometry($feature)</code> and <code>Centroid()</code> for non-points.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="2">
+    <h4>2. Spatial Reference Detection</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 6 &ndash; 7</span>
+      <span class="meta-tag">Input: g.spatialReference</span>
+      <span class="meta-tag">Output: wkid number</span>
+    </div>
+    <p>Reads the coordinate system WKID. Uses <code>sr.wkid</code> first; falls back to <code>sr.latestWkid</code>; defaults to <code>-1</code> if neither exists.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li><code>wkid = DefaultValue(sr.wkid, DefaultValue(sr.latestWkid, -1))</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Standard Arcade pattern for CRS detection.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal" data-section="3">
+    <h4>3. Web Mercator Conversion</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 9 &ndash; 24</span>
+      <span class="meta-tag">Input: g.x, g.y (meters)</span>
+      <span class="meta-tag">Output: longitude (degrees)</span>
+    </div>
+    <p>Converts Web Mercator (EPSG:3857, 102100, 102113) X/Y meters to WGS84 decimal degrees. Uses inverse Mercator: <code>lon = (x / originShift) * 180</code>; latitude uses <code>Atan(Exp(...))</code>. Returns <code>ll[1]</code> (longitude) rounded to 6 decimals.</p>
+    <div class="breakdown-detail">
+      <strong>Constants</strong>
+      <ul>
+        <li><code>originShift = 2 * PI * 6378137.0 / 2</code> (WGS84 semi-major axis)</li>
+      </ul>
+      <strong>Logic</strong>
+      <ul>
+        <li>If wkid in {3857, 102100, 102113}: call <code>WebMercatorToLatLon(x, y)</code>, return <code>Round(ll[1], 6)</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Copy <code>WebMercatorToLatLon</code> function. For longitude use <code>ll[1]</code>; for latitude use <code>ll[0]</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="4">
+    <h4>4. Direct Degree Handling and Fallback</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 26 &ndash; 32</span>
+      <span class="meta-tag">Input: x, y</span>
+      <span class="meta-tag">Output: number or Null</span>
+    </div>
+    <p>If coordinates look like degrees (<code>|x| ≤ 180</code>, <code>|y| ≤ 90</code>), returns <code>Round(x, 6)</code> directly (no conversion). For other CRS (UTM, State Plane), returns <code>Null</code>—conversion would require full projection parameters.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>If <code>Abs(x) ≤ 180</code> AND <code>Abs(y) ≤ 90</code> → return <code>Round(x, 6)</code></li>
+        <li>Else → return Null</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Add UTM/other CRS: add <code>else if (wkid == 26911)</code> branch with appropriate conversion math before the Null return.</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <img src="../csrd-logo.png" alt="NG911 Logo">
+  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+  <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2025</p>
+</footer>
+
+</div><!-- /main -->
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+(function(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+(function(){
+  const bar=document.getElementById('progress');
+  function update(){
+    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+(function(){
+  const btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+(function(){
+  var popup = document.getElementById('sectionPopup');
+  var sections = document.querySelectorAll('.code-section');
+  var cards = document.querySelectorAll('.breakdown-card[data-section]');
+  var META = [
+    {title:'Geometry Extraction',lines:'Lines 1\u20134',fields:'Geometry',desc:'Returns Null if no geometry. Uses centroid for non-point features.',maint:'Works for all geometry types.'},
+    {title:'Spatial Reference Detection',lines:'Lines 6\u20137',fields:'spatialReference',desc:'Reads the WKID of the coordinate system with latestWkid fallback.',maint:'No changes needed.'},
+    {title:'Web Mercator Conversion',lines:'Lines 9\u201324',fields:'X, Y coordinates',desc:'Inverse Mercator projection converting meters to decimal degrees. Returns ll[1] (longitude).',maint:'Standard math \u2014 do not modify.'},
+    {title:'Direct Degree Handling',lines:'Lines 26\u201332',fields:'X, Y coordinates',desc:'If coords look like degrees, returns directly. Returns Null for unsupported CRS.',maint:'Add conversion branch for new CRS WKIDs.'}
+  ];
+  var activeSection = null;
+
+  sections.forEach(function(span){
+    span.addEventListener('mouseenter', function(e){
+      var idx = parseInt(this.dataset.section);
+      var m = META[idx - 1];
+      if (!m) return;
+      activeSection = idx;
+      this.classList.add('active');
+      cards.forEach(function(c){ c.classList.toggle('highlight', parseInt(c.dataset.section) === idx); });
+      popup.innerHTML = '<h4><span class="popup-num">' + idx + '</span>' + m.title + '</h4>'
+        + '<div class="popup-meta">' + (m.lines ? '<span class="popup-tag">' + m.lines + '</span>' : '')
+        + (m.fields ? '<span class="popup-tag">Fields: ' + m.fields + '</span>' : '') + '</div>'
+        + '<p>' + m.desc + '</p>'
+        + (m.maint ? '<div class="popup-maint"><strong>Maintenance:</strong> ' + m.maint + '</div>' : '');
+      popup.classList.add('visible');
+    });
+    span.addEventListener('mousemove', function(e){
+      var x = Math.min(e.clientX + 16, window.innerWidth - 360);
+      var y = Math.min(e.clientY - 10, window.innerHeight - popup.offsetHeight - 10);
+      popup.style.left = x + 'px';
+      popup.style.top = Math.max(10, y) + 'px';
+    });
+    span.addEventListener('mouseleave', function(){
+      this.classList.remove('active');
+      popup.classList.remove('visible');
+      cards.forEach(function(c){ c.classList.remove('highlight'); });
+      activeSection = null;
+    });
+  });
+
+  cards.forEach(function(card){
+    var idx = parseInt(card.dataset.section);
+    var codeSection = document.querySelector('.code-section[data-section="'+idx+'"]');
+    if (codeSection) {
+      var reveal = document.createElement('div');
+      reveal.className = 'breakdown-code-reveal';
+      var pre = document.createElement('pre');
+      pre.textContent = codeSection.textContent;
+      reveal.appendChild(pre);
+      card.parentNode.insertBefore(reveal, card.nextSibling);
+    }
+    card.addEventListener('mouseenter', function(){
+      var idx = parseInt(this.dataset.section);
+      sections.forEach(function(s){ s.classList.toggle('active', parseInt(s.dataset.section) === idx); });
+      this.classList.add('highlight');
+    });
+    card.addEventListener('mouseleave', function(){
+      sections.forEach(function(s){ s.classList.remove('active'); });
+      this.classList.remove('highlight');
+    });
+    card.addEventListener('click', function(e){
+      e.preventDefault();
+      var rev = this.nextElementSibling;
+      if (rev && rev.classList.contains('breakdown-code-reveal')) rev.classList.toggle('visible');
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

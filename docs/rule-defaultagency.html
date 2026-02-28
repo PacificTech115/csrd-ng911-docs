@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8. Default Agency — CSRD NG911 Attribute Rule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <h2>Docs &amp; Maintenance</h2>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
+    <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+    <div class="nav-group-label">1. Technical Documentation</div>
+    <div class="nav-sub-label">Database</div>
+    <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+    <a href="attribute-rules.html" class="nav-indent active"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
+    <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+    <div class="nav-sub-label">Automations</div>
+    <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+    <a href="gp-tools.html" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
+    <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+    <div class="nav-group-label">2. Maintenance Guide</div>
+    <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+    <div class="nav-group-label">3. Municipal Guides</div>\n    <a href="guide-golden.html" class="nav-indent"><i class="fas fa-city"></i> Golden</a>\n    <a href="guide-revelstoke.html" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>\n    <a href="guide-salmonarm.html" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>\n    <a href="guide-sicamous.html" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>\n    <div class="nav-group-label">4. Version Control</div>`n    <a href="version-edits.html"><i class="fas fa-history"></i> Version Edits</a>`n    <div class="nav-group-label">5. Quick Reference</div>
+    <a href="quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
+  </nav>
+  <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- ── PAGE HEADER ── -->
+  <header class="page-header">
+    <div class="page-header-content">
+      <div class="breadcrumb">
+        <a href="../Documentation.html">Home</a>
+        <span class="sep"><i class="fas fa-chevron-right"></i></span>
+        <a href="attribute-rules.html">Attribute Rules</a>
+        <span class="sep"><i class="fas fa-chevron-right"></i></span>
+        <span class="current">8. Default Agency</span>
+      </div>
+      <div class="detail-banner">
+        <div class="banner-icon" style="background:var(--gray)">
+          <i class="fas fa-user-tag"></i>
+        </div>
+        <div class="banner-info">
+          <h1>8. Default Agency</h1>
+          <div class="banner-tags">
+            <span class="banner-tag">Target: Agency / A3 / DiscrpAgID</span>
+            <span class="banner-tag">Triggers: Insert only</span>
+            <span class="banner-tag">Type: Calculation</span>
+            <span class="banner-tag">Status: INACTIVE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ── -->
+  <div class="content-wrap">
+
+    <!-- Description -->
+    <section>
+      <h2>Description</h2>
+      <p class="reveal">
+        Automatically populates the <code>Agency</code>, <code>A3</code> (municipality), and <code>DiscrpAgID</code> fields when a new feature is inserted, based on the username of the editing user. Maps known municipal editing accounts (<code>golden_editing</code>, <code>salmon_arm_editing</code>, <code>revelstoke_editing</code>, <code>sicamous_editing</code>) to their respective agency defaults. All other users default to CSRD. Only fills blank fields — does not overwrite manually entered values. Currently inactive.
+      </p>
+      <div class="alert warning reveal">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>
+          <strong>Inactive Rule:</strong> This rule is currently INACTIVE. It was disabled to allow manual agency assignment. If re-enabled, it will auto-populate Agency, A3, and DiscrpAgID fields on insert based on the editing user.
+        </div>
+      </div>
+    </section>
+
+    <!-- Metadata -->
+    <section>
+      <h2>Metadata</h2>
+      <div class="reveal">
+        <table>
+          <thead>
+            <tr><th>Property</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Target Fields</td><td><code>Agency</code>, <code>A3</code>, <code>DiscrpAgID</code></td></tr>
+            <tr><td>Triggers</td><td>Insert only</td></tr>
+            <tr><td>Status</td><td>INACTIVE</td></tr>
+            <tr><td>Input</td><td><code>$editcontext.editType</code>, <code>GetUser()</code> username</td></tr>
+            <tr><td>User Mappings</td><td><code>golden_editing</code>, <code>salmon_arm_editing</code>, <code>revelstoke_editing</code>, <code>sicamous_editing</code> → respective agencies; all others → CSRD</td></tr>
+            <tr><td>Returns</td><td>Attribute update object or nothing</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Full Source Code -->
+    <section>
+      <h2>Full Source Code</h2>
+      <div class="code-block reveal">
+        <div class="code-header">
+          <span class="lang-tag">Arcade</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre>
+<span class="code-section" data-section="1"><span class="cm">// Only run on INSERT</span>
+<span class="kw">if</span> (<span class="var">$editcontext</span>.editType != <span class="str">"INSERT"</span>) {
+  <span class="kw">return</span>;
+}</span>
+
+<span class="code-section" data-section="2"><span class="cm">// Get current user</span>
+<span class="kw">var</span> u = <span class="fn">GetUser</span>(<span class="var">$featureSet</span>);
+<span class="kw">if</span> (u == <span class="bi">null</span> || !<span class="fn">HasKey</span>(u, <span class="str">"username"</span>)) {
+  <span class="kw">return</span>;
+}
+
+<span class="kw">var</span> uname = <span class="fn">Lower</span>(<span class="fn">Text</span>(u[<span class="str">"username"</span>]));
+
+<span class="cm">// Normalize DOMAIN\user</span>
+<span class="kw">if</span> (<span class="fn">Find</span>(<span class="str">"\\"</span>, uname) &gt; <span class="num">-1</span>) {
+  <span class="kw">var</span> p = <span class="fn">Split</span>(uname, <span class="str">"\\"</span>);
+  uname = p[<span class="fn">Count</span>(p) - <span class="num">1</span>];
+}
+
+<span class="cm">// Normalize user@domain.com</span>
+<span class="kw">if</span> (<span class="fn">Find</span>(<span class="str">"@"</span>, uname) &gt; <span class="num">-1</span>) {
+  <span class="kw">var</span> p2 = <span class="fn">Split</span>(uname, <span class="str">"@"</span>);
+  uname = p2[<span class="num">0</span>];
+}</span>
+
+<span class="code-section" data-section="3"><span class="cm">// User -&gt; defaults</span>
+<span class="kw">var</span> defaults = {
+  <span class="str">"golden_editing"</span>:     { <span class="str">"Agency"</span>: <span class="str">"Golden"</span>,     <span class="str">"A3"</span>: <span class="str">"Golden"</span>,     <span class="str">"DiscrpAgID"</span>: <span class="str">"golden.ca"</span> },
+  <span class="str">"salmon_arm_editing"</span>: { <span class="str">"Agency"</span>: <span class="str">"Salmon Arm"</span>, <span class="str">"A3"</span>: <span class="str">"Salmon Arm"</span>, <span class="str">"DiscrpAgID"</span>: <span class="str">"salmonarm.ca"</span> },
+  <span class="str">"revelstoke_editing"</span>: { <span class="str">"Agency"</span>: <span class="str">"Revelstoke"</span>, <span class="str">"A3"</span>: <span class="str">"Revelstoke"</span>, <span class="str">"DiscrpAgID"</span>: <span class="str">"revelstoke.ca"</span> },
+  <span class="str">"sicamous_editing"</span>:   { <span class="str">"Agency"</span>: <span class="str">"Sicamous"</span>,   <span class="str">"A3"</span>: <span class="str">"Sicamous"</span>,   <span class="str">"DiscrpAgID"</span>: <span class="str">"sicamous.ca"</span> }
+};</span>
+
+<span class="code-section" data-section="4"><span class="cm">// Fallback for everyone else</span>
+<span class="kw">var</span> row = { <span class="str">"Agency"</span>: <span class="str">"CSRD"</span>, <span class="str">"A3"</span>: <span class="str">"CSRD"</span>, <span class="str">"DiscrpAgID"</span>: <span class="str">"csrd.bc.ca"</span> };
+
+<span class="kw">if</span> (<span class="fn">HasKey</span>(defaults, uname)) {
+  row = defaults[uname];
+}</span>
+
+<span class="code-section" data-section="5"><span class="cm">// Only fill blanks (don't overwrite manual values)</span>
+<span class="kw">var</span> updates = {};
+<span class="kw">var</span> didUpdate = <span class="bi">false</span>;
+
+<span class="kw">if</span> (<span class="fn">IsEmpty</span>(<span class="var">$feature</span>.Agency)) {
+  updates[<span class="str">"Agency"</span>] = row[<span class="str">"Agency"</span>];
+  didUpdate = <span class="bi">true</span>;
+}
+
+<span class="kw">if</span> (<span class="fn">IsEmpty</span>(<span class="var">$feature</span>.A3)) {
+  updates[<span class="str">"A3"</span>] = row[<span class="str">"A3"</span>];
+  didUpdate = <span class="bi">true</span>;
+}
+
+<span class="kw">if</span> (<span class="fn">IsEmpty</span>(<span class="var">$feature</span>.DiscrpAgID)) {
+  updates[<span class="str">"DiscrpAgID"</span>] = row[<span class="str">"DiscrpAgID"</span>];
+  didUpdate = <span class="bi">true</span>;
+}
+
+<span class="kw">if</span> (!didUpdate) <span class="kw">return</span>;
+
+<span class="kw">return</span> {
+  <span class="str">"result"</span>: {
+    <span class="str">"attributes"</span>: updates
+  }
+};</span>
+</pre>
+      </div>
+      <div class="section-popup" id="sectionPopup"></div>
+    </section>
+
+    <!-- Section Breakdown -->
+    <section>
+      <h2>Section Breakdown</h2>
+
+      <div class="breakdown-card reveal" style="border-left-color:var(--gray)" data-section="1">
+        <h4>1. Insert Guard</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 1–4</span>
+          <span class="meta-tag">Input: $editcontext.editType</span>
+        </div>
+        <p>Runs only on INSERT. If <code>editType != "INSERT"</code>, returns immediately (no update). Prevents overwriting agency fields on every edit.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>if ($editcontext.editType != "INSERT") return;</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Required for insert-only auto-population. Do not remove.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-1" style="border-left-color:var(--gray)" data-section="2">
+        <h4>2. Username Extraction</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 6–24</span>
+          <span class="meta-tag">Input: GetUser($featureSet)</span>
+          <span class="meta-tag">Output: uname (lowercase)</span>
+        </div>
+        <p>Gets current user via <code>GetUser($featureSet)</code>. Normalizes: (1) strip <code>DOMAIN\</code> prefix via <code>Split(uname, "\\")</code>, take last segment; (2) strip <code>@domain.com</code> via <code>Split(uname, "@")</code>, take first segment. Lowercases for dictionary lookup.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li>If <code>u == null || !HasKey(u, "username")</code> → return</li>
+            <li><code>uname = Lower(Text(u["username"]))</code></li>
+            <li>If <code>Find("\\", uname) > -1</code> → <code>uname = Split(uname, "\\")[Count-1]</code></li>
+            <li>If <code>Find("@", uname) > -1</code> → <code>uname = Split(uname, "@")[0]</code></li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>New SSO format: add another Split/Find block for the new pattern.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-2" style="border-left-color:var(--gray)" data-section="3">
+        <h4>3. Agency Lookup Dictionary</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 26–32</span>
+          <span class="meta-tag">4 municipal accounts</span>
+        </div>
+        <p>Maps usernames to default values. Keys: <code>golden_editing</code>, <code>salmon_arm_editing</code>, <code>revelstoke_editing</code>, <code>sicamous_editing</code>. Each value: <code>{ Agency, A3, DiscrpAgID }</code>.</p>
+        <div class="breakdown-detail">
+          <strong>Structure</strong>
+          <ul>
+            <li><code>defaults["golden_editing"] = { "Agency": "Golden", "A3": "Golden", "DiscrpAgID": "golden.ca" }</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Keys must match normalized username (lowercase, no domain).</li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Add account: add new key-value to <code>defaults</code>. Get username from editor's login.</li>
+            <li>Change values: edit the Agency, A3, DiscrpAgID strings.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-3" style="border-left-color:var(--gray)" data-section="4">
+        <h4>4. Fallback and Resolution</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 34–39</span>
+          <span class="meta-tag">Output: row object</span>
+        </div>
+        <p>Default row for unrecognized users: <code>{ "Agency": "CSRD", "A3": "CSRD", "DiscrpAgID": "csrd.bc.ca" }</code>. If <code>HasKey(defaults, uname)</code>, use that row; else use fallback.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>row = { "Agency": "CSRD", ... }</code></li>
+            <li>If <code>HasKey(defaults, uname)</code> → <code>row = defaults[uname]</code></li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Change fallback: edit the default <code>row</code> object.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-4" style="border-left-color:var(--gray)" data-section="5">
+        <h4>5. Conditional Field Population</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 41–66</span>
+          <span class="meta-tag">Output: { result: { attributes } }</span>
+        </div>
+        <p>Only fills blanks. For each of Agency, A3, DiscrpAgID: if <code>IsEmpty($feature.Field)</code>, add to <code>updates</code>. If no updates, return. Otherwise return <code>{ "result": { "attributes": updates } }</code>.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>if (IsEmpty($feature.Agency)) updates["Agency"] = row["Agency"]; didUpdate = true;</code> (repeat for A3, DiscrpAgID)</li>
+            <li>If <code>!didUpdate</code> → return</li>
+            <li>Return <code>{ "result": { "attributes": updates } }</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Attribute rules that return multiple fields use the <code>result.attributes</code> object format.</li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Add field: add <code>if (IsEmpty($feature.NewField)) { updates["NewField"] = row["NewField"]; didUpdate = true; }</code> and add to row/defaults.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+  </div><!-- /content-wrap -->
+
+  <!-- ── FOOTER ── -->
+  <footer class="site-footer">
+    <img src="../csrd-logo.png" alt="NG911 CSRD Logo">
+    <p>CSRD NG911 Documentation</p>
+    <p class="sub">Columbia Shuswap Regional District — Next Generation 911</p>
+  </footer>
+
+</div><!-- /main -->
+
+<!-- ── BACK TO TOP ── -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<script>
+// ── Scroll-reveal observer ──
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+})();
+
+// ── Reading progress bar ──
+(function(){
+  var bar=document.getElementById('progress');
+  function update(){
+    var st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+
+// ── Back-to-top toggle ──
+(function(){
+  var btt=document.getElementById('backToTop');
+  window.addEventListener('scroll',function(){
+    btt.classList.toggle('visible',window.scrollY>400);
+  },{passive:true});
+})();
+
+// ── Copy to clipboard ──
+function copyCode(btn){
+  var pre=btn.closest('.code-block').querySelector('pre');
+  var text=pre.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='Copy';btn.classList.remove('copied')},1500);
+  });
+}
+
+// ── Section hover interaction ──
+(function(){
+  var popup=document.getElementById('sectionPopup');
+  var sections=document.querySelectorAll('.code-section');
+  var cards=document.querySelectorAll('.breakdown-card[data-section]');
+  var META=[
+    {title:'Insert Guard',lines:'Lines 1–4',fields:'$editcontext.editType',desc:'Only runs on INSERT. Returns immediately for updates and deletes to prevent overwriting agency fields.',maint:'Do not remove — prevents overwriting on every edit.'},
+    {title:'Username Extraction',lines:'Lines 6–24',fields:'GetUser() username',desc:'Gets current user and normalizes by stripping DOMAIN\\ prefixes and @domain.com suffixes.',maint:'Add normalization logic if username format changes.'},
+    {title:'Agency Lookup Dictionary',lines:'Lines 26–32',fields:'Agency, A3, DiscrpAgID',desc:'Maps 4 known municipal editing accounts to their respective Agency, A3, and DiscrpAgID defaults.',maint:'Add new municipal accounts here when onboarding editors.'},
+    {title:'Fallback and Resolution',lines:'Lines 34–39',fields:'(derived)',desc:'CSRD is the default for unrecognized users. Resolves the matching defaults row.',maint:'Change fallback values if default agency changes.'},
+    {title:'Conditional Field Population',lines:'Lines 41–66',fields:'Agency, A3, DiscrpAgID',desc:'Only fills empty fields — does not overwrite manual values. Returns attribute update object.',maint:'Add new auto-populated fields with additional IsEmpty checks.'}
+  ];
+  sections.forEach(function(span){
+    span.addEventListener('mouseenter',function(e){
+      var idx=parseInt(this.dataset.section);var m=META[idx-1];if(!m)return;
+      this.classList.add('active');
+      cards.forEach(function(c){c.classList.toggle('highlight',parseInt(c.dataset.section)===idx)});
+      popup.innerHTML='<h4><span class="popup-num">'+idx+'</span>'+m.title+'</h4>'
+        +'<div class="popup-meta">'+(m.lines?'<span class="popup-tag">'+m.lines+'</span>':'')
+        +(m.fields?'<span class="popup-tag">Fields: '+m.fields+'</span>':'')+'</div>'
+        +'<p>'+m.desc+'</p>'
+        +(m.maint?'<div class="popup-maint"><strong>Maintenance:</strong> '+m.maint+'</div>':'');
+      popup.classList.add('visible');
+    });
+    span.addEventListener('mousemove',function(e){
+      var x=Math.min(e.clientX+16,window.innerWidth-360);
+      var y=Math.min(e.clientY-10,window.innerHeight-popup.offsetHeight-10);
+      popup.style.left=x+'px';popup.style.top=Math.max(10,y)+'px';
+    });
+    span.addEventListener('mouseleave',function(){
+      this.classList.remove('active');popup.classList.remove('visible');
+      cards.forEach(function(c){c.classList.remove('highlight')});
+    });
+  });
+  cards.forEach(function(card){
+    var idx=parseInt(card.dataset.section);
+    var codeSection=document.querySelector('.code-section[data-section="'+idx+'"]');
+    if(codeSection){
+      var reveal=document.createElement('div');
+      reveal.className='breakdown-code-reveal';
+      var pre=document.createElement('pre');
+      pre.textContent=codeSection.textContent;
+      reveal.appendChild(pre);
+      card.parentNode.insertBefore(reveal,card.nextSibling);
+    }
+    card.addEventListener('mouseenter',function(){
+      var idx=parseInt(this.dataset.section);
+      sections.forEach(function(s){s.classList.toggle('active',parseInt(s.dataset.section)===idx)});
+      this.classList.add('highlight');
+    });
+    card.addEventListener('mouseleave',function(){
+      sections.forEach(function(s){s.classList.remove('active')});
+      this.classList.remove('highlight');
+    });
+    card.addEventListener('click',function(e){
+      e.preventDefault();
+      var rev=this.nextElementSibling;
+      if(rev&&rev.classList.contains('breakdown-code-reveal'))rev.classList.toggle('visible');
+    });
+  });
+})();
+</script>
+<script src="editor-core.js"></script>
+</body>
+</html>

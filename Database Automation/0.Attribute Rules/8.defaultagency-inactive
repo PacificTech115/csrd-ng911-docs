@@ -1,0 +1,66 @@
+// Only run on INSERT
+if ($editcontext.editType != "INSERT") {
+  return;
+}
+
+// Get current user
+var u = GetUser($featureSet);
+if (u == null || !HasKey(u, "username")) {
+  return;
+}
+
+var uname = Lower(Text(u["username"]));
+
+// Normalize DOMAIN\user
+if (Find("\\", uname) > -1) {
+  var p = Split(uname, "\\");
+  uname = p[Count(p) - 1];
+}
+
+// Normalize user@domain.com
+if (Find("@", uname) > -1) {
+  var p2 = Split(uname, "@");
+  uname = p2[0];
+}
+
+// User -> defaults
+var defaults = {
+  "golden_editing":     { "Agency": "Golden",     "A3": "Golden",     "DiscrpAgID": "golden.ca" },
+  "salmon_arm_editing": { "Agency": "Salmon Arm", "A3": "Salmon Arm", "DiscrpAgID": "salmonarm.ca" },
+  "revelstoke_editing": { "Agency": "Revelstoke", "A3": "Revelstoke", "DiscrpAgID": "revelstoke.ca" },
+  "sicamous_editing":   { "Agency": "Sicamous",   "A3": "Sicamous",   "DiscrpAgID": "sicamous.ca" }
+};
+
+// Fallback for everyone else
+var row = { "Agency": "CSRD", "A3": "CSRD", "DiscrpAgID": "csrd.bc.ca" };
+
+if (HasKey(defaults, uname)) {
+  row = defaults[uname];
+}
+
+// Only fill blanks (don’t overwrite manual values)
+var updates = {};
+var didUpdate = false;
+
+if (IsEmpty($feature.Agency)) {
+  updates["Agency"] = row["Agency"];
+  didUpdate = true;
+}
+
+if (IsEmpty($feature.A3)) {
+  updates["A3"] = row["A3"];
+  didUpdate = true;
+}
+
+if (IsEmpty($feature.DiscrpAgID)) {
+  updates["DiscrpAgID"] = row["DiscrpAgID"];
+  didUpdate = true;
+}
+
+if (!didUpdate) return;
+
+return {
+  "result": {
+    "attributes": updates
+  }
+};

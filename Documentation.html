@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSRD NG911 — Documentation Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="docs/shared.css">
+</head>
+
+<body>
+
+  <div id="progress"></div>
+
+  <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')"
+    aria-label="Toggle navigation">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="csrd-logo.png" alt="NG911 CSRD Logo">
+      <h2>Docs &amp; Maintenance</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#hero"><i class="fas fa-home"></i> Home</a>
+      <a href="docs/architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
+      <div class="nav-group-label">1. Technical Documentation</div>
+      <div class="nav-sub-label">Database</div>
+      <a href="docs/schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
+      <a href="docs/attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute
+        Rules</a>
+      <a href="docs/domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+      <div class="nav-sub-label">Automations</div>
+      <a href="docs/automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
+      <a href="docs/gp-tools.html" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
+      <a href="docs/power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
+      <div class="nav-group-label">2. Maintenance &amp; History</div>
+      <a href="docs/maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
+      <a href="docs/version-edits.html"><i class="fas fa-history"></i> Version Edits</a>
+      <div class="nav-group-label">3. Municipal Guides</div>
+      <a href="docs/guide-revelstoke.html"><i class="fas fa-city"></i> Revelstoke</a>
+      <div class="nav-group-label">4. Resources</div>
+      <a href="docs/system-resources.html"><i class="fas fa-link"></i> System Resources</a>
+      <a href="docs/quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
+    </nav>
+    <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+
+    <!-- ═══ HERO ═══ -->
+    <div class="hero-wrapper" id="hero">
+      <div class="hero-card">
+        <div class="hero-card-inner">
+          <div class="hero-text">
+            <h1>CSRD <span>NG9-1-1</span> Central<br>Database System</h1>
+            <div class="subtitle">Documentation &amp; Maintenance Guide</div>
+            <div class="hero-search">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Search documentation..." id="docSearch" autocomplete="off">
+            </div>
+          </div>
+          <div class="hero-graphic">
+            <img src="docs/hero-illustration.png" alt="GIS Documentation Illustration">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-wrap">
+
+      <!-- ═══ QUICK NAVIGATION ═══ -->
+      <section id="quick-nav">
+        <div class="nav-grid">
+
+          <a class="nav-card link-card reveal" href="docs/schema-guide.html">
+            <div class="nav-card-icon"><i class="fas fa-table-columns"></i></div>
+            <div class="nav-card-body">
+              <h4>Schema Guide</h4>
+              <p>Detailed database structure, feature classes, and fields.</p>
+            </div>
+            <i class="fas fa-chevron-right nav-card-chevron"></i>
+          </a>
+
+          <a class="nav-card link-card reveal" href="docs/attribute-rules.html">
+            <div class="nav-card-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+            <div class="nav-card-body">
+              <h4>Attribute Rules</h4>
+              <p>Validation rules, constraint formulas, and attribute calculations.</p>
+            </div>
+            <i class="fas fa-chevron-right nav-card-chevron"></i>
+          </a>
+
+          <a class="nav-card link-card reveal" href="docs/maintenance.html">
+            <div class="nav-card-icon"><i class="fas fa-wrench"></i></div>
+            <div class="nav-card-body">
+              <h4>Maintenance Guide</h4>
+              <p>Instructions and best practices for system operations and troubleshooting.</p>
+            </div>
+            <i class="fas fa-chevron-right nav-card-chevron"></i>
+          </a>
+
+          <a class="nav-card link-card reveal" href="docs/automation-scripts.html">
+            <div class="nav-card-icon"><i class="fas fa-robot"></i></div>
+            <div class="nav-card-body">
+              <h4>Automation Scripts</h4>
+              <p>Documentation for Python scripts and FME workflows.</p>
+            </div>
+            <i class="fas fa-chevron-right nav-card-chevron"></i>
+          </a>
+
+          <a class="nav-card link-card reveal" href="docs/domains.html">
+            <div class="nav-card-icon"><i class="fas fa-list-check"></i></div>
+            <div class="nav-card-body">
+              <h4>Domains &amp; Lookups</h4>
+              <p>Coded value domains, lookup tables, and data validation.</p>
+            </div>
+            <i class="fas fa-chevron-right nav-card-chevron"></i>
+          </a>
+
+          <a class="nav-card link-card reveal" href="docs/quick-reference.html">
+            <div class="nav-card-icon"><i class="fas fa-bolt"></i></div>
+            <div class="nav-card-body">
+              <h4>Quick Reference</h4>
+              <p>Pipeline stages, version naming, and connection info.</p>
+            </div>
+            <i class="fas fa-chevron-right nav-card-chevron"></i>
+          </a>
+
+          <a class="nav-card link-card reveal" href="docs/guide-revelstoke.html">
+            <div class="nav-card-icon"><i class="fas fa-city"></i></div>
+            <div class="nav-card-body">
+              <h4>Municipal Guides</h4>
+              <p>Step-by-step addressing workflows for Revelstoke.</p>
+            </div>
+            <i class="fas fa-chevron-right nav-card-chevron"></i>
+          </a>
+
+          <a class="nav-card link-card reveal" href="docs/system-resources.html">
+            <div class="nav-card-icon"><i class="fas fa-link"></i></div>
+            <div class="nav-card-body">
+              <h4>System Resources</h4>
+              <p>Downloadable files and direct links to ArcGIS Portal items.</p>
+            </div>
+            <i class="fas fa-chevron-right nav-card-chevron"></i>
+          </a>
+
+        </div>
+      </section>
+
+    </div><!-- /content-wrap -->
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <img src="csrd-logo.png" alt="NG911 Logo">
+      <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
+      <p class="sub">John Soliman &middot; Pacific Tech Systems &middot; Last updated February 2026</p>
+    </footer>
+
+  </div><!-- /main -->
+  <!-- Hybrid Search Engine -->
+  <script src="docs/search-data.js"></script>
+  <script src="docs/search-core.js"></script>
+
+  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+    aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // ── Animated counters ──
+    (function () {
+      const nums = document.querySelectorAll('.stat-num[data-count]');
+      let started = false;
+      const io = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && !started) {
+          started = true;
+          nums.forEach(el => {
+            const target = +el.dataset.count; let cur = 0;
+            const step = () => { cur += Math.ceil(target / 30); if (cur >= target) { el.textContent = target; return } el.textContent = cur; requestAnimationFrame(step) };
+            step();
+          });
+        }
+      }, { threshold: .5 });
+      if (nums[0]) io.observe(nums[0].closest('.hero-stats'));
+    })();
+
+    // ── Scroll reveal ──
+    (function () {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible'); io.unobserve(e.target)
+          }
+        })
+      }, {
+        threshold: .08, rootMargin: '0px 0px -40px 0px'
+      }); document.querySelectorAll('.reveal').forEach(el => io.observe(el))
+    })();
+
+    // ── Progress bar ──
+    (function () {
+      const bar = document.getElementById('progress'); function u() {
+        const s = window.scrollY, h =
+          document.documentElement.scrollHeight - window.innerHeight; bar.style.width = (h > 0 ? Math.min(s / h * 100, 100) : 0)
+            + '%'
+      } window.addEventListener('scroll', u, { passive: true }); u()
+    })();
+
+    // ── Back to top ──
+    (function () {
+      const b = document.getElementById('backToTop'); window.addEventListener('scroll', () => {
+        b.classList.toggle('visible', window.scrollY > 400)
+      }, { passive: true })
+    })();
+
+    // ── Scroll spy ──
+    (function () {
+      const secs = document.querySelectorAll('section[id],header[id]');
+      const links = document.querySelectorAll('.sidebar-nav a[href^="#"]');
+      function onScroll() {
+        const sy = window.scrollY; let cur = '';
+        secs.forEach(s => { if (sy >= s.offsetTop - 120) cur = s.id });
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+      }
+      window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.addEventListener('click', () =>
+        document.querySelector('.sidebar').classList.remove('open')));
+    })();
+
+    // ── Mobile toggle ──
+
+    // ── Copy code ──
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre');
+      navigator.clipboard.writeText(pre.textContent).then(() => {
+        btn.textContent = 'Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied') }, 1500)
+      })
+    }
+  </script>
+  <script src="docs/editor-core.js"></script>
+</body>
+
+</html>
