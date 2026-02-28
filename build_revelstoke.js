@@ -11,6 +11,8 @@ const logoSrc = './Municipal User Guides/Revelstoke.png';
 const logoDest = path.join(destImagesDir, 'Revelstoke.png');
 if (fs.existsSync(logoSrc)) {
   fs.copyFileSync(logoSrc, logoDest);
+} else {
+  console.log('WARNING: Revelstoke.png not found at ' + logoSrc);
 }
 
 const HEAD = `<!DOCTYPE html>
