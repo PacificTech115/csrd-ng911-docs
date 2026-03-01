@@ -104,7 +104,7 @@ class SPA_Router {
 
         // Load Content
         try {
-            const response = await fetch(`partials/${this.routes[hash]}`);
+            const response = await fetch(`docs/partials/${this.routes[hash]}`);
             if (response.ok) {
                 const htmlContent = await response.text();
                 this.appRoot.innerHTML = htmlContent;
