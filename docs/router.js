@@ -1,4 +1,4 @@
-import { auth } from './auth.js';
+import { auth } from './auth.js?v=2';
 
 class SPA_Router {
     constructor() {
