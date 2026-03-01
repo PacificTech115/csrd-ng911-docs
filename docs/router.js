@@ -95,16 +95,16 @@ class SPA_Router {
         const restrictedRoutes = ['revelstoke', 'golden', 'salmonarm', 'sicamous'];
         if (restrictedRoutes.includes(hash)) {
             if (!auth.hasAccessTo(hash)) {
-                this.appRoot.innerHTML = `< div class="alert danger" >
-            <i class="fas fa-ban"></i> Access Denied.Your ArcGIS account(${user.username}) does not have permission to view the ${hash.charAt(0).toUpperCase() + hash.slice(1)} User Guide.
-                </div > `;
+                this.appRoot.innerHTML = `<div class="alert danger">
+            <i class="fas fa-ban"></i> Access Denied. Your ArcGIS account (${user.username}) does not have permission to view the ${hash.charAt(0).toUpperCase() + hash.slice(1)} User Guide.
+                </div>`;
                 return;
             }
         }
 
         // Load Content
         try {
-            const response = await fetch(`partials / ${this.routes[hash]} `);
+            const response = await fetch(`partials/${this.routes[hash]}`);
             if (response.ok) {
                 const htmlContent = await response.text();
                 this.appRoot.innerHTML = htmlContent;
