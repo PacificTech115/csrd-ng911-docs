@@ -151,7 +151,7 @@ class SPA_Router {
     buildSidebarNav() {
         const nav = document.getElementById('dynamic-nav');
         let navHtml = `
-            < a href = "#" > <i class="fas fa-home"></i> Home</a >
+            <a href="#"><i class="fas fa-home"></i> Home</a>
             <a href="#architecture"><i class="fas fa-sitemap"></i> Architecture</a>
             <div class="nav-group-label">1. Technical Documentation</div>
             <div class="nav-sub-label">Database</div>
@@ -170,23 +170,23 @@ class SPA_Router {
         const user = auth.getUser();
         const isAdmin = user.username.toLowerCase() === 'csrd' || user.username.toLowerCase().includes('admin');
 
-        navHtml += `< div class="nav-group-label" > 3. Municipal Guides</div > `;
+        navHtml += `<div class="nav-group-label">3. Municipal Guides</div>`;
 
         if (isAdmin || user.username.toLowerCase().includes('revelstoke')) {
-            navHtml += `< a href = "#revelstoke" class="nav-indent" > <i class="fas fa-city"></i> Revelstoke</a > `;
+            navHtml += `<a href="#revelstoke" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>`;
         }
         if (isAdmin || user.username.toLowerCase().includes('golden')) {
-            navHtml += `< a href = "#golden" class="nav-indent" > <i class="fas fa-city"></i> Golden</a > `;
+            navHtml += `<a href="#golden" class="nav-indent"><i class="fas fa-city"></i> Golden</a>`;
         }
         if (isAdmin || user.username.toLowerCase().includes('salmonarm')) {
-            navHtml += `< a href = "#salmonarm" class="nav-indent" > <i class="fas fa-city"></i> Salmon Arm</a > `;
+            navHtml += `<a href="#salmonarm" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>`;
         }
         if (isAdmin || user.username.toLowerCase().includes('sicamous')) {
-            navHtml += `< a href = "#sicamous" class="nav-indent" > <i class="fas fa-city"></i> Sicamous</a > `;
+            navHtml += `<a href="#sicamous" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>`;
         }
 
         navHtml += `
-            < div class="nav-group-label" > 4. Version Control</div >
+            <div class="nav-group-label">4. Version Control</div>
             <a href="#version-edits"><i class="fas fa-history"></i> Version Edits</a>
             <div class="nav-group-label">5. Quick Reference</div>
             <a href="#quick-reference"><i class="fas fa-bolt"></i> Quick Reference</a>
@@ -206,7 +206,7 @@ class SPA_Router {
         userInfo.style.marginTop = '15px';
         userInfo.style.fontSize = '0.8rem';
         userInfo.style.color = 'var(--text-secondary)';
-        userInfo.innerHTML = `< i class="fas fa-user-circle" ></i > Logged in as: <strong>${user.username}</strong> <br> <a href="#" id="logout-btn" style="color:var(--red); text-decoration:none; display:inline-block; margin-top:5px;"><i class="fas fa-sign-out-alt"></i> Logout</a>`;
+        userInfo.innerHTML = `<i class="fas fa-user-circle"></i> Logged in as: <strong>${user.username}</strong> <br> <a href="#" id="logout-btn" style="color:var(--red); text-decoration:none; display:inline-block; margin-top:5px;"><i class="fas fa-sign-out-alt"></i> Logout</a>`;
 
         // If the user is an Editor based on their ArcGIS Role, inject the toggle
         if (auth.isEditor()) {
