@@ -1,0 +1,87 @@
+<!-- ═══ PAGE HEADER ═══ -->
+<header class="page-header">
+  <div class="page-header-content">
+    <nav class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <i class="fas fa-chevron-right sep"></i>
+      <span>Technical Documentation</span>
+      <i class="fas fa-chevron-right sep"></i>
+      <span class="current">GP Tools</span>
+    </nav>
+    <h1><span>ArcGIS</span> GP Tools</h1>
+    <div class="subtitle">3 server-side geoprocessing services for database operations</div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- INFO ALERT -->
+<section>
+  <div class="alert info reveal">
+    <i class="fas fa-info-circle"></i>
+    <span>These GP services run server-side on ArcGIS Server and are called by the Nightly Orchestrator notebook. They operate directly on the enterprise geodatabase.</span>
+  </div>
+</section>
+
+<!-- GP TOOL CARDS -->
+<section>
+  <div class="grid-2 reveal">
+
+    <a class="link-card" href="#script-qa">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon blue"><i class="fas fa-clipboard-check"></i></div>
+          <h4>QA Validation Tool</h4>
+          <span class="card-tag" style="background:var(--accent-glow);color:var(--accent)">GP Service</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Schema validation, NGUID checks, mandatory nulls, duplicate detection</p>
+      </div>
+    </a>
+
+    <a class="link-card reveal-delay-1" href="#script-reconcile">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon amber"><i class="fas fa-code-branch"></i></div>
+          <h4>Reconcile/Post Tool</h4>
+          <span class="card-tag" style="background:rgba(245,158,11,.1);color:var(--amber)">GP Service</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Traditional versioning reconcile/post with 3 stage modes</p>
+      </div>
+    </a>
+
+    <a class="link-card reveal" href="#script-export">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green"><i class="fas fa-file-export"></i></div>
+          <h4>Export Tool</h4>
+          <span class="card-tag" style="background:rgba(34,197,94,.1);color:var(--green)">GP Service</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Exports DEFAULT to FGDB ZIP, copies to network share</p>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- HOW GP TOOLS FIT THE PIPELINE -->
+<section>
+  <h3 class="reveal">How GP Tools Fit the Pipeline</h3>
+  <p class="reveal">The Nightly Orchestrator notebook (an ArcGIS Notebook Server script) calls these GP tools as server-side operations via their REST endpoints. Each tool runs within the ArcGIS Server context with direct SDE access to the enterprise geodatabase.</p>
+
+  <div class="pipeline reveal">
+    <div class="pipeline-step s1">Orchestrator<small>Notebook</small></div>
+    <div class="pipeline-arrow"><div class="dot"></div></div>
+    <div class="pipeline-step s2">calls<small>REST endpoints</small></div>
+    <div class="pipeline-arrow"><div class="dot" style="animation-delay:.4s"></div></div>
+    <div class="pipeline-step s3">GP Tools<small>QA · Reconcile · Export</small></div>
+    <div class="pipeline-arrow"><div class="dot" style="animation-delay:.8s"></div></div>
+    <div class="pipeline-step s4">operates on<small>Enterprise GDB</small></div>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->

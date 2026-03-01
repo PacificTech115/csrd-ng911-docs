@@ -1,0 +1,151 @@
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="#attribute-rules">Attribute Rules</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">2. NGUID</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--accent)">
+        <i class="fas fa-fingerprint"></i>
+      </div>
+      <div class="banner-info">
+        <h1>2. NGUID</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-bullseye"></i>&nbsp; Target: NGUID</span>
+          <span class="banner-tag"><i class="fas fa-bolt"></i>&nbsp; Triggers: Insert / Update</span>
+          <span class="banner-tag"><i class="fas fa-calculator"></i>&nbsp; Type: Calculation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- DESCRIPTION -->
+<section>
+  <h2 class="reveal">Description</h2>
+  <p class="reveal">Generates the National Geographic Unique Identifier (NGUID) in URN format as specified by NENA standards. The NGUID uniquely identifies each address point using the feature's GlobalID combined with the agency identifier (DiscrpAgID). Format: <code>urn:emergency:uid:gis:SSAP:{GlobalID}:{DiscrpAgID}</code></p>
+</section>
+
+<!-- METADATA -->
+<section>
+  <h2 class="reveal">Metadata</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Target Field</td><td><code>NGUID</code></td></tr>
+        <tr><td>Triggers</td><td>Insert, Update</td></tr>
+        <tr><td>Input Fields</td><td><code>GlobalID</code>, <code>DiscrpAgID</code></td></tr>
+        <tr><td>Output Format</td><td><code>urn:emergency:uid:gis:SSAP:{GlobalID}:{DiscrpAgID}</code></td></tr>
+        <tr><td>Returns</td><td>URN string or <code>Null</code> if DiscrpAgID is empty</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FULL SOURCE CODE -->
+<section>
+  <details class="source-collapse reveal">
+    <summary>Full Source Code</summary>
+    <div class="collapse-content">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-tag">Arcade</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+<pre><span class="code-section" data-section="1"><span class="kw">var</span> ag = <span class="fn">Trim</span>(<span class="fn">DefaultValue</span>(<span class="var">$feature</span>.DiscrpAgID, <span class="str">""</span>));
+<span class="kw">if</span> (ag == <span class="str">""</span>) <span class="kw">return</span> <span class="bi">Null</span>;</span>
+
+<span class="code-section" data-section="2"><span class="cm">// GlobalID sometimes comes with { } — strip them</span>
+<span class="kw">var</span> gid = <span class="fn">Text</span>(<span class="var">$feature</span>.GlobalID);
+gid = <span class="fn">Replace</span>(<span class="fn">Replace</span>(gid, <span class="str">"{"</span>, <span class="str">""</span>), <span class="str">"}"</span>, <span class="str">""</span>);</span>
+
+<span class="code-section" data-section="3"><span class="kw">return</span> <span class="str">"urn:emergency:uid:gis:SSAP:"</span> + gid + <span class="str">":"</span> + ag;</span></pre>
+    </div>
+    <div class="section-popup" id="sectionPopup"></div>
+    </div>
+  </details>
+</section>
+
+<!-- SECTION-BY-SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal">Section-by-Section Breakdown</h2>
+
+  <div class="breakdown-card reveal" data-section="1">
+    <h4>1. Agency Validation</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 1 &ndash; 2</span>
+      <span class="meta-tag">Input: DiscrpAgID</span>
+      <span class="meta-tag">Output: Null (early exit)</span>
+    </div>
+    <p>Ensures the agency identifier exists before building the NGUID. Returns <code>Null</code> immediately if <code>DiscrpAgID</code> is empty or null, preventing invalid URNs.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li><code>ag = Trim(DefaultValue($feature.DiscrpAgID, ""))</code></li>
+        <li>If <code>ag == ""</code> → <code>return Null</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>Replace <code>DiscrpAgID</code> with your agency field name. Must run before GlobalID/URN logic.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal reveal-delay-1" data-section="2">
+    <h4>2. GlobalID Normalization</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Lines 4 &ndash; 6</span>
+      <span class="meta-tag">Input: GlobalID (system)</span>
+      <span class="meta-tag">Output: string</span>
+    </div>
+    <p>Converts GlobalID to text and strips curly braces <code>{</code> and <code>}</code>. ArcGIS may store GUIDs as <code>{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}</code>; this produces <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</code>.</p>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li><code>gid = Text($feature.GlobalID)</code></li>
+        <li><code>gid = Replace(Replace(gid, "{", ""), "}", "")</code></li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li>GlobalID is a system field; do not rename. Brace stripping handles both formats.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="breakdown-card reveal" data-section="3">
+    <h4>3. URN Assembly</h4>
+    <div class="breakdown-meta">
+      <span class="meta-tag">Line 8</span>
+      <span class="meta-tag">Output: NGUID string</span>
+    </div>
+    <p>Builds the NENA-standard NGUID URN. Format: <code>urn:emergency:uid:gis:SSAP:{GlobalID}:{DiscrpAgID}</code>.</p>
+    <div class="breakdown-detail">
+      <strong>URN structure</strong>
+      <ul>
+        <li>Prefix: <code>urn:emergency:uid:gis:SSAP:</code> (fixed)</li>
+        <li>GlobalID: cleaned, no braces</li>
+        <li>Agency: from DiscrpAgID</li>
+      </ul>
+      <strong>To replicate</strong>
+      <ul>
+        <li><code>return "urn:emergency:uid:gis:SSAP:" + gid + ":" + ag;</code></li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Different prefix: change the string literal. Add components: append before the final <code>ag</code> (e.g., <code>+ ":" + region</code>).</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->

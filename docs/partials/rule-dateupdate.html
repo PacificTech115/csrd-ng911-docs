@@ -1,0 +1,109 @@
+<!-- ── PAGE HEADER ── -->
+  <header class="page-header">
+    <div class="page-header-content">
+      <div class="breadcrumb">
+        <a href="#Documentation">Home</a>
+        <span class="sep"><i class="fas fa-chevron-right"></i></span>
+        <a href="#attribute-rules">Attribute Rules</a>
+        <span class="sep"><i class="fas fa-chevron-right"></i></span>
+        <span class="current">6. DateUpdate</span>
+      </div>
+      <div class="detail-banner">
+        <div class="banner-icon" style="background:var(--navy)">
+          <i class="fas fa-calendar"></i>
+        </div>
+        <div class="banner-info">
+          <h1>6. DateUpdate</h1>
+          <div class="banner-tags">
+            <span class="banner-tag">Target: DateUpdate</span>
+            <span class="banner-tag">Triggers: Insert / Update</span>
+            <span class="banner-tag">Type: Calculation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ── -->
+  <div class="content-wrap">
+
+    <!-- Description -->
+    <section>
+      <h2>Description</h2>
+      <p class="reveal">
+        The simplest attribute rule in the system. It sets the <code>DateUpdate</code> field to the feature's last edited timestamp on every save. This provides a reliable, auto-populated edit date that cannot be accidentally left blank or stale. The value comes from ArcGIS's built-in <code>last_edited_date</code> tracking field.
+      </p>
+    </section>
+
+    <!-- Metadata -->
+    <section>
+      <h2>Metadata</h2>
+      <div class="reveal">
+        <table>
+          <thead>
+            <tr><th>Property</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Target Field</td><td><code>DateUpdate</code></td></tr>
+            <tr><td>Triggers</td><td>Insert, Update</td></tr>
+            <tr><td>Input</td><td><code>$feature.last_edited_date</code> (system field)</td></tr>
+            <tr><td>Returns</td><td>Timestamp of the last edit</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Full Source Code -->
+    <section>
+      <h2>Full Source Code</h2>
+      <div class="code-block reveal">
+        <div class="code-header">
+          <span class="lang-tag">Arcade</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre>
+<span class="code-section" data-section="1"><span class="var">$feature</span>.last_edited_date</span>
+</pre>
+      </div>
+      <div class="section-popup" id="sectionPopup"></div>
+    </section>
+
+    <!-- Section Breakdown -->
+    <section>
+      <h2>Section Breakdown</h2>
+
+      <div class="breakdown-card reveal" style="border-left-color:var(--navy)" data-section="1">
+        <h4>1. Timestamp Assignment</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Line 1</span>
+          <span class="meta-tag">Input: last_edited_date (system)</span>
+          <span class="meta-tag">Output: Date</span>
+        </div>
+        <p>Returns the system-tracked <code>last_edited_date</code> value. ArcGIS Enterprise maintains this automatically on every Insert and Update. No conditional logic—single expression.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>return $feature.last_edited_date;</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Target field: <code>DateUpdate</code> (or equivalent). Set rule triggers: Insert, Update.</li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Date-only (no time): <code>DateOnly($feature.last_edited_date)</code></li>
+            <li>Formatted string: <code>Text($feature.last_edited_date, "yyyy-MM-dd")</code></li>
+            <li>If ArcGIS renames the field in a future version, update the reference.</li>
+          </ul>
+          <strong>Dependencies</strong>
+          <ul>
+            <li><code>last_edited_date</code> is a system-managed field; do not edit manually.</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+  </div><!-- /content-wrap -->
+
+  <!-- ── FOOTER ── -->

@@ -1,0 +1,116 @@
+<!-- ═══ PAGE HEADER ═══ -->
+        <header class="page-header">
+            <div class="page-header-content">
+                <nav class="breadcrumb">
+                    <a href="#Documentation">Home</a>
+                    <i class="fas fa-chevron-right sep"></i>
+                    <span class="current">System Architecture</span>
+                </nav>
+            </div>
+        </header>
+
+        <div class="content-wrap">
+
+            <!-- ═══ OVERVIEW ═══ -->
+            <section id="overview">
+                <h2 class="reveal"><i class="fas fa-sitemap"></i>&nbsp; Overview</h2>
+                <p class="reveal">The central database uses ArcGIS Enterprise <strong>traditional versioning</strong> to
+                    manage
+                    concurrent edits from multiple municipal agencies. Data flows upward from editor versions through a
+                    QA gate
+                    before reaching the production DEFAULT layer.</p>
+
+                <div class="video-container reveal"
+                    style="margin-top: 30px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <iframe src="https://www.youtube.com/embed/0VK8YCL_wo0?rel=0"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                </div>
+            </section>
+
+            <!-- ═══ VERSIONING HIERARCHY ═══ -->
+            <section id="versioning">
+                <h2 class="reveal">Versioning Hierarchy</h2>
+                <div class="arch-diagram reveal">
+                    <div class="arch-box default"><i class="fas fa-crown"></i>&nbsp; sde.DEFAULT<small>Production
+                            &middot;
+                            Authoritative Layer</small></div>
+                    <div class="arch-arrow"></div>
+                    <div class="arch-arrow-label">Reconcile / Post</div>
+                    <div class="arch-box qa"><i class="fas fa-clipboard-check"></i>&nbsp; SDE.QA<small>QA Validation
+                            Gate</small>
+                    </div>
+                    <div class="arch-arrow"></div>
+                    <div class="arch-arrow-label">Reconcile / Post</div>
+                    <div class="muni-row">
+                        <div class="arch-box muni">SDE.CSRD<br><small>Editor</small></div>
+                        <div class="arch-box muni">SDE.Salmon Arm<br><small>Editor</small></div>
+                        <div class="arch-box muni">SDE.Sicamous<br><small>Editor</small></div>
+                        <div class="arch-box muni">SDE.Golden<br><small>Editor</small></div>
+                        <div class="arch-box muni">SDE.Revelstoke<br><small>Editor</small></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ TECHNOLOGY STACK ═══ -->
+            <section id="tech-stack">
+                <h2 class="reveal">Technology Stack</h2>
+                <div class="grid-3 reveal">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon navy"><i class="fas fa-database"></i></div>
+                            <h4>Database</h4>
+                        </div>
+                        <p>Microsoft SQL Server + ArcSDE for versioned geodatabase storage</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon teal"><i class="fas fa-server"></i></div>
+                            <h4>GIS Platform</h4>
+                        </div>
+                        <p>ArcGIS Enterprise (Portal, Server) for feature services and GP services</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon blue"><i class="fas fa-pen-to-square"></i></div>
+                            <h4>Editing</h4>
+                        </div>
+                        <p>ArcGIS Pro &amp; Experience Builder for desktop and web-based entry</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon purple"><i class="fas fa-robot"></i></div>
+                            <h4>Automation</h4>
+                        </div>
+                        <p>ArcGIS Notebook Server (Python) for nightly orchestration and ETL</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon pink"><i class="fas fa-envelope"></i></div>
+                            <h4>Notifications</h4>
+                        </div>
+                        <p>Microsoft Power Automate for email reports on pipeline completion</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon amber"><i class="fas fa-wand-magic-sparkles"></i></div>
+                            <h4>Attribute Rules</h4>
+                        </div>
+                        <p>Arcade expressions for auto-calculation of fields on every save</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ FEATURE CLASS ═══ -->
+            <section id="feature-class">
+                <h2 class="reveal">Feature Class</h2>
+                <p class="reveal">The primary dataset is <code>SDE.NG911\SDE.NG911_SiteAddress</code> (SSAP &mdash;
+                    Site/Structure Address Point), containing all address points for the CSRD region with NENA-standard
+                    fields.
+                </p>
+            </section>
+
+        </div><!-- /content-wrap -->
+
+        <!-- FOOTER -->

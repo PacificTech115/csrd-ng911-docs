@@ -1,0 +1,429 @@
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="#gp-tools">GP Tools</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Reconcile/Post Tool</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--amber)">
+        <i class="fas fa-code-branch"></i>
+      </div>
+      <div class="banner-info">
+        <h1>Reconcile/Post Tool</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-gear"></i>&nbsp; Type: GP Service</span>
+          <span class="banner-tag"><i class="fas fa-file-code"></i>&nbsp; File: ReconcilePostGPtool.py</span>
+          <span class="banner-tag"><i class="fas fa-list-ol"></i>&nbsp; Parameters: 9</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- PURPOSE -->
+<section>
+  <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose</h2>
+  <p class="reveal">ArcPy wrapper for traditional versioning reconcile/post operations, published as an ArcGIS GP service. Supports three distinct stage modes that control data flow direction, posting behavior, and conflict resolution strategy within the CSRD versioning hierarchy.</p>
+</section>
+
+
+<!-- FULL SOURCE CODE (auto-embedded) -->
+<section>
+  <h2 class="reveal"><i class="fas fa-file-code"></i>&nbsp; Full Source Code</h2>
+  <div class="doc-meta reveal">
+    <span><i class="fas fa-ruler-horizontal"></i> 270 lines</span>
+    <span><i class="fas fa-file"></i> ReconcilePostGPtool.py</span>
+  </div>
+  <button class="doc-toggle reveal" type="button" data-target="fullsrc-script-reconcile" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show full source (270 lines)</span>
+  </button>
+  <div id="fullsrc-script-reconcile" class="doc-body collapsed">
+    <div class="code-block">
+      <div class="code-header"><span>Python — ReconcilePostGPtool.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre># ReconcilePostTraditional.py
+# Traditional versioning reconcile/post automation (ArcPy)
+# Supports two stages:
+#   - MUNI_TO_QA    : reconcile/post multiple municipal versions into QA
+#   - QA_TO_DEFAULT : reconcile/post QA into DEFAULT
+#   - DEFAULT_TO_MUNI_SYNC : reconcile DEFAULT into municipal versions (NO_POST)
+#
+# Expected Script Tool parameters (ORDER MATTERS):
+#   0 sde_conn         (File)
+#   1 stage            (String) -&gt; &quot;MUNI_TO_QA&quot; | &quot;QA_TO_DEFAULT&quot; | &quot;DEFAULT_TO_MUNI_SYNC&quot;
+#   2 qa_version       (String) -&gt; e.g., &quot;SDE.QA&quot;
+#   3 default_version  (String) -&gt; e.g., &quot;sde.DEFAULT&quot;
+#   4 editor_versions  (String) -&gt; semicolon list: &quot;SDE.CSRD;SDE.Sicamous;...&quot;
+#   5 out_log_folder   (Folder)
+#   6 conflict_policy  (String) -&gt; &quot;ABORT_CONFLICTS&quot; or &quot;NO_ABORT&quot;
+#   7 acquire_locks    (String) -&gt; &quot;LOCK_ACQUIRED&quot; or &quot;NO_LOCK_ACQUIRED&quot;
+#   8 result_json      (String, OUTPUT/DERIVED)
+
+import arcpy
+import os
+import json
+import traceback
+from datetime import datetime
+
+# -----------------------------
+# Helpers
+# -----------------------------
+def _msg(s: str):
+    arcpy.AddMessage(s)
+
+def _warn(s: str):
+    arcpy.AddWarning(s)
+
+def _err(s: str):
+    arcpy.AddError(s)
+
+def _ensure_dir(path: str):
+    if not path:
+        raise ValueError(&quot;out_log_folder is empty or None.&quot;)
+    os.makedirs(path, exist_ok=True)
+
+def _normalize_list(s: str) -&gt; str:
+    &quot;&quot;&quot;
+    Normalizes semicolon-separated version list:
+    - strips whitespace around tokens
+    - removes empty entries
+    &quot;&quot;&quot;
+    if not s:
+        return &quot;&quot;
+    parts = [p.strip() for p in s.split(&quot;;&quot;)]
+    parts = [p for p in parts if p]
+    return &quot;;&quot;.join(parts)
+
+def _validate_choice(val: str, allowed: set, name: str):
+    if val not in allowed:
+        raise ValueError(f&quot;Invalid {name}='{val}'. Allowed: {sorted(list(allowed))}&quot;)
+
+def _write_log_stub(log_path: str, header: str):
+    # Prove we reached the point where a log path exists
+    with open(log_path, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+        f.write(header + &quot;\n&quot;)
+
+def _reconcile_versions(workspace: str,
+                        target_version: str,
+                        edit_versions: str,
+                        acquire_locks: str,
+                        abort_if_conflicts: str,
+                        out_log: str,
+                        conflict_definition: str = &quot;BY_ATTRIBUTE&quot;,
+                        conflict_resolution: str = &quot;FAVOR_EDIT_VERSION&quot;,
+                        with_post: str = &quot;POST&quot;,
+                        with_delete: str = &quot;KEEP_VERSION&quot;):
+    &quot;&quot;&quot;
+    Runs ReconcileVersions for traditional versioning.
+    NOTE: reconcile_mode must be ALL_VERSIONS or BLOCKING_VERSIONS.
+    We'll use ALL_VERSIONS and pass edit_versions to control scope.
+    &quot;&quot;&quot;
+    arcpy.management.ReconcileVersions(
+        workspace,              # in_workspace
+        &quot;ALL_VERSIONS&quot;,         # reconcile_mode (MUST be ALL_VERSIONS | BLOCKING_VERSIONS)
+        target_version,         # target_version
+        edit_versions,          # edit_versions (semicolon-separated list OR single version)
+        acquire_locks,          # LOCK_ACQUIRED | NO_LOCK_ACQUIRED
+        abort_if_conflicts,     # ABORT_CONFLICTS | NO_ABORT
+        conflict_definition,    # BY_OBJECT | BY_ATTRIBUTE
+        conflict_resolution,    # FAVOR_TARGET_VERSION | FAVOR_EDIT_VERSION
+        with_post,              # POST | NO_POST
+        with_delete,            # DELETE_VERSION | KEEP_VERSION
+        out_log                 # out_log
+    )
+    return arcpy.GetMessages()
+
+# -----------------------------
+# Main
+# -----------------------------
+def main():
+    # Read parameters (ORDER MUST MATCH SCRIPT TOOL)
+    sde_conn        = arcpy.GetParameterAsText(0)
+    stage           = arcpy.GetParameterAsText(1)
+    qa_version      = arcpy.GetParameterAsText(2)
+    default_version = arcpy.GetParameterAsText(3)
+    editor_versions = arcpy.GetParameterAsText(4)
+    out_log_folder  = arcpy.GetParameterAsText(5)
+    conflict_policy = arcpy.GetParameterAsText(6)
+    acquire_locks   = arcpy.GetParameterAsText(7)
+
+    # Normalize lists
+    editor_versions_norm = _normalize_list(editor_versions)
+
+    # Timestamp and base result
+    ts = datetime.now().strftime(&quot;%Y%m%d_%H%M%S&quot;)
+
+    result = {
+        &quot;timestamp&quot;: ts,
+        &quot;stage&quot;: stage,
+        &quot;success&quot;: False,
+        &quot;log_path&quot;: None,
+        &quot;messages&quot;: None,
+        &quot;inputs&quot;: {
+            &quot;sde_conn&quot;: sde_conn,
+            &quot;qa_version&quot;: qa_version,
+            &quot;default_version&quot;: default_version,
+            &quot;editor_versions&quot;: editor_versions_norm,
+            &quot;out_log_folder&quot;: out_log_folder,
+            &quot;conflict_policy&quot;: conflict_policy,
+            &quot;acquire_locks&quot;: acquire_locks,
+        }
+    }
+
+    # Debug print all params (so you see if Pro is passing them correctly)
+    _msg(&quot;DEBUG PARAMS RECEIVED:&quot;)
+    _msg(f&quot;  sde_conn        = '{sde_conn}'&quot;)
+    _msg(f&quot;  stage           = '{stage}'&quot;)
+    _msg(f&quot;  qa_version      = '{qa_version}'&quot;)
+    _msg(f&quot;  default_version = '{default_version}'&quot;)
+    _msg(f&quot;  editor_versions = '{editor_versions_norm}'&quot;)
+    _msg(f&quot;  out_log_folder  = '{out_log_folder}'&quot;)
+    _msg(f&quot;  conflict_policy = '{conflict_policy}'&quot;)
+    _msg(f&quot;  acquire_locks   = '{acquire_locks}'&quot;)
+
+    # Validate basic inputs
+    if not sde_conn:
+        raise ValueError(&quot;sde_conn is blank.&quot;)
+    if not stage:
+        raise ValueError(&quot;stage is blank.&quot;)
+    if not qa_version:
+        raise ValueError(&quot;qa_version is blank.&quot;)
+    if not default_version:
+        raise ValueError(&quot;default_version is blank.&quot;)
+
+    # Validate choices (must match ArcPy accepted strings)
+    _validate_choice(stage, {&quot;MUNI_TO_QA&quot;, &quot;QA_TO_DEFAULT&quot;, &quot;DEFAULT_TO_MUNI_SYNC&quot;}, &quot;stage&quot;)
+    _validate_choice(conflict_policy, {&quot;ABORT_CONFLICTS&quot;, &quot;NO_ABORT&quot;}, &quot;conflict_policy&quot;)
+    _validate_choice(acquire_locks, {&quot;LOCK_ACQUIRED&quot;, &quot;NO_LOCK_ACQUIRED&quot;}, &quot;acquire_locks&quot;)
+
+    # Ensure log folder exists
+    _ensure_dir(out_log_folder)
+
+    # Build log path and write stub immediately
+    if stage == &quot;MUNI_TO_QA&quot;:
+        log_path = os.path.join(out_log_folder, f&quot;reconcile_muni_to_QA_{ts}.txt&quot;)
+    elif stage == &quot;QA_TO_DEFAULT&quot;:
+        log_path = os.path.join(out_log_folder, f&quot;reconcile_QA_to_DEFAULT_{ts}.txt&quot;)
+    else:
+        log_path = os.path.join(out_log_folder, f&quot;reconcile_DEFAULT_to_MUNI_sync_{ts}.txt&quot;)
+
+    _write_log_stub(log_path, f&quot;LOG START | {stage} | {ts}&quot;)
+    result[&quot;log_path&quot;] = log_path
+    _msg(f&quot;Log file created (stub): {log_path}&quot;)
+
+    # Execute reconcile/post
+    if stage == &quot;MUNI_TO_QA&quot;:
+        if not editor_versions_norm:
+            raise ValueError(&quot;editor_versions is blank for MUNI_TO_QA stage.&quot;)
+
+        _msg(&quot;Running ReconcileVersions: MUNICIPAL -&gt; QA (POST enabled)&quot;)
+        msgs = _reconcile_versions(
+            workspace=sde_conn,
+            target_version=qa_version,
+            edit_versions=editor_versions_norm,
+            acquire_locks=acquire_locks,
+            abort_if_conflicts=conflict_policy,
+            out_log=log_path,
+            conflict_definition=&quot;BY_ATTRIBUTE&quot;,
+            conflict_resolution=&quot;FAVOR_EDIT_VERSION&quot;,
+            with_post=&quot;POST&quot;,
+            with_delete=&quot;KEEP_VERSION&quot;
+        )
+        result[&quot;messages&quot;] = msgs
+        result[&quot;success&quot;] = True
+
+    elif stage == &quot;QA_TO_DEFAULT&quot;:
+        _msg(&quot;Running ReconcileVersions: QA -&gt; DEFAULT (POST enabled)&quot;)
+        msgs = _reconcile_versions(
+            workspace=sde_conn,
+            target_version=default_version,
+            edit_versions=qa_version,   # reconcile/post QA into DEFAULT
+            acquire_locks=acquire_locks,
+            abort_if_conflicts=conflict_policy,
+            out_log=log_path,
+            conflict_definition=&quot;BY_ATTRIBUTE&quot;,
+            conflict_resolution=&quot;FAVOR_EDIT_VERSION&quot;,
+            with_post=&quot;POST&quot;,
+            with_delete=&quot;KEEP_VERSION&quot;
+        )
+        result[&quot;messages&quot;] = msgs
+        result[&quot;success&quot;] = True
+
+    elif stage == &quot;DEFAULT_TO_MUNI_SYNC&quot;:
+        if not editor_versions_norm:
+            raise ValueError(&quot;editor_versions is blank for DEFAULT_TO_MUNI_SYNC stage.&quot;)
+
+        _msg(&quot;Running ReconcileVersions: DEFAULT -&gt; MUNICIPAL (NO_POST, sync QAStatus back to editor versions)&quot;)
+        msgs = _reconcile_versions(
+            workspace=sde_conn,
+            target_version=default_version,
+            edit_versions=editor_versions_norm,
+            acquire_locks=acquire_locks,
+            abort_if_conflicts=conflict_policy,
+            out_log=log_path,
+            conflict_definition=&quot;BY_ATTRIBUTE&quot;,
+            # For sync-down stage we want target(DEFAULT) values (including QAStatus)
+            # to win when the same attribute conflicts.
+            conflict_resolution=&quot;FAVOR_TARGET_VERSION&quot;,
+            with_post=&quot;NO_POST&quot;,
+            with_delete=&quot;KEEP_VERSION&quot;
+        )
+        result[&quot;messages&quot;] = msgs
+        result[&quot;success&quot;] = True
+
+    # Return JSON output (Parameter 8 must be OUTPUT/DERIVED)
+    arcpy.SetParameterAsText(8, json.dumps(result))
+    _msg(&quot;result_json written to output parameter.&quot;)
+
+# Entry point with robust error capture
+if __name__ == &quot;__main__&quot;:
+    try:
+        main()
+    except Exception as ex:
+        # Try to still write result_json if possible
+        ts = datetime.now().strftime(&quot;%Y%m%d_%H%M%S&quot;)
+        tb = traceback.format_exc()
+
+        try:
+            # Attempt to read out_log_folder to write a failure stub if we can
+            out_log_folder = arcpy.GetParameterAsText(5)
+            if out_log_folder:
+                os.makedirs(out_log_folder, exist_ok=True)
+                fail_log = os.path.join(out_log_folder, f&quot;FAILED_{ts}.txt&quot;)
+                with open(fail_log, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+                    f.write(tb)
+                _warn(f&quot;Wrote failure traceback log: {fail_log}&quot;)
+        except Exception:
+            pass
+
+        _err(f&quot;Tool failed: {ex}&quot;)
+        _err(tb)
+
+        fail_result = {
+            &quot;timestamp&quot;: ts,
+            &quot;success&quot;: False,
+            &quot;error&quot;: str(ex),
+            &quot;traceback&quot;: tb
+        }
+        try:
+            arcpy.SetParameterAsText(8, json.dumps(fail_result))
+        except Exception:
+            pass
+        raise
+</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- STAGE MODES -->
+<section>
+  <h2 class="reveal"><i class="fas fa-route"></i>&nbsp; Stage Modes</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>Stage</th><th>Direction</th><th>Post</th><th>Conflict Resolution</th></tr></thead>
+      <tbody>
+        <tr><td><code>MUNI_TO_QA</code></td><td>Municipal editors &rarr; SDE.QA</td><td>POST</td><td>FAVOR_EDIT_VERSION</td></tr>
+        <tr><td><code>QA_TO_DEFAULT</code></td><td>SDE.QA &rarr; sde.DEFAULT</td><td>POST</td><td>FAVOR_EDIT_VERSION</td></tr>
+        <tr><td><code>DEFAULT_TO_MUNI_SYNC</code></td><td>sde.DEFAULT &rarr; Municipal editors</td><td>NO_POST</td><td>FAVOR_TARGET_VERSION</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert info reveal"><i class="fas fa-info-circle"></i><span><code>DEFAULT_TO_MUNI_SYNC</code> uses <strong>NO_POST</strong> combined with <strong>FAVOR_TARGET_VERSION</strong> so that QAStatus values and other approved data from DEFAULT flow down to municipal versions without overwriting any pending local edits.</span></div>
+</section>
+
+<!-- PARAMETERS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-sliders"></i>&nbsp; Parameters</h2>
+  <button class="doc-toggle reveal" type="button" data-target="tbl-recon-params" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show table (9 rows)</span>
+  </button>
+  <div id="tbl-recon-params" class="doc-body collapsed">
+    <div class="card">
+      <table>
+        <thead><tr><th>#</th><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td><code>sde_conn</code></td><td>File</td><td>Path to the SDE connection file (.sde)</td></tr>
+          <tr><td>1</td><td><code>stage</code></td><td>String</td><td>Operation mode: <code>MUNI_TO_QA</code>, <code>QA_TO_DEFAULT</code>, or <code>DEFAULT_TO_MUNI_SYNC</code></td></tr>
+          <tr><td>2</td><td><code>qa_version</code></td><td>String</td><td>Name of the QA version (e.g., <code>SDE.QA</code>)</td></tr>
+          <tr><td>3</td><td><code>default_version</code></td><td>String</td><td>Name of the default version (e.g., <code>sde.DEFAULT</code>)</td></tr>
+          <tr><td>4</td><td><code>editor_versions</code></td><td>String</td><td>Semicolon-delimited list of municipal editor version names</td></tr>
+          <tr><td>5</td><td><code>out_log_folder</code></td><td>Folder</td><td>Directory for reconcile log files</td></tr>
+          <tr><td>6</td><td><code>conflict_policy</code></td><td>String</td><td>Conflict handling: <code>NO_ABORT</code> or <code>ABORT_CONFLICTS</code></td></tr>
+          <tr><td>7</td><td><code>lock_policy</code></td><td>String</td><td>Lock acquisition: <code>LOCK_ACQUIRED</code> or <code>NO_LOCK_ACQUIRED</code></td></tr>
+          <tr><td>8</td><td><code>result_json</code></td><td>String</td><td>Output JSON with reconcile results (derived parameter)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ERROR HANDLING -->
+<section>
+  <h2 class="reveal"><i class="fas fa-shield-halved"></i>&nbsp; Error Handling</h2>
+  <div class="card reveal">
+    <ul>
+      <li><strong>Input validation:</strong> Checks that the SDE connection file exists and the stage mode is a recognized value before proceeding</li>
+      <li><strong>Log stubs:</strong> Creates an initial log entry before the reconcile call so the file exists even if ArcPy crashes mid-operation</li>
+      <li><strong>Traceback capture:</strong> Wraps the <code>arcpy.ReconcileVersions_management</code> call in a try/except and captures full tracebacks into the result JSON</li>
+      <li><strong>Per-version results:</strong> When processing multiple editor versions, each version's reconcile is run individually and results are collected — a failure on one version doesn't prevent attempts on the remaining versions</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Section-by-Section Breakdown</h2>
+
+  <div class="card reveal doc-section">
+    <h4>1. Helpers &amp; Validation</h4>
+    <div class="doc-meta"><span>Lines 28 &ndash; 91</span><span>6 functions</span></div>
+    <div class="breakdown-detail">
+      <strong>Functions</strong>
+      <ul>
+        <li><code>_normalize_list(s)</code> &mdash; Strips whitespace and empty entries from semicolon-separated version lists.</li>
+        <li><code>_validate_choice(val, allowed, name)</code> &mdash; Validates stage, conflict_policy, and acquire_locks.</li>
+        <li><code>_reconcile_versions()</code> &mdash; Wrapper around <code>arcpy.management.ReconcileVersions</code> with configurable conflict definition, resolution, and post behavior.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>2. Stage Execution Logic</h4>
+    <div class="doc-meta"><span>Lines 96 &ndash; 233</span><span>3 stage branches</span></div>
+    <div class="breakdown-detail">
+      <strong>Stages</strong>
+      <ul>
+        <li><strong>MUNI_TO_QA</strong> &mdash; Reconciles all editor versions into QA. Uses <code>FAVOR_EDIT_VERSION</code> + <code>POST</code>.</li>
+        <li><strong>QA_TO_DEFAULT</strong> &mdash; Reconciles QA into DEFAULT. Same settings.</li>
+        <li><strong>DEFAULT_TO_MUNI_SYNC</strong> &mdash; Reconciles DEFAULT into municipal versions with <code>NO_POST</code> + <code>FAVOR_TARGET_VERSION</code>. Pushes QAStatus back to editors.</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Change conflict resolution: edit <code>conflict_resolution</code> in the specific stage branch.</li>
+        <li>Add a new stage: add an <code>elif</code> branch and update <code>_validate_choice</code> allowed set.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>3. Error Handling &amp; Output</h4>
+    <div class="doc-meta"><span>Lines 235 &ndash; 270</span></div>
+    <div class="breakdown-detail">
+      <strong>Logic</strong>
+      <ul>
+        <li>On success: writes <code>result_json</code> with <code>success: true</code>, log path, GP messages.</li>
+        <li>On failure: writes <code>FAILED_{ts}.txt</code> traceback, sets <code>result_json</code> with error, re-raises.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->

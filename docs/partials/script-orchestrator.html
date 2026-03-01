@@ -1,0 +1,309 @@
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <a href="#automation-scripts">ArcGIS Notebooks</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Nightly Orchestrator</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--teal)">
+        <i class="fas fa-play-circle"></i>
+      </div>
+      <div class="banner-info">
+        <h1>Nightly Orchestrator</h1>
+        <div class="banner-tags">
+          <span class="banner-tag"><i class="fas fa-book"></i>&nbsp; Type: Notebook</span>
+          <span class="banner-tag"><i class="fas fa-file-code"></i>&nbsp; File: 1.NG911-Reconcile Municipal-QA- Reconcile Default.py</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- PURPOSE -->
+<section>
+  <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose</h2>
+  <p class="reveal">Master pipeline script running nightly on ArcGIS Notebook Server. Executes 5 stages sequentially — reconciling municipal editor versions through a QA gate into the production DEFAULT layer, exporting an FGDB snapshot, and syncing approved data back down. On completion it saves a JSON summary and sends a Power Automate notification email with full run details.</p>
+</section>
+
+<!-- FULL SOURCE CODE -->
+<section>
+  <h2 class="reveal"><i class="fas fa-file-code"></i>&nbsp; Full Source Code</h2>
+  <div class="doc-meta reveal">
+    <span><i class="fas fa-ruler-horizontal"></i> 772 lines</span>
+    <span><i class="fas fa-file-code"></i> 1NightlyQAReconcileExportNotebook.py</span>
+  </div>
+  <button class="doc-toggle reveal" type="button" data-target="orch-full-source" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show full source (772 lines)</span>
+  </button>
+  <div id="orch-full-source" class="doc-body collapsed">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-tag">Python &mdash; 1NightlyQAReconcileExportNotebook.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cmt">"""
+Nightly orchestration notebook for ArcGIS Notebook (Standard runtime):
+1) Reconcile/Post municipal versions into QA (web tool).
+2) Run QA checks (schema + NGUID uniqueness) against the QA layer.
+3) If QA passes, export QA to FGDB/ZIP via export web tool.
+"""</span>
+
+<span class="kw">from</span> arcgis.gis <span class="kw">import</span> GIS
+<span class="kw">from</span> arcgis.geoprocessing <span class="kw">import</span> import_toolbox
+<span class="kw">from</span> arcgis.features <span class="kw">import</span> FeatureSet
+<span class="kw">from</span> collections <span class="kw">import</span> Counter
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">import</span> csv, json, os, re, time
+<span class="kw">from</span> typing <span class="kw">import</span> Dict, List, Optional, Tuple
+
+<span class="cmt"># CONFIG</span>
+RECON_GP_URL  = <span class="str">"https://apps.csrd.bc.ca/.../ReconcilePostTraditional/GPServer"</span>
+EXPORT_GP_URL = <span class="str">"https://apps.csrd.bc.ca/.../ExportSSAP/GPServer"</span>
+SDE_CONN_UNC  = <span class="str">r"\\GIS\Scripts\NG911\...\sde@regional.sde"</span>
+DEFAULT_VERSION  = <span class="str">"sde.DEFAULT"</span>
+QA_VERSION       = <span class="str">"SDE.QA"</span>
+EDITOR_VERSIONS  = <span class="str">"SDE.CSRD;SDE.Revelstoke;SDE.Golden;SDE.Salmon Arm;SDE.Sicamous"</span>
+CONFLICT_POLICY  = <span class="str">"ABORT_CONFLICTS"</span>
+ACQUIRE_LOCKS    = <span class="str">"LOCK_ACQUIRED"</span>
+TARGET_LAYER_URL = <span class="str">"https://apps.csrd.bc.ca/.../NG911_Address_QA/FeatureServer/0"</span>
+MANDATORY_FIELDS = [<span class="str">"DiscrpAgID"</span>, <span class="str">"DateUpdate"</span>, <span class="str">"NGUID"</span>, <span class="str">"Country"</span>, <span class="str">"A3"</span>, <span class="str">"A2"</span>, <span class="str">"A1"</span>]
+NB_RUN_DIR = <span class="str">"/arcgis/home/run_summaries"</span>
+
+<span class="cmt"># ── Reconcile Helpers ──</span>
+<span class="kw">def</span> <span class="fn">parse_result</span>(payload): ...
+<span class="kw">def</span> <span class="fn">unwrap_gp_response</span>(resp): ...
+<span class="kw">def</span> <span class="fn">run_reconcile_stage</span>(tbx, stage, gis): ...
+
+<span class="cmt"># ── QA Helpers (15+ functions, 450+ lines) ──</span>
+<span class="kw">def</span> <span class="fn">normalize_type</span>(t): ...
+<span class="kw">def</span> <span class="fn">load_expected_fields</span>(schema_path, dataset_name, mode): ...
+<span class="kw">def</span> <span class="fn">get_actual_fields</span>(target): ...
+<span class="kw">def</span> <span class="fn">compare_fields</span>(expected, actual): ...
+<span class="kw">def</span> <span class="fn">check_nguid_uniqueness</span>(target, nguid_field): ...
+<span class="kw">def</span> <span class="fn">check_field_nulls</span>(target, fields): ...
+<span class="kw">def</span> <span class="fn">check_field_duplicates</span>(target, field_name): ...
+<span class="kw">def</span> <span class="fn">run_qa_checks</span>(target_layer, dataset_name): ...
+<span class="kw">def</span> <span class="fn">qa_passed</span>(report): ...
+
+<span class="cmt"># ── Export &amp; Notification ──</span>
+<span class="kw">def</span> <span class="fn">run_export</span>(tbx_export, gis): ...
+<span class="kw">def</span> <span class="fn">send_power_automate_notification</span>(summary, status): ...
+<span class="kw">def</span> <span class="fn">finalize_run</span>(summary, run_id, status): ...
+
+<span class="cmt"># ── MAIN ──</span>
+<span class="kw">def</span> <span class="fn">main</span>():
+    gis = GIS(<span class="str">"home"</span>)
+    tbx_recon  = import_toolbox(RECON_GP_URL, gis=gis)
+    tbx_export = import_toolbox(EXPORT_GP_URL, gis=gis)
+    run_id = datetime.now().strftime(<span class="str">"%Y%m%d_%H%M%S"</span>)
+
+    <span class="cmt"># Stage 1: MUNI -&gt; QA</span>
+    res = run_reconcile_stage(tbx_recon, <span class="str">"MUNI_TO_QA"</span>, gis)
+    <span class="kw">if not</span> res.get(<span class="str">"success"</span>): <span class="kw">return</span>
+
+    <span class="cmt"># Stage 2: QA checks</span>
+    qa = run_qa_checks(TARGET_LAYER_URL)
+    <span class="kw">if not</span> qa_passed(qa): <span class="kw">return</span>
+
+    <span class="cmt"># Stage 3: Export FGDB/ZIP</span>
+    res_export = run_export(tbx_export, gis)
+
+    <span class="cmt"># Finalize &amp; notify</span>
+    finalize_run(summary, run_id, status)</pre>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE STAGES -->
+<section>
+  <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Pipeline Stages</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>#</th><th>Stage Name</th><th>Action</th><th>On Failure</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>MUNI &rarr; QA</td><td>Reconcile/post all municipal editor versions into SDE.QA</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>2</td><td>Run QA</td><td>Execute QA validation GP service; update QAStatus on all scoped features</td><td>Configurable via <code>QA_BLOCKING</code></td></tr>
+        <tr><td>3</td><td>QA &rarr; DEFAULT</td><td>Reconcile/post SDE.QA into sde.DEFAULT</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>4</td><td>Export FGDB</td><td>Export DEFAULT feature class to File Geodatabase, zip, copy to network share</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>5</td><td>DEFAULT &rarr; MUNI</td><td>Reconcile DEFAULT back to municipal versions (NO_POST) so QAStatus flows down</td><td>Pipeline stops immediately</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- KEY CONFIGURATION -->
+<section>
+  <h2 class="reveal"><i class="fas fa-sliders"></i>&nbsp; Key Configuration</h2>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th>Parameter</th><th>Value</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>SDE_CONN_UNC</code></td><td><code>\\GIS\Scripts\NG911\...\sde@regional.sde</code></td><td>UNC path to the SDE connection file</td></tr>
+        <tr><td><code>EDITOR_VERSIONS</code></td><td><code>SDE.CSRD; SDE.Revelstoke; SDE.Golden; SDE.Salmon Arm; SDE.Sicamous</code></td><td>Semicolon-delimited list of municipal editor versions</td></tr>
+        <tr><td><code>CONFLICT_POLICY</code></td><td><code>NO_ABORT</code></td><td>Auto-resolve conflicts instead of aborting on detection</td></tr>
+        <tr><td><code>QA_BLOCKING</code></td><td><code>False</code></td><td>When False, QA failures produce warnings but don't halt the pipeline</td></tr>
+        <tr><td><code>EMAIL_ON_COMPLETE</code></td><td><code>True</code></td><td>Send Power Automate notification email on pipeline completion</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- KEY FUNCTIONS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-code"></i>&nbsp; Key Functions</h2>
+  <button class="doc-toggle reveal" type="button" data-target="tbl-orch-functions" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show table (6 rows)</span>
+  </button>
+  <div id="tbl-orch-functions" class="doc-body collapsed">
+    <div class="card">
+      <table>
+        <thead><tr><th>Function</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>run_reconcile_stage(stage, gis)</code></td><td>Submits a reconcile/post GP job for the given stage mode and polls until completion</td></tr>
+          <tr><td><code>run_qa_stage(gis)</code></td><td>Submits the QA validation GP job with all 15 parameters configured</td></tr>
+          <tr><td><code>run_export_stage(gis)</code></td><td>Submits the export GP job to create an FGDB ZIP and copy to the network share</td></tr>
+          <tr><td><code>_poll_job_result(gis, url, job_id)</code></td><td>Polls GP job status every 3 seconds with a 30-minute timeout; returns result JSON</td></tr>
+          <tr><td><code>build_email_payload(summary)</code></td><td>Constructs the JSON payload for Power Automate with stage statuses, QA counters, and run metadata</td></tr>
+          <tr><td><code>finalize_run(summary, id, status)</code></td><td>Saves the JSON run summary to disk and dispatches the notification email</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ERROR HANDLING -->
+<section>
+  <h2 class="reveal"><i class="fas fa-shield-halved"></i>&nbsp; Error Handling</h2>
+  <div class="card reveal">
+    <p>Each stage checks success before proceeding to the next. The pipeline uses a sequential gate pattern:</p>
+    <ul>
+      <li><strong>Stage gate:</strong> If a stage returns a failure status, the pipeline records the failure in the summary and skips all subsequent stages.</li>
+      <li><strong>QA flexibility:</strong> When <code>QA_BLOCKING=False</code>, QA failures are recorded as warnings in the summary but do not prevent stages 3–5 from executing.</li>
+      <li><strong>Conflict normalization:</strong> Reconcile results are normalized — "conflicts detected" with <code>NO_ABORT</code> policy is treated as a successful auto-resolution, not a failure.</li>
+      <li><strong>Timeout protection:</strong> <code>_poll_job_result</code> enforces a 30-minute ceiling on any single GP job to prevent indefinite hangs.</li>
+    </ul>
+    <div class="alert info"><i class="fas fa-info-circle"></i><span>Even on failure, <code>finalize_run</code> always executes — the summary JSON is saved and the notification is sent regardless of pipeline outcome, so administrators are always informed.</span></div>
+  </div>
+</section>
+
+<!-- SECTION BREAKDOWN -->
+<section>
+  <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Section-by-Section Breakdown</h2>
+
+  <div class="card reveal doc-section">
+    <h4>1. Configuration Block</h4>
+    <div class="doc-meta"><span>Lines 23 &ndash; 69</span><span>Constants &amp; toggles</span></div>
+    <div class="breakdown-detail">
+      <strong>Purpose</strong>
+      <p>Central location for all environment-specific settings. Every variable the script needs is defined here so nothing is hard-coded deeper in the logic.</p>
+      <strong>Key Variables</strong>
+      <ul>
+        <li><code>RECON_GP_URL</code> / <code>EXPORT_GP_URL</code> &mdash; REST endpoints for the Reconcile/Post and Export GP services.</li>
+        <li><code>SDE_CONN_UNC</code> &mdash; UNC path to the <code>.sde</code> connection file used by GP tools.</li>
+        <li><code>DEFAULT_VERSION</code> / <code>QA_VERSION</code> / <code>EDITOR_VERSIONS</code> &mdash; versioning identifiers (semicolon-separated for editors).</li>
+        <li><code>CONFLICT_POLICY</code> / <code>ACQUIRE_LOCKS</code> &mdash; reconcile behavior (<code>ABORT_CONFLICTS</code> or <code>NO_ABORT</code>).</li>
+        <li><code>TARGET_LAYER_URL</code> &mdash; the QA feature layer REST URL used for schema/NGUID checks.</li>
+        <li><code>MANDATORY_FIELDS</code> &mdash; list of fields that must be non-null (e.g., DiscrpAgID, NGUID, Country, A3).</li>
+        <li><code>EMAIL_ON_COMPLETE</code> / <code>POWER_AUTOMATE_FLOW_URL</code> &mdash; toggle and endpoint for email notifications.</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Add a new municipality: append to <code>EDITOR_VERSIONS</code> (e.g., <code>;SDE.NewMuni</code>).</li>
+        <li>Change QA target: update <code>TARGET_LAYER_URL</code> to the new feature service URL.</li>
+        <li>Enable email: set <code>EMAIL_ON_COMPLETE = True</code> and paste the Power Automate trigger URL.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>2. Reconcile Helpers</h4>
+    <div class="doc-meta"><span>Lines 72 &ndash; 113</span><span>3 functions</span></div>
+    <div class="breakdown-detail">
+      <strong>Functions</strong>
+      <ul>
+        <li><code>parse_result(payload)</code> &mdash; Normalizes GP output (dict, string, or None) into a consistent dictionary. Handles nested <code>result_json</code> strings.</li>
+        <li><code>unwrap_gp_response(resp)</code> &mdash; Handles both sync (dict) and async (job with <code>.result()</code>) GP responses.</li>
+        <li><code>run_reconcile_stage(tbx, stage, gis)</code> &mdash; Calls <code>tbx.reconcile_post_traditional()</code> with the configured parameters and returns parsed result.</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Change conflict resolution: edit the parameters passed in <code>run_reconcile_stage</code>.</li>
+        <li>Add retry logic: wrap the <code>tbx.reconcile_post_traditional()</code> call in a retry loop.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>3. QA Helpers (In-Notebook)</h4>
+    <div class="doc-meta"><span>Lines 115 &ndash; 618</span><span>15+ functions</span></div>
+    <div class="breakdown-detail">
+      <strong>Purpose</strong>
+      <p>Self-contained QA validation that runs directly in the notebook. Used to validate the QA layer before deciding whether to export.</p>
+      <strong>Key Functions</strong>
+      <ul>
+        <li><code>normalize_type(t)</code> &mdash; Maps Esri field type strings to short names.</li>
+        <li><code>load_expected_fields()</code> &mdash; Reads <code>SSAP_Schema.json</code> to build expected field definitions.</li>
+        <li><code>get_actual_fields()</code> &mdash; Fetches live field definitions from the target layer.</li>
+        <li><code>compare_fields()</code> &mdash; Produces missing/extra/detail arrays comparing expected vs. actual schemas.</li>
+        <li><code>check_nguid_uniqueness()</code> &mdash; Counts nulls/empties/duplicates for NGUID values.</li>
+        <li><code>check_field_nulls()</code> &mdash; Counts null/empty values for each mandatory field.</li>
+        <li><code>check_field_duplicates()</code> &mdash; Finds duplicate <code>Full_Addr</code> values with OID references.</li>
+        <li><code>run_qa_checks()</code> &mdash; Master function: orchestrates all checks.</li>
+        <li><code>qa_passed(report)</code> &mdash; Boolean gate: True only if no missing fields, no mandatory nulls, no NGUID duplicates.</li>
+      </ul>
+      <strong>QA Pass/Fail Logic</strong>
+      <ul>
+        <li><strong>Blocking</strong>: Missing schema fields, mandatory nulls, NGUID duplicates, invalid NGUID format.</li>
+        <li><strong>Warning only</strong>: Address duplicates, <code>Shape</code> in missing fields.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>4. Export &amp; Notification</h4>
+    <div class="doc-meta"><span>Lines 621 &ndash; 678</span><span>3 functions</span></div>
+    <div class="breakdown-detail">
+      <strong>Functions</strong>
+      <ul>
+        <li><code>run_export(tbx_export, gis)</code> &mdash; Calls the Export GP tool with <code>SDE_CONN_UNC</code>, target layer as a FeatureSet, and <code>EXPORT_NAME_PREFIX</code>.</li>
+        <li><code>send_power_automate_notification()</code> &mdash; POSTs the run summary JSON to the Power Automate flow URL.</li>
+        <li><code>finalize_run()</code> &mdash; Writes the complete run summary to <code>NB_RUN_DIR</code> as JSON, then triggers notification.</li>
+      </ul>
+      <strong>To modify</strong>
+      <ul>
+        <li>Change export target: update <code>EXPORT_NAME_PREFIX</code> or <code>TARGET_LAYER_URL</code>.</li>
+        <li>Add Slack/Teams notification: add a second POST call inside <code>finalize_run()</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card reveal doc-section">
+    <h4>5. Main Pipeline</h4>
+    <div class="doc-meta"><span>Lines 681 &ndash; 772</span><span>Entry point</span></div>
+    <div class="breakdown-detail">
+      <strong>Flow</strong>
+      <ul>
+        <li><strong>Init</strong> &mdash; Signs in via <code>GIS("home")</code>, imports both GP toolboxes, creates run ID timestamp.</li>
+        <li><strong>Stage 1</strong> &mdash; Reconcile MUNI &rarr; QA. Stops pipeline if it fails.</li>
+        <li><strong>Stage 2</strong> &mdash; QA checks. Stops if QA fails.</li>
+        <li><strong>Stage 3</strong> &mdash; Export to FGDB ZIP.</li>
+        <li><strong>Finalize</strong> &mdash; Writes JSON summary, sends notification.</li>
+      </ul>
+      <strong>Error handling</strong>
+      <ul>
+        <li>Each stage short-circuits on failure with status like <code>"reconcile_failed"</code>, <code>"qa_failed"</code>, <code>"export_failed"</code>.</li>
+        <li>Run summaries are always written regardless of outcome.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->

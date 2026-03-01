@@ -1,0 +1,143 @@
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Quick Reference</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--purple)">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <div class="banner-info">
+        <h1>Quick Reference</h1>
+        <div class="subtitle">Pipeline stages, version naming, file paths, and cheat sheets</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- PIPELINE STAGES & VERSION NAMING -->
+<section>
+  <div class="grid-2">
+    <div>
+      <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Pipeline Stages</h2>
+      <div class="card reveal">
+        <table>
+          <thead><tr><th>#</th><th>GP Service</th><th>Task</th><th>Post?</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>ReconcilePost</td><td>MUNI_TO_QA</td><td>Yes</td></tr>
+            <tr><td>2</td><td>QA SSAP</td><td>qa</td><td>N/A</td></tr>
+            <tr><td>3</td><td>ReconcilePost</td><td>QA_TO_DEFAULT</td><td>Yes</td></tr>
+            <tr><td>4</td><td>ExportSSAP</td><td>export_ssap</td><td>N/A</td></tr>
+            <tr><td>5</td><td>ReconcilePost</td><td>DEFAULT_TO_MUNI</td><td>No</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h2 class="reveal"><i class="fas fa-code-branch"></i>&nbsp; Version Naming</h2>
+      <button class="doc-toggle reveal" type="button" data-target="tbl-versions" aria-expanded="false">
+        <i class="fas fa-chevron-right"></i><span>Show table (7 rows)</span>
+      </button>
+      <div id="tbl-versions" class="doc-body collapsed">
+        <div class="card">
+          <table>
+            <thead><tr><th>Version</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>sde.DEFAULT</code></td><td>Production authoritative</td></tr>
+              <tr><td><code>SDE.QA</code></td><td>QA staging gate</td></tr>
+              <tr><td><code>SDE.CSRD</code></td><td>CSRD regional editor</td></tr>
+              <tr><td><code>SDE.Salmon Arm</code></td><td>City of Salmon Arm</td></tr>
+              <tr><td><code>SDE.Sicamous</code></td><td>District of Sicamous</td></tr>
+              <tr><td><code>SDE.Golden</code></td><td>Town of Golden</td></tr>
+              <tr><td><code>SDE.Revelstoke</code></td><td>City of Revelstoke</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FILE PATHS & GP URLS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-folder-open"></i>&nbsp; File Paths &amp; GP URLs</h2>
+  <div class="card reveal">
+    <div class="grid-2">
+      <div>
+        <h4>File Paths</h4>
+        <table>
+          <thead><tr><th>Resource</th><th>Path</th></tr></thead>
+          <tbody>
+            <tr><td>SDE Connection</td><td><code>\\GIS\Scripts\NG911\...\sde@regional.sde</code></td></tr>
+            <tr><td>Schema JSON</td><td><code>\\GIS\Scripts\NG911\...\SSAP_Schema.json</code></td></tr>
+            <tr><td>Export Directory</td><td><code>\\GIS\Scripts\Geoshare\NG911 Exports</code></td></tr>
+            <tr><td>Run Summaries</td><td><code>/arcgis/home/run_summaries/</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>GP Service URLs</h4>
+        <table>
+          <thead><tr><th>GP Service</th><th>URL</th></tr></thead>
+          <tbody>
+            <tr><td>Reconcile</td><td><code>apps.csrd.bc.ca/.../ReconcilePost.../GPServer</code></td></tr>
+            <tr><td>QA</td><td><code>apps.csrd.bc.ca/.../Regional/QA/GPServer</code></td></tr>
+            <tr><td>Export</td><td><code>apps.csrd.bc.ca/.../ExportSSAP/GPServer</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ATTRIBUTE RULES SUMMARY -->
+<section>
+  <h2 class="reveal"><i class="fas fa-wand-magic-sparkles"></i>&nbsp; Attribute Rules Summary</h2>
+  <button class="doc-toggle reveal" type="button" data-target="tbl-attr-rules" aria-expanded="false">
+    <i class="fas fa-chevron-right"></i><span>Show table (9 rows)</span>
+  </button>
+  <div id="tbl-attr-rules" class="doc-body collapsed">
+    <div class="card">
+      <table>
+        <thead><tr><th>#</th><th>Rule</th><th>Target Field</th><th>Type</th><th>Depends On</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Full Address</td><td><code>Full_Addr</code></td><td>Calculation</td><td>16 component fields (Unit, Add_Number, St_Name, A3, A1, etc.)</td></tr>
+          <tr><td>2</td><td>NGUID</td><td><code>NGUID</code></td><td>Calculation</td><td>GlobalID, DiscrpAgID</td></tr>
+          <tr><td>3</td><td>Longitude</td><td><code>Long</code></td><td>Calculation</td><td>Geometry (X coordinate)</td></tr>
+          <tr><td>4</td><td>Latitude</td><td><code>Lat</code></td><td>Calculation</td><td>Geometry (Y coordinate)</td></tr>
+          <tr><td>5</td><td>AddCode</td><td><code>AddCode</code></td><td>Calculation</td><td>A3 (municipality name)</td></tr>
+          <tr><td>6</td><td>DateUpdate</td><td><code>DateUpdate</code></td><td>Calculation</td><td>last_edited_date</td></tr>
+          <tr><td>7</td><td>QAStatus</td><td><code>QAStatus</code></td><td>Calculation</td><td>7 watched fields (DiscrpAgID, NGUID, Country, A1, A2, A3, Full_Addr)</td></tr>
+          <tr><td>8</td><td>Default Agency</td><td><code>Agency, A3, DiscrpAgID</code></td><td>Calculation</td><td>GetUser() username (INACTIVE)</td></tr>
+          <tr><td>A</td><td>Mandatory Fields</td><td><code>(validation)</code></td><td>Constraint</td><td>Full_Addr, Agency, DiscrpAgID, NGUID, Country, A1, A2, A3</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- MANDATORY QA FIELDS -->
+<section>
+  <h2 class="reveal"><i class="fas fa-asterisk"></i>&nbsp; Mandatory QA Fields</h2>
+  <div class="card reveal">
+    <p>These fields are checked for null or empty values during every QA validation run. Any feature missing one of these fields will receive a blocking error status.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-id-badge"></i>&nbsp; DiscrpAgID</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-calendar"></i>&nbsp; DateUpdate</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-fingerprint"></i>&nbsp; NGUID</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-globe"></i>&nbsp; Country</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-city"></i>&nbsp; A3</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-map"></i>&nbsp; A2</span>
+      <span class="badge" style="background:var(--teal-glow);border-color:var(--teal);color:var(--teal)"><i class="fas fa-flag"></i>&nbsp; A1</span>
+    </div>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->

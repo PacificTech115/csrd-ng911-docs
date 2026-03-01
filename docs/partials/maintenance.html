@@ -1,0 +1,663 @@
+<header class="page-header">
+  <div class="page-header-content">
+    <div class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <span class="sep"><i class="fas fa-chevron-right"></i></span>
+      <span class="current">Maintenance Guide</span>
+    </div>
+    <div class="detail-banner">
+      <div class="banner-icon" style="background:var(--amber)">
+        <i class="fas fa-wrench"></i>
+      </div>
+      <div class="banner-info">
+        <h1>Maintenance Guide</h1>
+        <div class="subtitle">Comprehensive operations, troubleshooting, and administration procedures</div>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="content-wrap">
+
+<section>
+  <h2 class="reveal"><i class="fas fa-clipboard-list"></i>&nbsp; Daily Operations Checklist</h2>
+  <p class="reveal">Use this morning checklist to verify the system is healthy after each nightly run.</p>
+  <div class="card reveal">
+    <table>
+      <thead><tr><th style="width:40px">#</th><th>Task</th><th>Where to Check</th><th>Expected Result</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Pipeline email received</strong></td><td>Inbox (from Power Automate)</td><td>Email with <span style="color:var(--green);font-weight:600">PASSED</span> badge and QA counters</td></tr>
+        <tr><td>2</td><td><strong>Export ZIP exists</strong></td><td><code>\\GIS\Scripts\Geoshare\NG911 Exports</code></td><td>ZIP file with today's date timestamp</td></tr>
+        <tr><td>3</td><td><strong>Run summary saved</strong></td><td><code>/arcgis/home/run_summaries/</code></td><td><code>nightly_orchestrator_{ts}.json</code> present</td></tr>
+        <tr><td>4</td><td><strong>Feature services responding</strong></td><td>ArcGIS Server Manager &rarr; Services</td><td>All NG911 services show <em>Started</em> status</td></tr>
+        <tr><td>5</td><td><strong>No stale version locks</strong></td><td>ArcGIS Pro &rarr; Versions pane</td><td>No unexpected lock icons on editor versions</td></tr>
+        <tr><td>6</td><td><strong>Salmon Arm Sync (if scheduled)</strong></td><td>Inbox (Salmon Arm Sync email)</td><td>Email with sync operation details and success badge</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert info reveal"><i class="fas fa-info-circle"></i><span>If any check fails, jump to the relevant <strong>Troubleshooting</strong> section below for resolution steps.</span></div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-chart-line"></i>&nbsp; Nightly Pipeline Monitoring</h2>
+
+  <div class="card reveal">
+    <h4>Interpreting the Email Report</h4>
+    <div class="grid-2" style="margin-top:10px">
+      <div>
+        <h4 style="font-size:.82rem;margin-bottom:8px">Status Badge</h4>
+        <ul>
+          <li><span style="color:var(--green);font-weight:600"><i class="fas fa-circle-check"></i> PASSED</span> &mdash; All 5 pipeline stages completed successfully</li>
+          <li><span style="color:var(--red);font-weight:600"><i class="fas fa-circle-xmark"></i> FAILED</span> &mdash; One or more stages failed; check the stage breakdown</li>
+          <li><span style="color:var(--amber);font-weight:600"><i class="fas fa-triangle-exclamation"></i> Warnings</span> &mdash; Pipeline completed but QA found non-blocking issues</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="font-size:.82rem;margin-bottom:8px">QA Counters Table</h4>
+        <table>
+          <thead><tr><th>Metric</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Features checked</td><td>Total features in scope (new/edited or QAStatus &ne; "Passed")</td></tr>
+            <tr><td>Blocking issues</td><td>Schema mismatches, NGUID duplicates, mandatory nulls &mdash; halt pipeline if QA_BLOCKING=True</td></tr>
+            <tr><td>Warning issues</td><td>Address duplicates &mdash; informational only, does not block</td></tr>
+            <tr><td>Passing features</td><td>Scope minus blocking failures</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Pipeline Stage Breakdown</h4>
+    <p style="margin-bottom:8px">The email includes a per-stage results table. Each stage shows:</p>
+    <table>
+      <thead><tr><th>#</th><th>Stage</th><th>What It Does</th><th>On Failure</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>MUNI &rarr; QA</td><td>Reconcile/post all municipal editor versions into SDE.QA</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>2</td><td>Run QA</td><td>Execute QA validation; update QAStatus on scoped features</td><td>Configurable via <code>QA_BLOCKING</code></td></tr>
+        <tr><td>3</td><td>QA &rarr; DEFAULT</td><td>Reconcile/post SDE.QA into sde.DEFAULT</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>4</td><td>Export FGDB</td><td>Export DEFAULT to File Geodatabase, zip, copy to network share</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>5</td><td>DEFAULT &rarr; MUNI</td><td>Reconcile DEFAULT back to municipal versions (NO_POST)</td><td>Pipeline stops immediately</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <h4>Where to Find Logs</h4>
+    <table>
+      <thead><tr><th>Log Type</th><th>Location</th><th>Format</th></tr></thead>
+      <tbody>
+        <tr><td>Run Summary JSON</td><td><code>/arcgis/home/run_summaries/nightly_orchestrator_{ts}.json</code></td><td>Full pipeline result with stage statuses, QA report, timestamps</td></tr>
+        <tr><td>Notebook Task History</td><td>ArcGIS Portal &rarr; Notebook &rarr; Scheduled Tasks &rarr; History</td><td>Execution status, start/end time, error messages</td></tr>
+        <tr><td>GP Service Logs</td><td>ArcGIS Server Manager &rarr; Logs</td><td>Individual GP tool execution details</td></tr>
+        <tr><td>Email Report</td><td>Inbox (Power Automate)</td><td>Formatted HTML with status badge, tables, and links</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-triangle-exclamation"></i>&nbsp; Troubleshooting Guide</h2>
+  <p class="reveal">Common issues grouped by pipeline stage and system component.</p>
+
+  <h3 class="reveal" style="margin-top:20px"><i class="fas fa-code-branch"></i>&nbsp; Reconcile & Versioning Issues</h3>
+  <div class="grid-2">
+
+    <div class="card reveal" style="border-left:4px solid var(--red)">
+      <div class="card-header"><div class="card-icon red"><i class="fas fa-triangle-exclamation"></i></div><h4>Reconcile Conflicts</h4></div>
+      <p><strong>Symptom:</strong> "conflicts detected, aborting the reconcile" in pipeline logs</p>
+      <p><strong>Cause:</strong> Two versions edited the same feature/row and the conflict policy is set to abort.</p>
+      <p><strong>Fix:</strong> Open the affected version in ArcGIS Pro &rarr; Reconcile manually &rarr; use Conflict Manager to review each conflict &rarr; Resolve &rarr; Save &rarr; Post.</p>
+      <div class="alert warning"><i class="fas fa-exclamation-triangle"></i><span>Production uses <code>NO_ABORT</code> which auto-resolves. Only switch to <code>ABORT_CONFLICTS</code> if you need manual conflict review.</span></div>
+    </div>
+
+    <div class="card reveal" style="border-left:4px solid var(--amber)">
+      <div class="card-header"><div class="card-icon amber"><i class="fas fa-lock"></i></div><h4>Version Lock Issues</h4></div>
+      <p><strong>Symptom:</strong> Lock acquisition errors preventing reconcile from starting.</p>
+      <p><strong>Cause:</strong> Active editing sessions or stale connections holding version locks.</p>
+      <p><strong>Fix:</strong> </p><ol><li>Confirm the scheduled run time is outside business hours.</li><li>Disconnect stale sessions in ArcGIS Server Manager &rarr; Site &rarr; Connected Users.</li><li>As a last resort, temporarily set <code>NO_LOCK_ACQUIRED</code> (use with caution).</li></ol><p></p>
+      
+    </div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:20px"><i class="fas fa-clipboard-check"></i>&nbsp; QA & Data Quality Issues</h3>
+  <div class="grid-2">
+
+    <div class="card reveal" style="border-left:4px solid var(--red)">
+      <div class="card-header"><div class="card-icon red"><i class="fas fa-ban"></i></div><h4>QA Blocking Failures</h4></div>
+      <p><strong>Symptom:</strong> Pipeline stops at Stage 2; email shows blocking failure count &gt; 0.</p>
+      <p><strong>Cause:</strong> Features have schema mismatches, NGUID duplicates, mandatory null fields, or invalid NGUID format.</p>
+      <p><strong>Fix:</strong> </p><ol><li>Review the <em>Blocking Feature Samples</em> table in the email for affected OIDs.</li><li>Open the affected features in ArcGIS Pro on the QA version.</li><li>Fix the data issues (fill nulls, correct NGUIDs, resolve duplicates).</li><li>Re-run the pipeline or trigger a manual QA validation.</li></ol><p></p>
+      <div class="alert info"><i class="fas fa-info-circle"></i><span>See the <strong>QA Failure Resolution</strong> section below for detailed per-check fix procedures.</span></div>
+    </div>
+
+    <div class="card reveal" style="border-left:4px solid var(--amber)">
+      <div class="card-header"><div class="card-icon amber"><i class="fas fa-copy"></i></div><h4>NGUID Duplicates</h4></div>
+      <p><strong>Symptom:</strong> QA report shows duplicate NGUIDs across features.</p>
+      <p><strong>Cause:</strong> Multiple features share the same NGUID, often from copy-paste or bulk import without regeneration.</p>
+      <p><strong>Fix:</strong> Query features with duplicate NGUIDs &rarr; regenerate using the format <code>urn:emergency:uid:gis:SSAP:{GUID}:{AgencyID}</code> &rarr; clear and re-calculate via attribute rule or manual edit.</p>
+      
+    </div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:20px"><i class="fas fa-server"></i>&nbsp; Server & Connectivity Issues</h3>
+  <div class="grid-2">
+
+    <div class="card reveal" style="border-left:4px solid var(--blue)">
+      <div class="card-header"><div class="card-icon blue"><i class="fas fa-clock"></i></div><h4>GP Tool Timeout</h4></div>
+      <p><strong>Symptom:</strong> "timed out after 1800 sec" in the orchestrator logs.</p>
+      <p><strong>Cause:</strong> Large dataset, missing spatial index, or resource contention on the server.</p>
+      <p><strong>Fix:</strong> Check GP service logs for the slow operation. Rebuild the spatial index on the feature class. Increase timeout in <code>_poll_job_result()</code> if needed.</p>
+      
+    </div>
+
+    <div class="card reveal" style="border-left:4px solid var(--red)">
+      <div class="card-header"><div class="card-icon red"><i class="fas fa-database"></i></div><h4>SDE Connection Failure</h4></div>
+      <p><strong>Symptom:</strong> "unable to connect to data store" or "connection refused" errors.</p>
+      <p><strong>Cause:</strong> SQL Server is down, SDE connection file is invalid, or network path is inaccessible.</p>
+      <p><strong>Fix:</strong> </p><ol><li>Verify SQL Server service is running on the database host.</li><li>Test the SDE connection file in ArcGIS Pro (drag into Connections).</li><li>Verify the UNC path <code>\\GIS\Scripts\NG911\NG911_Automation\connections\sde@regional.sde</code> is accessible.</li><li>Check SQL Server credentials have not expired.</li></ol><p></p>
+      
+    </div>
+
+    <div class="card reveal" style="border-left:4px solid var(--purple)">
+      <div class="card-header"><div class="card-icon purple"><i class="fas fa-plug"></i></div><h4>Notification Failures</h4></div>
+      <p><strong>Symptom:</strong> No email received after a pipeline run completes.</p>
+      <p><strong>Cause:</strong> Power Automate flow disabled, URL expired, or network connectivity issue.</p>
+      <p><strong>Fix:</strong> Verify <code>POWER_AUTOMATE_FLOW_URL</code> is valid. Check the Flow is enabled in the Power Automate portal. Review the run summary JSON for notification dispatch status code.</p>
+      
+    </div>
+
+    <div class="card reveal" style="border-left:4px solid var(--blue)">
+      <div class="card-header"><div class="card-icon blue"><i class="fas fa-globe"></i></div><h4>Feature Service Unavailable</h4></div>
+      <p><strong>Symptom:</strong> REST endpoint returns 500/503 errors or "service not found".</p>
+      <p><strong>Cause:</strong> Service crashed, was stopped, or data store connection was lost.</p>
+      <p><strong>Fix:</strong> </p><ol><li>Open ArcGIS Server Manager &rarr; Services &rarr; find the NG911 service.</li><li>If stopped, click Start. If errored, check the logs for details.</li><li>Verify the data store registered with Server is accessible.</li><li>As a last resort, republish the service from the ArcGIS Pro project.</li></ol><p></p>
+      
+    </div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:20px"><i class="fas fa-file-export"></i>&nbsp; Export & ETL Issues</h3>
+  <div class="grid-2">
+
+    <div class="card reveal" style="border-left:4px solid var(--amber)">
+      <div class="card-header"><div class="card-icon amber"><i class="fas fa-file-zipper"></i></div><h4>Export ZIP Missing</h4></div>
+      <p><strong>Symptom:</strong> No ZIP file on the network share after pipeline completion.</p>
+      <p><strong>Cause:</strong> File GDB lock files, insufficient disk space, or network share permission issues.</p>
+      <p><strong>Fix:</strong> </p><ol><li>Check the Export stage in the email — did it report success?</li><li>Verify disk space on <code>E:\Scripts\Geoshare\NG911 Exports</code>.</li><li>Check for stale <code>.lock</code> files in the scratch FGDB directory.</li><li>Ensure the ArcGIS Server service account has write access to the share.</li></ol><p></p>
+      
+    </div>
+
+    <div class="card reveal" style="border-left:4px solid var(--blue)">
+      <div class="card-header"><div class="card-icon blue"><i class="fas fa-arrows-rotate"></i></div><h4>Salmon Arm Sync Failures</h4></div>
+      <p><strong>Symptom:</strong> Insert/update/delete counts are unexpected or sync email shows errors.</p>
+      <p><strong>Cause:</strong> Source feature layer unavailable, schema mismatch, or network timeout.</p>
+      <p><strong>Fix:</strong> </p><ol><li>Verify the source layer URL is accessible in a browser.</li><li>Compare source and target field schemas — check <code>SSAP_Schema.json</code> for expected fields.</li><li>Run with <code>DRY_RUN = True</code> to preview changes without applying.</li><li>Check the Salmon Arm Sync email for detailed error messages.</li></ol><p></p>
+      
+    </div>
+  </div>
+
+  <h3 class="reveal" style="margin-top:20px"><i class="fas fa-robot"></i>&nbsp; Notebook Server Issues</h3>
+  <div class="grid-2">
+
+    <div class="card reveal" style="border-left:4px solid var(--purple)">
+      <div class="card-header"><div class="card-icon purple"><i class="fas fa-robot"></i></div><h4>Scheduled Notebook Didn't Run</h4></div>
+      <p><strong>Symptom:</strong> No email received, no run summary JSON, no task history entry.</p>
+      <p><strong>Cause:</strong> Notebook Server scheduler is down, task was disabled, or the Notebook runtime crashed.</p>
+      <p><strong>Fix:</strong> </p><ol><li>Go to ArcGIS Portal &rarr; Content &rarr; find the Notebook item.</li><li>Check Scheduled Tasks &rarr; verify the task is enabled and the schedule is correct.</li><li>Check Task History for error messages.</li><li>If the Notebook runtime crashed, try re-saving and re-scheduling the notebook.</li></ol><p></p>
+      
+    </div>
+
+    <div class="card reveal" style="border-left:4px solid var(--amber)">
+      <div class="card-header"><div class="card-icon amber"><i class="fas fa-cog"></i></div><h4>Notebook Runtime Errors</h4></div>
+      <p><strong>Symptom:</strong> Task history shows "Failed" with Python traceback.</p>
+      <p><strong>Cause:</strong> Code error, missing dependency, API change, or expired credentials.</p>
+      <p><strong>Fix:</strong> </p><ol><li>Read the full traceback in Task History.</li><li>Common: <code>ImportError</code> (missing package), <code>ConnectionError</code> (service down), <code>JSONDecodeError</code> (malformed GP response).</li><li>Fix the code in the notebook, re-save, and trigger a manual test run.</li></ol><p></p>
+      
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-code-branch"></i>&nbsp; Version Management</h2>
+  <p class="reveal">The NG911 system uses ArcGIS Enterprise <strong>traditional versioning</strong>. Understanding the hierarchy is essential for maintenance.</p>
+
+  <div class="card reveal">
+    <h4>Versioning Hierarchy</h4>
+    <div class="arch-diagram" style="margin-top:12px">
+      <div class="arch-box default"><i class="fas fa-crown"></i>&nbsp; sde.DEFAULT<small>Production &middot; Authoritative Layer</small></div>
+      <div class="arch-arrow"></div>
+      <div class="arch-arrow-label">Reconcile / Post</div>
+      <div class="arch-box qa"><i class="fas fa-clipboard-check"></i>&nbsp; SDE.QA<small>QA Validation Gate</small></div>
+      <div class="arch-arrow"></div>
+      <div class="arch-arrow-label">Reconcile / Post</div>
+      <div class="muni-row">
+        <div class="arch-box muni">SDE.CSRD<br><small>Editor</small></div>
+        <div class="arch-box muni">SDE.Salmon Arm<br><small>Editor</small></div>
+        <div class="arch-box muni">SDE.Sicamous<br><small>Editor</small></div>
+        <div class="arch-box muni">SDE.Golden<br><small>Editor</small></div>
+        <div class="arch-box muni">SDE.Revelstoke<br><small>Editor</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Common Version Operations</h4>
+    <table>
+      <thead><tr><th>Operation</th><th>How To</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Create a version</strong></td><td>ArcGIS Pro &rarr; Versioning tab &rarr; New Version &rarr; Parent: <code>SDE.QA</code></td><td>Name format: <code>SDE.{MunicipalityName}</code></td></tr>
+        <tr><td><strong>Delete a version</strong></td><td>ArcGIS Pro &rarr; Versioning tab &rarr; right-click &rarr; Delete</td><td>Ensure all edits are reconciled/posted first</td></tr>
+        <tr><td><strong>Set permissions</strong></td><td>Right-click version &rarr; Properties &rarr; Access: Private/Protected/Public</td><td>Municipal versions should be <em>Protected</em> (owner writes, others read)</td></tr>
+        <tr><td><strong>Compress GDB</strong></td><td>ArcGIS Pro &rarr; Geodatabase Admin toolbox &rarr; Compress</td><td>Run periodically to remove orphaned delta rows and improve performance</td></tr>
+        <tr><td><strong>Rebuild indexes</strong></td><td>ArcGIS Pro &rarr; Geodatabase Admin &rarr; Rebuild Indexes</td><td>Run after large batch edits or version compression</td></tr>
+        <tr><td><strong>Analyze datasets</strong></td><td>ArcGIS Pro &rarr; Geodatabase Admin &rarr; Analyze Datasets</td><td>Updates DBMS statistics for query optimization</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert warning reveal"><i class="fas fa-exclamation-triangle"></i><span><strong>Important:</strong> Always run <em>Compress</em>, <em>Rebuild Indexes</em>, and <em>Analyze Datasets</em> together as a maintenance trio. Schedule this monthly or after major data imports.</span></div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-play-circle"></i>&nbsp; Manual Pipeline Operations</h2>
+  <p class="reveal">When you need to run the pipeline or individual tools outside the nightly schedule.</p>
+
+  <div class="card reveal">
+    <h4>Trigger a Full Pipeline Run</h4>
+    <ol>
+      <li>Go to <strong>ArcGIS Portal</strong> &rarr; Content &rarr; find the Nightly Orchestrator Notebook</li>
+      <li>Open the Notebook item &rarr; click <strong>Open Notebook</strong></li>
+      <li>Run all cells (Kernel &rarr; Run All), or click the <strong>Run</strong> button on the scheduled task</li>
+      <li>Monitor execution in the Notebook interface or wait for the email notification</li>
+    </ol>
+    <div class="alert info"><i class="fas fa-info-circle"></i><span>Manual runs produce the same email report and JSON summary as scheduled runs.</span></div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Run Individual GP Tools</h4>
+    <table>
+      <thead><tr><th>Tool</th><th>From ArcGIS Pro</th><th>From REST API</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>QA Validation</strong></td>
+          <td>Geoprocessing pane &rarr; search "SSAP_Automation" &rarr; QA Validation &rarr; fill parameters &rarr; Run</td>
+          <td>POST to <code>/QAValidation/GPServer/QAValidation/submitJob</code></td>
+        </tr>
+        <tr>
+          <td><strong>Reconcile/Post</strong></td>
+          <td>Geoprocessing pane &rarr; SSAP_Automation &rarr; Reconcile Post &rarr; select stage &rarr; Run</td>
+          <td>POST to <code>/ReconcilePostTraditional/GPServer/ReconcilePostTraditional/submitJob</code></td>
+        </tr>
+        <tr>
+          <td><strong>Export</strong></td>
+          <td>Geoprocessing pane &rarr; SSAP_Automation &rarr; Export SSAP &rarr; fill SDE connection &rarr; Run</td>
+          <td>POST to <code>/ExportSSAP/GPServer/ExportSSAP/submitJob</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <h4>Running QA Standalone (Spot-Check)</h4>
+    <p>To validate specific features without running the full pipeline:</p>
+    <ol>
+      <li>Open ArcGIS Pro &rarr; connect to the enterprise geodatabase</li>
+      <li>Use the QA GP tool with the <strong>QA version</strong> as target</li>
+      <li>Review the output JSON for pass/fail results</li>
+      <li>Alternatively, query features where <code>QAStatus &ne; 'Passed'</code> to find unvalidated records</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-clipboard-check"></i>&nbsp; QA Failure Resolution</h2>
+  <p class="reveal">When the QA stage reports blocking failures, use this section to identify and resolve each issue type.</p>
+
+  <div class="card reveal" style="border-left:4px solid var(--red)">
+    <div class="card-header"><div class="card-icon red"><i class="fas fa-table-columns"></i></div><h4>Schema Mismatch</h4><span class="card-tag" style="background:rgba(239,68,68,.1);color:var(--red)">Blocking</span></div>
+    <p><strong>What it means:</strong> The live feature class fields do not match <code>SSAP_Schema.json</code> — missing fields, extra fields, or type/length differences.</p>
+    <p><strong>Resolution:</strong></p>
+    <ol>
+      <li>Compare the QA report's <em>missing_fields</em> / <em>extra_fields</em> / <em>detail</em> arrays with the schema JSON</li>
+      <li>If the live schema is correct, update <code>SSAP_Schema.json</code> to match</li>
+      <li>If the live schema is wrong, use ArcGIS Pro to alter the field definitions</li>
+      <li>Re-run QA to confirm resolution</li>
+    </ol>
+  </div>
+
+  <div class="card reveal" style="border-left:4px solid var(--red)">
+    <div class="card-header"><div class="card-icon red"><i class="fas fa-fingerprint"></i></div><h4>NGUID Duplicates / Invalid Format</h4><span class="card-tag" style="background:rgba(239,68,68,.1);color:var(--red)">Blocking</span></div>
+    <p><strong>What it means:</strong> Multiple features share the same NGUID, or the NGUID does not follow the format <code>urn:emergency:uid:gis:SSAP:{GUID}:{AgencyID}</code>.</p>
+    <p><strong>Resolution:</strong></p>
+    <ol>
+      <li>Query: <code>SELECT OBJECTID, NGUID FROM NG911_SiteAddress WHERE NGUID IN (SELECT NGUID FROM NG911_SiteAddress GROUP BY NGUID HAVING COUNT(*) > 1)</code></li>
+      <li>For duplicates: regenerate unique NGUIDs using a new GUID value</li>
+      <li>For invalid format: the <strong>PopulateNGUID</strong> attribute rule should auto-fix on next save — verify rule is enabled</li>
+    </ol>
+  </div>
+
+  <div class="card reveal" style="border-left:4px solid var(--red)">
+    <div class="card-header"><div class="card-icon red"><i class="fas fa-ban"></i></div><h4>Mandatory Null Fields</h4><span class="card-tag" style="background:rgba(239,68,68,.1);color:var(--red)">Blocking</span></div>
+    <p><strong>What it means:</strong> Required fields (<code>DiscrpAgID</code>, <code>DateUpdate</code>, <code>NGUID</code>, <code>Country</code>, <code>A1</code>, <code>A2</code>, <code>A3</code>) have null or empty values.</p>
+    <p><strong>Resolution:</strong></p>
+    <ol>
+      <li>Review the email's <em>Mandatory-null failures</em> count</li>
+      <li>Query: <code>QAStatus IN ('Failed - Null', 'Failed')</code></li>
+      <li>Fill the missing values — many are auto-populated by attribute rules on save</li>
+      <li>Touch-save the features (open &rarr; save without changes) to trigger attribute rules</li>
+    </ol>
+  </div>
+
+  <div class="card reveal" style="border-left:4px solid var(--amber)">
+    <div class="card-header"><div class="card-icon amber"><i class="fas fa-copy"></i></div><h4>Address Duplicates</h4><span class="card-tag" style="background:rgba(245,158,11,.1);color:var(--amber)">Warning</span></div>
+    <p><strong>What it means:</strong> Multiple features have the same <code>Full_Addr</code> value. This is informational and does <strong>not</strong> block the pipeline.</p>
+    <p><strong>Resolution:</strong> Review the duplicates in the <em>Issues by Agency</em> section of the email. Legitimate duplicates (e.g., multi-unit buildings) can be ignored. True errors should be corrected by the responsible agency.</p>
+  </div>
+
+  <div class="card reveal">
+    <h4>Understanding the QAStatus Field</h4>
+    <table>
+      <thead><tr><th>QAStatus Value</th><th>Meaning</th><th>Action Needed</th></tr></thead>
+      <tbody>
+        <tr><td><code>Passed</code></td><td>Feature passed all QA checks</td><td>None</td></tr>
+        <tr><td><code>Failed</code></td><td>Feature has blocking issues</td><td>Fix the issues, then QA will re-check</td></tr>
+        <tr><td><code>Warning</code></td><td>Feature has non-blocking issues</td><td>Review and fix if needed</td></tr>
+        <tr><td><code>NULL</code> / empty</td><td>Feature has never been QA-checked</td><td>Will be picked up in next QA run scope</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-database"></i>&nbsp; Schema &amp; Domain Changes</h2>
+
+  <div class="card reveal">
+    <h4>Modifying the Feature Class Schema</h4>
+    <ol>
+      <li><strong>Plan:</strong> Document what fields need to be added/modified/removed and why</li>
+      <li><strong>Update Schema JSON:</strong> Edit <code>SSAP_Schema.json</code> to reflect the new field definitions (name, type, length, nullable)</li>
+      <li><strong>Alter fields:</strong> In ArcGIS Pro, connect to <code>sde.DEFAULT</code> &rarr; right-click feature class &rarr; Design &rarr; Fields &rarr; add or modify fields</li>
+      <li><strong>Propagate:</strong> Schema changes to DEFAULT propagate to child versions (QA, municipals) on next reconcile</li>
+      <li><strong>Update QA config:</strong> If the new field is mandatory, add it to <code>MANDATORY_FIELDS</code> in the Orchestrator notebook</li>
+      <li><strong>Test:</strong> Run a QA validation to verify the new schema passes comparison</li>
+    </ol>
+    <div class="alert warning"><i class="fas fa-exclamation-triangle"></i><span>Schema changes must be made on <code>sde.DEFAULT</code>. They will propagate to child versions automatically through the reconcile process.</span></div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Adding or Modifying Coded Value Domains</h4>
+    <ol>
+      <li>In ArcGIS Pro &rarr; Catalog &rarr; right-click the geodatabase &rarr; Domains</li>
+      <li>Add a new coded value or modify an existing domain entry</li>
+      <li>Save the domain changes</li>
+      <li>If adding a new domain to a field, assign it in the Fields view</li>
+      <li>Update the documentation: <a href="#domains">Domains page</a></li>
+    </ol>
+    <div class="alert info"><i class="fas fa-info-circle"></i><span>Domain changes are geodatabase-wide and take effect immediately for all versions and feature services.</span></div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Schema Change Checklist</h4>
+    <table>
+      <thead><tr><th>Step</th><th>File/Tool</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>SSAP_Schema.json</code></td><td>Update field definitions to match new schema</td></tr>
+        <tr><td>2</td><td>ArcGIS Pro (DEFAULT)</td><td>Alter/add fields on the feature class</td></tr>
+        <tr><td>3</td><td>Orchestrator Notebook</td><td>Update <code>MANDATORY_FIELDS</code> list if needed</td></tr>
+        <tr><td>4</td><td>Attribute Rules</td><td>Add/modify rules for new fields if needed</td></tr>
+        <tr><td>5</td><td>Feature Services</td><td>Republish services if field changes are not reflected automatically</td></tr>
+        <tr><td>6</td><td>Documentation</td><td>Update <a href="#schema-guide">Schema Guide</a> and <a href="#domains">Domains</a> pages</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-wand-magic-sparkles"></i>&nbsp; Attribute Rules Management</h2>
+
+  <div class="card reveal">
+    <h4>Active Attribute Rules</h4>
+    <table>
+      <thead><tr><th>#</th><th>Rule Name</th><th>Type</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>PopulateNGUID</td><td>Calculation</td><td>Auto-generates <code>urn:emergency:uid:gis:SSAP:{GUID}:{AgencyID}</code> on insert</td></tr>
+        <tr><td>2</td><td>PopulateDateUpdate</td><td>Calculation</td><td>Sets <code>DateUpdate</code> to current UTC timestamp on every edit</td></tr>
+        <tr><td>3</td><td>PopulateFullAddress</td><td>Calculation</td><td>Concatenates address components into <code>Full_Addr</code></td></tr>
+        <tr><td>4</td><td>PopulateGlobalID</td><td>Calculation</td><td>Copies <code>GlobalID</code> to <code>CentralGlobalID</code> for cross-system tracking</td></tr>
+        <tr><td>5</td><td>AddCode</td><td>Calculation</td><td>Derives the community code from the <code>Post_Comm</code> field using a lookup dictionary</td></tr>
+        <tr><td>6</td><td>PopulateCountry</td><td>Calculation</td><td>Auto-fills <code>Country = "CA"</code> and province fields</td></tr>
+        <tr><td>7</td><td>PopulateSourceDataType</td><td>Calculation</td><td>Sets the <code>Source_DatasetID</code> and data type fields</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <h4>Editing an Attribute Rule</h4>
+    <ol>
+      <li>Open ArcGIS Pro and connect to the enterprise geodatabase</li>
+      <li>Right-click the feature class &rarr; Properties &rarr; <strong>Attribute Rules</strong> tab</li>
+      <li>Select the rule to edit and modify the Arcade expression</li>
+      <li>Click <strong>Validate</strong> to check for syntax errors</li>
+      <li>Save — changes take effect <em>immediately</em> for all new edits across all versions</li>
+      <li>Copy the updated Arcade source to <code>Database Automation/0.Attribute Rules/</code> for version control</li>
+    </ol>
+    <div class="alert warning"><i class="fas fa-exclamation-triangle"></i><span>Attribute rule changes affect <strong>all versions simultaneously</strong>. Always test modifications in a non-production environment before applying to production.</span></div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Adding a New Community Code (Rule 5 — AddCode)</h4>
+    <p>When a new municipality is added, update the <code>AddCode</code> rule's lookup dictionary:</p>
+    <div class="code-block">
+      <div class="code-header"><span>Arcade — AddCode lookup</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>var lookup = {
+  "CSRD": "CSRD",
+  "Salmon Arm": "SALM",
+  "Revelstoke": "RVLK",
+  "Golden": "GLDN",
+  "Sicamous": "SICM",
+  // Add new entry here:
+  "NewMuni": "CODE"
+}</pre>
+    </div>
+    <p>After saving, all new edits with <code>Post_Comm = 'NewMuni'</code> will automatically receive the code.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-building"></i>&nbsp; Adding a New Municipality</h2>
+  <div class="card reveal">
+    <h4>Complete Onboarding Procedure</h4>
+    <table>
+      <thead><tr><th>Step</th><th>Action</th><th>Tool / Location</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Create version</strong></td><td>ArcGIS Pro &rarr; Versioning</td><td>Create child of <code>SDE.QA</code> named <code>SDE.{MunicipalityName}</code></td></tr>
+        <tr><td>2</td><td><strong>Set permissions</strong></td><td>Version Properties</td><td>Set to <em>Protected</em> so only the owner can edit</td></tr>
+        <tr><td>3</td><td><strong>Update orchestrator</strong></td><td>Nightly Orchestrator Notebook</td><td>Add version to <code>EDITOR_VERSIONS</code>: <code>;SDE.NewMuni</code></td></tr>
+        <tr><td>4</td><td><strong>Update AddCode rule</strong></td><td>ArcGIS Pro &rarr; Attribute Rules</td><td>Add community name-to-code mapping in Rule 5</td></tr>
+        <tr><td>5</td><td><strong>Create feature service</strong></td><td>ArcGIS Pro &rarr; Share</td><td>Publish a dedicated feature service for the new municipality</td></tr>
+        <tr><td>6</td><td><strong>Create web map</strong></td><td>ArcGIS Portal</td><td>Create a web map pointing to the new versioned feature service</td></tr>
+        <tr><td>7</td><td><strong>Create editing app</strong></td><td>Experience Builder / Web AppBuilder</td><td>Optional: build a web editing interface for the municipality</td></tr>
+        <tr><td>8</td><td><strong>Republish notebook</strong></td><td>ArcGIS Portal</td><td>Save and re-schedule the Notebook with updated config</td></tr>
+        <tr><td>9</td><td><strong>Test</strong></td><td>Manual Pipeline Run</td><td>Trigger a run and verify the new version appears in reconcile logs and email</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <h4>Config Changes Required</h4>
+    <div class="code-block">
+      <div class="code-header"><span>Python &mdash; Orchestrator Config</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre># Before
+EDITOR_VERSIONS = "SDE.CSRD;SDE.Revelstoke;SDE.Golden;SDE.Salmon Arm;SDE.Sicamous"
+
+# After (add new municipality)
+EDITOR_VERSIONS = "SDE.CSRD;SDE.Revelstoke;SDE.Golden;SDE.Salmon Arm;SDE.Sicamous;SDE.NewMuni"</pre>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-arrows-rotate"></i>&nbsp; Salmon Arm ETL Maintenance</h2>
+
+  <div class="card reveal">
+    <h4>Configuration Reference</h4>
+    <table>
+      <thead><tr><th>Parameter</th><th>Default</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>SOURCE_URL</code></td><td>Salmon Arm feature service URL</td><td>Source AGOL/Portal feature layer to sync from</td></tr>
+        <tr><td><code>TARGET_URL</code></td><td>Central GDB feature service URL</td><td>Target enterprise feature layer to sync into</td></tr>
+        <tr><td><code>MATCH_FIELD</code></td><td><code>CentralGlobalID</code></td><td>Field used to match source &harr; target records</td></tr>
+        <tr><td><code>DRY_RUN</code></td><td><code>False</code></td><td>When True, computes diff but writes nothing</td></tr>
+        <tr><td><code>DELETE_MISSING</code></td><td><code>True</code></td><td>Delete target features missing from source</td></tr>
+        <tr><td><code>REVERSE_ID_SYNC</code></td><td><code>True</code></td><td>Write NGUID/CentralGlobalID back to source</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <h4>Monitoring the Sync</h4>
+    <ol>
+      <li>Check the Salmon Arm Sync email for the operation summary table</li>
+      <li>Verify insert/update/delete counts match expectations</li>
+      <li>Review the <em>Reverse ID Sync</em> status to confirm IDs were written back</li>
+      <li>Spot-check a few records in both source and target to verify data integrity</li>
+    </ol>
+  </div>
+
+  <div class="card reveal">
+    <h4>Using DRY_RUN Mode</h4>
+    <p>Before making configuration changes, preview the impact:</p>
+    <ol>
+      <li>Set <code>DRY_RUN = True</code> in the ETL notebook</li>
+      <li>Run the notebook manually</li>
+      <li>Review the output: it shows what <em>would</em> be inserted, updated, and deleted</li>
+      <li>If the preview looks correct, set <code>DRY_RUN = False</code> and run again</li>
+    </ol>
+    <div class="alert info"><i class="fas fa-info-circle"></i><span>DRY_RUN mode still generates the email report showing projected changes, making it easy to review before committing.</span></div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Common Sync Issues</h4>
+    <table>
+      <thead><tr><th>Issue</th><th>Cause</th><th>Solution</th></tr></thead>
+      <tbody>
+        <tr><td>0 inserts when expected</td><td>Source features already matched via <code>CentralGlobalID</code></td><td>Verify the match field values are correct in both layers</td></tr>
+        <tr><td>Unexpected deletes</td><td><code>DELETE_MISSING = True</code> and source had fewer records</td><td>Set <code>DELETE_MISSING = False</code> if source is partial</td></tr>
+        <tr><td>Reverse ID sync failed</td><td>Source layer is read-only or user lacks edit permissions</td><td>Verify editing is enabled on the source layer; set <code>REVERSE_ID_SYNC = False</code> if not needed</td></tr>
+        <tr><td>Field mapping errors</td><td>Source schema changed (new/renamed fields)</td><td>Update <code>SSAP_Schema.json</code> and verify field names match</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-upload"></i>&nbsp; Publishing &amp; Republishing Services</h2>
+
+  <div class="card reveal">
+    <h4>GP Service Republishing</h4>
+    <ol>
+      <li>Open the ArcGIS Pro project containing the GP tool (<code>SSAP_Automation.atbx</code>)</li>
+      <li>Right-click the tool &rarr; Share As &rarr; Web Tool</li>
+      <li>Configure: Server connection, tool properties, execution mode (Asynchronous)</li>
+      <li>Click Publish (or Overwrite if updating an existing service)</li>
+      <li>Verify the new service URL matches the one in the Orchestrator notebook config</li>
+    </ol>
+    <div class="alert warning"><i class="fas fa-exclamation-triangle"></i><span>After republishing, verify the REST endpoint URL hasn't changed. If it has, update <code>RECON_GP_URL</code> and <code>EXPORT_GP_URL</code> in the Orchestrator notebook.</span></div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Feature Service Republishing</h4>
+    <ol>
+      <li>Open the relevant <code>.aprx</code> project in <code>E:\Scripts\NG911\NG911_Services</code></li>
+      <li>Verify the map's data source points to the correct SDE connection and version</li>
+      <li>Share As &rarr; Web Layer &rarr; Feature &rarr; Overwrite existing service</li>
+      <li>After publishing, verify the service is accessible via its REST URL</li>
+    </ol>
+  </div>
+
+  <div class="card reveal">
+    <h4>Notebook Republishing</h4>
+    <ol>
+      <li>Make edits to the Python notebook in ArcGIS Portal or upload from local</li>
+      <li>Save the notebook</li>
+      <li>Go to the item's Scheduled Tasks &rarr; verify the schedule and trigger are correct</li>
+      <li>Trigger a manual test run to confirm the updated code works</li>
+    </ol>
+  </div>
+
+  <div class="card reveal">
+    <h4>URL Change Checklist</h4>
+    <p>When any REST endpoint changes, update these locations:</p>
+    <table>
+      <thead><tr><th>What Changed</th><th>Where to Update</th></tr></thead>
+      <tbody>
+        <tr><td>GP Service URL</td><td>Orchestrator Notebook: <code>RECON_GP_URL</code>, <code>EXPORT_GP_URL</code>, <code>QA_GP_URL</code></td></tr>
+        <tr><td>Feature Service URL</td><td>Orchestrator Notebook: <code>TARGET_LAYER_URL</code>; Salmon Arm ETL: <code>SOURCE_URL</code>, <code>TARGET_URL</code></td></tr>
+        <tr><td>Power Automate Flow URL</td><td>Orchestrator Notebook: <code>POWER_AUTOMATE_FLOW_URL</code>; Salmon Arm ETL: flow URL constant</td></tr>
+        <tr><td>SDE Connection File</td><td>Orchestrator Notebook: <code>SDE_CONN_UNC</code>; GP tool parameters</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 class="reveal"><i class="fas fa-server"></i>&nbsp; Server Health &amp; Infrastructure</h2>
+
+  <div class="card reveal">
+    <h4>Routine Infrastructure Checks</h4>
+    <table>
+      <thead><tr><th>Component</th><th>How to Check</th><th>Frequency</th><th>Action on Issue</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ArcGIS Server</strong></td><td>Server Manager &rarr; Dashboard</td><td>Daily / as needed</td><td>Restart stopped services; check logs for errors</td></tr>
+        <tr><td><strong>ArcGIS Portal</strong></td><td>Portal Admin &rarr; Health Check</td><td>Weekly</td><td>Re-index content; clear cache if search issues</td></tr>
+        <tr><td><strong>SQL Server</strong></td><td>SQL Server Management Studio</td><td>Monthly</td><td>Check database size, backup status, connection count</td></tr>
+        <tr><td><strong>Notebook Server</strong></td><td>Portal &rarr; Notebook Scheduled Tasks</td><td>Daily (via email)</td><td>Restart runtime if tasks fail consistently</td></tr>
+        <tr><td><strong>Network Shares</strong></td><td>File Explorer &rarr; <code>\\GIS\Scripts\</code></td><td>As needed</td><td>Verify permissions, disk space, connectivity</td></tr>
+        <tr><td><strong>Power Automate</strong></td><td>Power Automate Portal &rarr; My Flows</td><td>Monthly</td><td>Re-enable disabled flows; renew trigger URLs if expired</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <h4>Disk Space Monitoring</h4>
+    <table>
+      <thead><tr><th>Location</th><th>What Grows</th><th>Cleanup Action</th></tr></thead>
+      <tbody>
+        <tr><td><code>E:\Scripts\Geoshare\NG911 Exports</code></td><td>Nightly FGDB ZIP exports (~50-100 MB each)</td><td>Archive or delete exports older than 30 days</td></tr>
+        <tr><td><code>/arcgis/home/run_summaries/</code></td><td>JSON run summaries (~5 KB each)</td><td>Archive summaries older than 90 days</td></tr>
+        <tr><td>SQL Server data files</td><td>Versioned delta tables, compress state</td><td>Run Compress, Rebuild Indexes, Analyze Datasets</td></tr>
+        <tr><td>ArcGIS Server logs</td><td>Service execution logs</td><td>Configure log retention in Server Manager &rarr; Logs &rarr; Settings</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <h4>Database Maintenance Schedule</h4>
+    <table>
+      <thead><tr><th>Task</th><th>Frequency</th><th>Tool</th><th>Impact</th></tr></thead>
+      <tbody>
+        <tr><td>Compress Geodatabase</td><td>Monthly</td><td>ArcGIS Pro &rarr; Admin toolbox</td><td>Removes orphaned delta rows, reduces DB size</td></tr>
+        <tr><td>Rebuild Indexes</td><td>After Compress</td><td>ArcGIS Pro &rarr; Admin toolbox</td><td>Optimizes query performance</td></tr>
+        <tr><td>Analyze Datasets</td><td>After Compress</td><td>ArcGIS Pro &rarr; Admin toolbox</td><td>Updates DBMS statistics</td></tr>
+        <tr><td>SQL Server Backup</td><td>Daily (automated)</td><td>SQL Server Agent</td><td>Full backup for disaster recovery</td></tr>
+        <tr><td>Verify SDE Connection</td><td>Monthly</td><td>Test in ArcGIS Pro</td><td>Ensures credentials and connectivity</td></tr>
+      </tbody>
+    </table>
+    <div class="alert info"><i class="fas fa-info-circle"></i><span>Always disconnect all users and stop services before running Compress. Best done during a maintenance window.</span></div>
+  </div>
+
+  <div class="card reveal">
+    <h4>Useful ArcGIS Server Manager Locations</h4>
+    <table>
+      <thead><tr><th>Task</th><th>Path</th></tr></thead>
+      <tbody>
+        <tr><td>View running services</td><td>Server Manager &rarr; Services &rarr; (folder) &rarr; check status</td></tr>
+        <tr><td>View error logs</td><td>Server Manager &rarr; Logs &rarr; filter by Warning/Severe</td></tr>
+        <tr><td>Disconnect stale sessions</td><td>Server Manager &rarr; Site &rarr; Connected Users</td></tr>
+        <tr><td>View data stores</td><td>Server Manager &rarr; Site &rarr; Data Stores</td></tr>
+        <tr><td>Restart a service</td><td>Services &rarr; select service &rarr; Stop &rarr; Start</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->

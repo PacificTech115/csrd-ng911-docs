@@ -1,0 +1,77 @@
+<!-- ═══ PAGE HEADER ═══ -->
+<header class="page-header">
+  <div class="page-header-content">
+    <nav class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <i class="fas fa-chevron-right sep"></i>
+      <span>Technical Documentation</span>
+      <i class="fas fa-chevron-right sep"></i>
+      <span class="current">ArcGIS Notebooks</span>
+    </nav>
+    <h1><span>ArcGIS</span> Notebooks</h1>
+    <div class="subtitle">Python scripts running on ArcGIS Notebook Server</div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<section>
+  <h3 class="reveal">Nightly Pipeline Flow</h3>
+  <div class="pipeline reveal">
+    <div class="pipeline-step s1">Stage 1<small>MUNI &rarr; QA</small></div>
+    <div class="pipeline-arrow"><div class="dot"></div></div>
+    <div class="pipeline-step s2">Stage 2<small>Run QA</small></div>
+    <div class="pipeline-arrow"><div class="dot" style="animation-delay:.4s"></div></div>
+    <div class="pipeline-step s3">Stage 3<small>QA &rarr; DEFAULT</small></div>
+    <div class="pipeline-arrow"><div class="dot" style="animation-delay:.8s"></div></div>
+    <div class="pipeline-step s4">Stage 4<small>Export FGDB</small></div>
+    <div class="pipeline-arrow"><div class="dot" style="animation-delay:1.2s"></div></div>
+    <div class="pipeline-step s5">Stage 5<small>DEFAULT &rarr; MUNI</small></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
+
+    <a class="link-card reveal" href="#script-orchestrator">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon teal"><i class="fas fa-play-circle"></i></div>
+          <h4>Nightly Orchestrator</h4>
+          <span class="card-tag">Notebook</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Master pipeline: 5-stage nightly reconcile, QA, export, and sync</p>
+        <div class="dependency-chips">
+          <span class="dependency-chip"><i class="fas fa-code-branch"></i><a href="#script-reconcile">Reconcile/Post GP</a></span>
+          <span class="dependency-chip"><i class="fas fa-clipboard-check"></i><a href="#script-qa">QA Validation GP</a></span>
+          <span class="dependency-chip"><i class="fas fa-file-export"></i><a href="#script-export">Export GP</a></span>
+          <span class="dependency-chip"><i class="fas fa-envelope"></i><a href="#power-automate">Power Automate</a></span>
+        </div>
+      </div>
+    </a>
+
+    <a class="link-card reveal reveal-delay-1" href="#script-etl">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon navy"><i class="fas fa-arrows-rotate"></i></div>
+          <h4>Salmon Arm ETL</h4>
+          <span class="card-tag" style="background:rgba(15,23,42,.08);color:var(--navy)">Notebook</span>
+          <i class="fas fa-arrow-right card-arrow"></i>
+        </div>
+        <p>Hosted-to-enterprise sync with insert/update/delete and reverse ID sync</p>
+        <div class="dependency-chips">
+          <span class="dependency-chip"><i class="fas fa-envelope"></i><a href="#power-automate">Power Automate</a></span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+</section>
+
+<!-- The detailed documentation for each notebook is on its own page -->
+<!-- (script-orchestrator.html and script-etl.html) -->
+
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->

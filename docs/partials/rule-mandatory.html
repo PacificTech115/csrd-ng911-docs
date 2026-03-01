@@ -1,0 +1,203 @@
+<!-- ── PAGE HEADER ── -->
+  <header class="page-header">
+    <div class="page-header-content">
+      <div class="breadcrumb">
+        <a href="#Documentation">Home</a>
+        <span class="sep"><i class="fas fa-chevron-right"></i></span>
+        <a href="#attribute-rules">Attribute Rules</a>
+        <span class="sep"><i class="fas fa-chevron-right"></i></span>
+        <span class="current">A. Mandatory Fields</span>
+      </div>
+      <div class="detail-banner">
+        <div class="banner-icon" style="background:var(--red)">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="banner-info">
+          <h1>A. Mandatory Fields</h1>
+          <div class="banner-tags">
+            <span class="banner-tag">Target: (validation)</span>
+            <span class="banner-tag">Triggers: Insert / Update</span>
+            <span class="banner-tag">Type: Constraint</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ── -->
+  <div class="content-wrap">
+
+    <!-- Description -->
+    <section>
+      <h2>Description</h2>
+      <p class="reveal">
+        A constraint rule that prevents saving a feature if any of the 8 mandatory fields are blank. Unlike calculation rules which auto-populate fields, this rule validates that critical fields have values and blocks the save with a descriptive error message listing which fields are missing. Deletes are always allowed.
+      </p>
+    </section>
+
+    <!-- Metadata -->
+    <section>
+      <h2>Metadata</h2>
+      <div class="reveal">
+        <table>
+          <thead>
+            <tr><th>Property</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Rule Type</td><td>Constraint (blocks save on violation)</td></tr>
+            <tr><td>Triggers</td><td>Insert, Update</td></tr>
+            <tr><td>Validated Fields</td><td><code>Full_Addr</code>, <code>Agency</code>, <code>DiscrpAgID</code>, <code>NGUID</code>, <code>Country</code>, <code>A1</code>, <code>A2</code>, <code>A3</code></td></tr>
+            <tr><td>On Pass</td><td>Returns <code>true</code> (save proceeds)</td></tr>
+            <tr><td>On Fail</td><td>Returns <code>errorMessage</code> listing missing fields</td></tr>
+            <tr><td>Deletes</td><td>Always allowed</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Full Source Code -->
+    <section>
+      <h2>Full Source Code</h2>
+      <div class="code-block reveal">
+        <div class="code-header">
+          <span class="lang-tag">Arcade</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre>
+<span class="code-section" data-section="1"><span class="cm">// Allow deletes</span>
+<span class="kw">if</span> (<span class="var">$editcontext</span>.editType == <span class="str">"DELETE"</span>) <span class="kw">return</span> <span class="bi">true</span>;</span>
+
+<span class="code-section" data-section="2"><span class="kw">function</span> <span class="fn">isBlank</span>(v) {
+  <span class="kw">if</span> (<span class="fn">IsEmpty</span>(v)) <span class="kw">return</span> <span class="bi">true</span>;
+  <span class="kw">return</span> <span class="fn">Trim</span>(<span class="fn">Text</span>(v)) == <span class="str">""</span>;
+}</span>
+
+<span class="code-section" data-section="3"><span class="kw">var</span> missing = [];
+
+<span class="kw">if</span> (<span class="fn">isBlank</span>(<span class="var">$feature</span>.Full_Addr))  <span class="fn">Push</span>(missing, <span class="str">"Full_Addr"</span>);
+<span class="kw">if</span> (<span class="fn">isBlank</span>(<span class="var">$feature</span>.Agency))     <span class="fn">Push</span>(missing, <span class="str">"Agency"</span>);
+<span class="kw">if</span> (<span class="fn">isBlank</span>(<span class="var">$feature</span>.DiscrpAgID)) <span class="fn">Push</span>(missing, <span class="str">"DiscrpAgID"</span>);
+<span class="kw">if</span> (<span class="fn">isBlank</span>(<span class="var">$feature</span>.NGUID))      <span class="fn">Push</span>(missing, <span class="str">"NGUID"</span>);
+<span class="kw">if</span> (<span class="fn">isBlank</span>(<span class="var">$feature</span>.Country))    <span class="fn">Push</span>(missing, <span class="str">"Country"</span>);
+<span class="kw">if</span> (<span class="fn">isBlank</span>(<span class="var">$feature</span>.A1))         <span class="fn">Push</span>(missing, <span class="str">"A1"</span>);
+<span class="kw">if</span> (<span class="fn">isBlank</span>(<span class="var">$feature</span>.A2))         <span class="fn">Push</span>(missing, <span class="str">"A2"</span>);
+<span class="kw">if</span> (<span class="fn">isBlank</span>(<span class="var">$feature</span>.A3))         <span class="fn">Push</span>(missing, <span class="str">"A3"</span>);</span>
+
+<span class="code-section" data-section="4"><span class="kw">if</span> (<span class="fn">Count</span>(missing) &gt; <span class="num">0</span>) {
+  <span class="kw">return</span> {
+    <span class="str">"errorMessage"</span>: <span class="str">"Missing mandatory field(s): "</span> + <span class="fn">Concatenate</span>(missing, <span class="str">", "</span>)
+  };
+}
+
+<span class="kw">return</span> <span class="bi">true</span>;</span>
+</pre>
+      </div>
+      <div class="section-popup" id="sectionPopup"></div>
+    </section>
+
+    <!-- Section Breakdown -->
+    <section>
+      <h2>Section Breakdown</h2>
+
+      <div class="breakdown-card reveal" style="border-left-color:var(--red)" data-section="1">
+        <h4>1. Delete Bypass</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 1–2</span>
+          <span class="meta-tag">Input: $editcontext.editType</span>
+          <span class="meta-tag">Output: true</span>
+        </div>
+        <p>Constraint rules must return <code>true</code> to allow the operation. For deletes, always allow—do not validate field completeness. Returns immediately.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>if ($editcontext.editType == "DELETE") return true;</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Standard pattern for constraint rules. Remove only if deletes should be validated (rare).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-1" style="border-left-color:var(--red)" data-section="2">
+        <h4>2. isBlank Helper</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 4–7</span>
+          <span class="meta-tag">Input: any value</span>
+          <span class="meta-tag">Output: boolean</span>
+        </div>
+        <p>Tests if a value is empty or blank. Uses <code>IsEmpty(v)</code> for null/undefined, then <code>Trim(Text(v)) == ""</code> for blank strings. <code>Text()</code> handles numbers, dates, etc.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li>If <code>IsEmpty(v)</code> → true</li>
+            <li>Else <code>Trim(Text(v)) == ""</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Copy verbatim. Used for all 8 field checks.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-2" style="border-left-color:var(--red)" data-section="3">
+        <h4>3. Mandatory Field Checks</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 9–18</span>
+          <span class="meta-tag">8 fields: Full_Addr, Agency, DiscrpAgID, NGUID, Country, A1, A2, A3</span>
+        </div>
+        <p>For each field, if <code>isBlank($feature.Field)</code>, push the field name string to <code>missing</code>. Order determines error message order.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li><code>if (isBlank($feature.Full_Addr)) Push(missing, "Full_Addr");</code> (×8)</li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Add field: <code>if (isBlank($feature.NewField)) Push(missing, "NewField");</code></li>
+            <li>Remove field: delete its line.</li>
+          </ul>
+          <strong>Dependencies</strong>
+          <ul>
+            <li>Full_Addr, NGUID are auto-calculated by rules 1–2; constraint typically blocks when Agency, DiscrpAgID, Country, A1, A2, A3 are blank.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="breakdown-card reveal reveal-delay-3" style="border-left-color:var(--red)" data-section="4">
+        <h4>4. Error or Pass</h4>
+        <div class="breakdown-meta">
+          <span class="meta-tag">Lines 20–26</span>
+          <span class="meta-tag">Output: true or { errorMessage }</span>
+        </div>
+        <p>If <code>Count(missing) > 0</code>, return <code>{ "errorMessage": "Missing mandatory field(s): " + Concatenate(missing, ", ") }</code>. ArcGIS blocks the save and displays the message. Otherwise return <code>true</code>.</p>
+        <div class="breakdown-detail">
+          <strong>Logic</strong>
+          <ul>
+            <li>If missing.length > 0 → return <code>{ "errorMessage": "Missing mandatory field(s): " + Concatenate(missing, ", ") }</code></li>
+            <li>Else → return <code>true</code></li>
+          </ul>
+          <strong>To replicate</strong>
+          <ul>
+            <li>Constraint rules return <code>true</code> to allow, or <code>{ "errorMessage": "..." }</code> to block.</li>
+          </ul>
+          <strong>To modify</strong>
+          <ul>
+            <li>Custom message: change the string, e.g. <code>"Please fill: " + Concatenate(missing, ", ")</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Info Alert -->
+      <div class="alert info reveal reveal-delay-4">
+        <i class="fas fa-circle-info"></i>
+        <div>
+          <strong>Note:</strong> This constraint rule works in tandem with the calculation rules. Because <code>Full_Addr</code>, <code>NGUID</code>, and other fields are auto-calculated by rules 1–7, this constraint will typically only block saves when <code>Agency</code>, <code>DiscrpAgID</code>, <code>Country</code>, <code>A1</code>, <code>A2</code>, or <code>A3</code> are left blank by the editor.
+        </div>
+      </div>
+
+    </section>
+
+  </div><!-- /content-wrap -->
+
+  <!-- ── FOOTER ── -->

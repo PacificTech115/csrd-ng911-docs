@@ -1,0 +1,486 @@
+<!-- ═══ PAGE HEADER ═══ -->
+<header class="page-header">
+  <div class="page-header-content">
+    <nav class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <i class="fas fa-chevron-right sep"></i>
+      <span>Technical Documentation</span>
+      <i class="fas fa-chevron-right sep"></i>
+      <span class="current">Power Automate</span>
+    </nav>
+    <h1><span>Power Automate</span> Notifications</h1>
+    <div class="subtitle">Automated email reports via Microsoft Power Automate</div>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+<!-- INFO ALERT -->
+<section>
+  <div class="alert info reveal">
+    <i class="fas fa-info-circle"></i>
+    <span>Both automation workflows send JSON payloads to Power Automate flows, which format and deliver HTML email reports to stakeholders.</span>
+  </div>
+</section>
+
+<!-- EMAIL TEMPLATE CARDS -->
+<section>
+  <div class="grid-2">
+
+    <!-- Nightly Pipeline Report -->
+    <div class="card reveal">
+      <div class="card-header">
+        <div class="card-icon teal"><i class="fas fa-envelope-open-text"></i></div>
+        <h4>Nightly Pipeline Report</h4>
+      </div>
+      <div class="code-block" style="margin:10px 0">
+        <div class="code-header"><span>Template</span></div>
+        <pre>PowerautomateEmail-Reconcile-QA-Reconcile-Export.html</pre>
+      </div>
+      <ul>
+        <li>Status badge (PASSED / FAILED)</li>
+        <li>Run metadata &amp; timestamps</li>
+        <li>QA counters, detail table, blocking samples</li>
+        <li>Issues-by-agency breakdown</li>
+        <li>Pipeline stages with per-stage status</li>
+        <li>Output file links</li>
+      </ul>
+    </div>
+
+    <!-- Salmon Arm Sync Report -->
+    <div class="card reveal reveal-delay-1">
+      <div class="card-header">
+        <div class="card-icon blue"><i class="fas fa-envelope-open-text"></i></div>
+        <h4>Salmon Arm Sync Report</h4>
+      </div>
+      <div class="code-block" style="margin:10px 0">
+        <div class="code-header"><span>Template</span></div>
+        <pre>PowerautomateEmail-SalmonArmsync.html</pre>
+      </div>
+      <ul>
+        <li>Status badge (SUCCESS / FAILED)</li>
+        <li>Source/target layer info</li>
+        <li>Record matching details</li>
+        <li>Operations: inserts, updates, deletes</li>
+        <li>Failure count &amp; reverse ID sync status</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- PAYLOAD DISPATCH -->
+<section>
+  <div class="card reveal">
+    <div class="card-header">
+      <div class="card-icon navy"><i class="fas fa-paper-plane"></i></div>
+      <h4>Payload Dispatch</h4>
+    </div>
+    <div class="code-block" style="margin:10px 0">
+      <div class="code-header"><span>Python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">def</span> <span class="fn">send_power_automate_notification</span>(payload: <span class="bi">dict</span>):
+    flow_url = POWER_AUTOMATE_FLOW_URL.strip()
+    <span class="kw">if</span> <span class="kw">not</span> flow_url:
+        <span class="kw">return</span> {<span class="str">"skipped"</span>: <span class="bi">True</span>}
+    <span class="kw">import</span> requests
+    resp = requests.post(flow_url, json=payload, timeout=<span class="num">20</span>)
+    <span class="kw">return</span> {<span class="str">"status_code"</span>: resp.status_code}</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- EMAIL BODY TEMPLATES -->
+<section>
+  <h3 class="reveal">Email Body Templates</h3>
+  <p class="reveal" style="margin-bottom:16px;">These are the actual HTML email body templates used inside the Power Automate flows. They contain inline Power Automate expressions (<code>@{...}</code>) that dynamically populate values from the JSON payload at runtime.</p>
+
+  <!-- Nightly Pipeline Template -->
+  <div class="card reveal" style="margin-bottom:18px;">
+    <div class="card-header">
+      <div class="card-icon teal"><i class="fas fa-file-code"></i></div>
+      <h4>Nightly Pipeline Email Template</h4>
+    </div>
+    <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:10px;">
+      Used by: <strong>1.NG911-Reconcile Municipal -QA- Reconcile Default</strong> flow.<br>
+      Contains status badge, QA counters, detail tables, blocking feature samples, issues-by-agency breakdown, pipeline stage results, and output file links.
+    </p>
+    <button class="doc-toggle" type="button" data-target="email-tpl-nightly" aria-expanded="false">
+      <i class="fas fa-chevron-right"></i><span>Show template (218 lines)</span>
+    </button>
+    <div id="email-tpl-nightly" class="doc-body collapsed">
+      <div class="code-block">
+        <div class="code-header"><span>HTML — Power Automate Body</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre>&lt;div style=&quot;font-family:Segoe UI,Arial,sans-serif;color:#1f2937;max-width:1100px;&quot;&gt;
+    &lt;h2 style=&quot;margin:0 0 12px 0;&quot;&gt;Nightly QA Automation Report&lt;/h2&gt;
+  
+    &lt;div style=&quot;margin-bottom:14px;&quot;&gt;
+      &lt;span style=&quot;display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;
+        background:@{if(equals(triggerBody()?['status'],'success'),'#dcfce7','#fee2e2')};
+        color:@{if(equals(triggerBody()?['status'],'success'),'#166534','#991b1b')};&quot;&gt;
+        @{if(equals(triggerBody()?['status'],'success'),'PASSED','FAILED')}
+      &lt;/span&gt;
+    &lt;/div&gt;
+  
+    &lt;table style=&quot;border-collapse:collapse;width:100%;margin-bottom:16px;&quot;&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;width:220px;&quot;&gt;&lt;b&gt;Run ID&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{triggerBody()?['run_id']}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;User&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{triggerBody()?['user']}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Started&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{formatDateTime(triggerBody()?['started'],'dddd, MMMM d, yyyy  h:mm tt')}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Finished&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{formatDateTime(triggerBody()?['finished'],'dddd, MMMM d, yyyy  h:mm tt')}&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  
+    &lt;h3 style=&quot;margin:18px 0 8px 0;&quot;&gt;QA Counters&lt;/h3&gt;
+    &lt;table style=&quot;border-collapse:collapse;width:100%;font-size:14px;margin-bottom:12px;&quot;&gt;
+      &lt;thead&gt;
+        &lt;tr style=&quot;background:#111827;color:#ffffff;&quot;&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Metric&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Count&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Notes&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Features checked (new/edited or not previously passed)&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;&quot;&gt;
+            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0)}
+          &lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Rows evaluated in this QA run&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Features with blocking issues&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#dc2626;&quot;&gt;
+            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)}
+          &lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Mandatory-null failures&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Features passing blocking checks&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#15803d;&quot;&gt;
+            @{if(
+              greater(
+                sub(
+                  coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0),
+                  coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)
+                ),
+                0
+              ),
+              sub(
+                coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0),
+                coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)
+              ),
+              0
+            )}
+          &lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Scope minus blocking failures&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Warning issue groups&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#ea580c;&quot;&gt;
+            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['address_duplicates']?['duplicate_nguid_count'], 0)}
+          &lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Duplicate address groups (warning only)&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  
+    &lt;h3 style=&quot;margin:18px 0 8px 0;&quot;&gt;QA Run Details&lt;/h3&gt;
+    &lt;table style=&quot;border-collapse:collapse;width:100%;font-size:14px;margin-bottom:12px;&quot;&gt;
+      &lt;thead&gt;
+        &lt;tr style=&quot;background:#0f766e;color:#ffffff;&quot;&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #115e59;&quot;&gt;QA Check&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #115e59;&quot;&gt;Result&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #115e59;&quot;&gt;Details&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Schema fields present&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields']),0),'#15803d','#dc2626')};&quot;&gt;
+            @{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields']),0),'PASSED','FAILED')}
+          &lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
+            Missing required fields: @{length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields'])}
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;NGUID uniqueness&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0),'#15803d','#dc2626')};&quot;&gt;
+            @{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0),'PASSED','FAILED')}
+          &lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
+            Duplicate NGUID count: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0)}
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Mandatory fields exist&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing']),0),'#15803d','#dc2626')};&quot;&gt;
+            @{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing']),0),'PASSED','FAILED')}
+          &lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
+            Missing mandatory fields: @{length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing'])}
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Mandatory field null check&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),'#15803d','#dc2626')};&quot;&gt;
+            @{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),'PASSED','FAILED')}
+          &lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
+            Features with one or more mandatory nulls: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0)}
+          &lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Address duplicates&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#ea580c;&quot;&gt;WARNING&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
+            Duplicate address groups: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['address_duplicates']?['duplicate_nguid_count'],0)}
+          &lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  
+    &lt;div style=&quot;display:@{if(greater(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),0),'block','none')};&quot;&gt;
+      &lt;h3 style=&quot;margin:18px 0 8px 0;color:#dc2626;&quot;&gt;Blocking Feature Samples&lt;/h3&gt;
+      &lt;p style=&quot;font-size:13px;margin:0 0 8px 0;color:#6b7280;&quot;&gt;
+        Showing up to 5 of
+        @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0)}
+        features with mandatory-null failures.
+      &lt;/p&gt;
+      &lt;table style=&quot;border-collapse:collapse;width:100%;font-size:14px;margin-bottom:12px;&quot;&gt;
+        &lt;thead&gt;
+          &lt;tr style=&quot;background:#991b1b;color:#ffffff;&quot;&gt;
+            &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #7f1d1d;&quot;&gt;Object ID&lt;/th&gt;
+            &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #7f1d1d;&quot;&gt;NGUID&lt;/th&gt;
+            &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #7f1d1d;&quot;&gt;Failing Fields&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),'table-row','none')};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['object_id'],'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['nguid'],'N/A'),'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),'table-row','none')};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['object_id'],'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['nguid'],'N/A'),'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),'table-row','none')};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['object_id'],'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['nguid'],'N/A'),'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),'table-row','none')};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['object_id'],'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['nguid'],'N/A'),'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;/tr&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),'table-row','none')};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['object_id'],'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['nguid'],'N/A'),'')}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  
+    @{outputs('IssuesByAgencyTableHtml')}
+  
+    &lt;h3 style=&quot;margin:18px 0 8px 0;&quot;&gt;Pipeline Stages&lt;/h3&gt;
+    &lt;table style=&quot;border-collapse:collapse;width:100%;font-size:14px;&quot;&gt;
+      &lt;thead&gt;
+        &lt;tr style=&quot;background:#111827;color:#ffffff;&quot;&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Step&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Stage&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Result&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Details&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;1&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Reconcile and Post Municipal Versions to QA Version&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),'#6b7280',if(equals(triggerBody()?['stage_results']?['MUNI_TO_QA']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),'SKIPPED',if(equals(triggerBody()?['stage_results']?['MUNI_TO_QA']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),triggerBody()?['stage_summaries'][0]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;2&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Run QA Checks and Update QA Status Field&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),'#6b7280',if(equals(triggerBody()?['stage_results']?['RUN_QA']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),'SKIPPED',if(equals(triggerBody()?['stage_results']?['RUN_QA']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),triggerBody()?['stage_summaries'][1]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;3&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Reconcile and Post QA Version to Default Version&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),'#6b7280',if(equals(triggerBody()?['stage_results']?['QA_TO_DEFAULT']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),'SKIPPED',if(equals(triggerBody()?['stage_results']?['QA_TO_DEFAULT']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),triggerBody()?['stage_summaries'][2]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;4&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Export Default Version Geodatabase&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),'#6b7280',if(equals(triggerBody()?['stage_results']?['EXPORT_DEFAULT']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),'SKIPPED',if(equals(triggerBody()?['stage_results']?['EXPORT_DEFAULT']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),triggerBody()?['stage_summaries'][3]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;5&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Sync Default Back to Municipal Versions&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),'#6b7280',if(equals(triggerBody()?['stage_results']?['DEFAULT_TO_MUNI_SYNC']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),'SKIPPED',if(equals(triggerBody()?['stage_results']?['DEFAULT_TO_MUNI_SYNC']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),triggerBody()?['stage_summaries'][4]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  
+    &lt;h3 style=&quot;margin:18px 0 8px 0;&quot;&gt;Output&lt;/h3&gt;
+    &lt;div style=&quot;font-size:13px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;&quot;&gt;
+      &lt;b&gt;Nightly run summary JSON:&lt;/b&gt;&lt;br&gt;
+      &lt;a href=&quot;@{if(
+        greater(length(coalesce(triggerBody()?['output_files'], json('[]'))), 0),
+        first(triggerBody()?['output_files'])?['access_link'],
+        concat(
+          'https://apps.csrd.bc.ca/notebook/notebooks/b4ea80afab8d433195aa7f195e4a832a/files/home/run_summaries/',
+          last(split(replace(string(triggerBody()?['run_summary_path']), '\', '/'), '/'))
+        )
+      )}&quot;&gt;
+        @{if(
+          greater(length(coalesce(triggerBody()?['output_files'], json('[]'))), 0),
+          first(triggerBody()?['output_files'])?['access_link'],
+          concat(
+            'https://apps.csrd.bc.ca/notebook/notebooks/b4ea80afab8d433195aa7f195e4a832a/files/home/run_summaries/',
+            last(split(replace(string(triggerBody()?['run_summary_path']), '\', '/'), '/'))
+          )
+        )}
+      &lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salmon Arm Sync Template -->
+  <div class="card reveal">
+    <div class="card-header">
+      <div class="card-icon blue"><i class="fas fa-file-code"></i></div>
+      <h4>Salmon Arm Sync Email Template</h4>
+    </div>
+    <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:10px;">
+      Used by: <strong>2.NG911-SalmonArmETL</strong> flow.<br>
+      Contains status badge, source/target layer info, record matching details, operations table (inserts/updates/deletes), failure count, reverse ID sync status, and a quick summary.
+    </p>
+    <button class="doc-toggle" type="button" data-target="email-tpl-salmon" aria-expanded="false">
+      <i class="fas fa-chevron-right"></i><span>Show template (119 lines)</span>
+    </button>
+    <div id="email-tpl-salmon" class="doc-body collapsed">
+      <div class="code-block">
+        <div class="code-header"><span>HTML — Power Automate Body</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre>&lt;div style=&quot;font-family:Segoe UI,Arial,sans-serif;color:#1f2937;max-width:900px;&quot;&gt;
+    &lt;h2 style=&quot;margin:0 0 12px 0;&quot;&gt;Salmon Arm Data Sync Report&lt;/h2&gt;
+  
+    &lt;div style=&quot;margin:0 0 14px 0;&quot;&gt;
+      &lt;span style=&quot;display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;
+        background:@{if(equals(triggerBody()?['status'],'success'),'#dcfce7','#fee2e2')};
+        color:@{if(equals(triggerBody()?['status'],'success'),'#166534','#991b1b')};&quot;&gt;
+        @{if(equals(triggerBody()?['status'],'success'),'SUCCESS','FAILED')}
+      &lt;/span&gt;
+    &lt;/div&gt;
+  
+    &lt;table style=&quot;border-collapse:collapse;width:100%;margin-bottom:14px;font-size:14px;&quot;&gt;
+      &lt;tr&gt;&lt;td style=&quot;padding:7px 10px;background:#f8fafc;width:220px;&quot;&gt;&lt;b&gt;Run ID&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:7px 10px;&quot;&gt;@{triggerBody()?['run_id']}&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td style=&quot;padding:7px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Started&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:7px 10px;&quot;&gt;@{formatDateTime(triggerBody()?['started'],'dddd, MMMM d, yyyy  h:mm tt')}&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td style=&quot;padding:7px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Finished&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:7px 10px;&quot;&gt;@{formatDateTime(triggerBody()?['finished'],'dddd, MMMM d, yyyy  h:mm tt')}&lt;/td&gt;&lt;/tr&gt;
+    &lt;/table&gt;
+  
+    &lt;h3 style=&quot;margin:16px 0 8px 0;&quot;&gt;Data Source and Target&lt;/h3&gt;
+    &lt;table style=&quot;border-collapse:collapse;width:100%;margin-bottom:14px;font-size:14px;&quot;&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;width:220px;&quot;&gt;&lt;b&gt;Source Layer&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;word-break:break-all;&quot;&gt;@{triggerBody()?['source_layer']}&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Source Last Edited (UTC)&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;&quot;&gt;
+          @{coalesce(triggerBody()?['source_last_edited']?['last_edited_utc'], 'Unknown')}
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Target Layer&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;word-break:break-all;&quot;&gt;@{triggerBody()?['target_layer']}&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  
+    &lt;h3 style=&quot;margin:16px 0 8px 0;&quot;&gt;Record Matching&lt;/h3&gt;
+    &lt;table style=&quot;border-collapse:collapse;width:100%;margin-bottom:14px;font-size:14px;&quot;&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;width:240px;&quot;&gt;&lt;b&gt;Main Matching Field&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;&quot;&gt;@{triggerBody()?['matching_key']?['primary_key_field']}&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Source Field Name&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;&quot;&gt;@{triggerBody()?['matching_key']?['source_primary_key_actual']}&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Target Field Name&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;&quot;&gt;@{triggerBody()?['matching_key']?['target_primary_key_actual']}&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Fallback Fields&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;&quot;&gt;@{string(triggerBody()?['matching_key']?['fallback_key_fields'])}&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  
+    &lt;h3 style=&quot;margin:16px 0 8px 0;&quot;&gt;Operations&lt;/h3&gt;
+    &lt;table style=&quot;border-collapse:collapse;width:100%;font-size:14px;margin-bottom:14px;&quot;&gt;
+      &lt;thead&gt;
+        &lt;tr style=&quot;background:#111827;color:#ffffff;&quot;&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Action&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Planned&lt;/th&gt;
+          &lt;th style=&quot;text-align:left;padding:8px;border:1px solid #374151;&quot;&gt;Applied&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Insert&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{coalesce(triggerBody()?['operations']?['planned']?['inserts'],0)}&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{coalesce(triggerBody()?['operations']?['applied']?['adds'],0)}&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Update&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{coalesce(triggerBody()?['operations']?['planned']?['updates'],0)}&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{coalesce(triggerBody()?['operations']?['applied']?['updates'],0)}&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Delete&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{coalesce(triggerBody()?['operations']?['planned']?['deletes'],0)}&lt;/td&gt;
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{coalesce(triggerBody()?['operations']?['applied']?['deletes'],0)}&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  
+    &lt;h3 style=&quot;margin:16px 0 8px 0;&quot;&gt;Issues&lt;/h3&gt;
+    &lt;table style=&quot;border-collapse:collapse;width:100%;margin-bottom:14px;font-size:14px;&quot;&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;width:220px;&quot;&gt;&lt;b&gt;Failure Count&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;color:@{if(greater(coalesce(triggerBody()?['operations']?['failure_count'],0),0),'#dc2626','#15803d')};font-weight:700;&quot;&gt;
+          @{coalesce(triggerBody()?['operations']?['failure_count'],0)}
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:7px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Reverse ID Sync&lt;/b&gt;&lt;/td&gt;
+        &lt;td style=&quot;padding:7px 10px;&quot;&gt;
+          @{if(
+            equals(triggerBody()?['operations']?['reverse_id_sync']?['skipped'], true),
+            concat('Skipped - ', coalesce(triggerBody()?['operations']?['reverse_id_sync']?['reason'], '')),
+            concat(
+              'Applied ',
+              string(coalesce(triggerBody()?['operations']?['reverse_id_sync']?['applied_updates'],0)),
+              ' of ',
+              string(coalesce(triggerBody()?['operations']?['reverse_id_sync']?['planned_updates'],0)),
+              ' planned'
+            )
+          )}
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  
+    &lt;h3 style=&quot;margin:16px 0 8px 0;&quot;&gt;Quick Summary&lt;/h3&gt;
+    &lt;div style=&quot;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;line-height:1.5;&quot;&gt;
+      @{replace(triggerBody()?['email_summary_text'],'\n','&lt;br/&gt;')}
+    &lt;/div&gt;
+  
+    &lt;h3 style=&quot;margin:16px 0 8px 0;&quot;&gt;Run Summary File&lt;/h3&gt;
+    &lt;div style=&quot;font-size:13px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;&quot;&gt;
+      @{triggerBody()?['run_summary_path']}
+    &lt;/div&gt;
+  &lt;/div&gt;</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <h3 class="reveal">How It Works</h3>
+  <div class="card reveal">
+    <p>Each automation script builds a JSON payload with run results (status, counters, errors, timestamps) and POSTs it to a Power Automate HTTP trigger URL. The flow formats the JSON into a styled HTML email using the templates above and delivers it to the configured recipients.</p>
+  </div>
+</section>
+
+</div><!-- /content-wrap -->
+
+<!-- FOOTER -->

@@ -1,14 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta http-equiv="refresh" content="0; url='./Documentation.html'" />
-    <title>Redirecting to CSRD NG911 Documentation...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSRD NG911 — Documentation Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="docs/shared.css">
+
+    <style>
+        .app-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: var(--navy);
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--teal);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
 </head>
 
 <body>
-    <p>If you are not redirected automatically, follow this <a href="./Documentation.html">link to the
-            documentation</a>.</p>
+
+    <div id="progress"></div>
+
+    <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')"
+        aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ── APP SHELL ── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img src="csrd-logo.png" alt="NG911 CSRD Logo">
+            <h2>Docs &amp; Maintenance</h2>
+        </div>
+        <nav class="sidebar-nav" id="dynamic-nav">
+            <!-- Injected by router.js after ArcGIS Auth -->
+        </nav>
+        <div class="sidebar-footer">CSRD NG911 &copy; 2026 &middot; Pacific Tech Systems</div>
+    </aside>
+
+    <div class="main">
+        <div id="app-root">
+            <!-- Dynamic Content Injector -->
+            <div class="app-loading">
+                <div class="spinner"></div>
+                <h3>Authenticating with ArcGIS Portal...</h3>
+            </div>
+        </div>
+    </div>
+
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="docs/editor-core.js"></script>
+    <script type="module" src="docs/router.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,60 @@
+<header class="page-header">
+            <div class="page-header-content">
+                <div class="detail-banner">
+                    <div class="banner-icon" style="background:var(--navy)">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="banner-info">
+                        <h1>Version Edits</h1>
+                        <div class="banner-tags">
+                            <span class="banner-tag"><i class="fas fa-pen-nib"></i>&nbsp; Content Changes</span>
+                            <span class="banner-tag"><i class="fas fa-clock"></i>&nbsp; Local Audit Log</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-wrap">
+            <section>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                    <p style="margin: 0; max-width: 600px;">This page displays a chronological log of all content
+                        modifications made while Editor Mode is active. Changes are tracked automatically when an editor
+                        leaves an edited field.</p>
+                    <button onclick="discardAllEdits()" class="btn-danger"
+                        style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 6px; border: none; background: #fee2e2; color: #b91c1c; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(185,28,28,0.1);">
+                        <i class="fas fa-trash-can"></i> Discard All Edits
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon navy"><i class="fas fa-list"></i></div>
+                        <h4>Recent Local Edits</h4>
+                        <span class="card-tag" id="editCount">0 Edits</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table id="editsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%">Date / Time</th>
+                                    <th style="width: 15%">Page</th>
+                                    <th style="width: 10%">Element</th>
+                                    <th style="width: 25%">Original Text</th>
+                                    <th style="width: 25%">New Text</th>
+                                    <th style="width: 10%; text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="editsBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        <div id="noEditsMsg" class="alert info" style="display: none; margin-top: 16px;">
+                            <i class="fas fa-info-circle"></i>
+                            <span>No edits have been recorded in this browser session.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>

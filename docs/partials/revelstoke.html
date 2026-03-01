@@ -1,50 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSRD NG911 — Revelstoke User Guide</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="shared.css">
-</head>
-<body>
-<div id="progress"></div>
-<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle navigation">
-  <i class="fas fa-bars"></i>
-</button>
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <img src="assets/revelstoke/Revelstoke.png" alt="Revelstoke Logo">
-    <h2>Docs &amp; Maintenance</h2>
-  </div>
-  <nav class="sidebar-nav">
-    <a href="../Documentation.html"><i class="fas fa-home"></i> Home</a>
-    <a href="architecture.html"><i class="fas fa-sitemap"></i> Architecture</a>
-    <div class="nav-group-label">1. Technical Documentation</div>
-    <div class="nav-sub-label">Database</div>
-    <a href="schema-guide.html" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
-    <a href="attribute-rules.html" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
-    <a href="domains.html" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
-    <div class="nav-sub-label">Automations</div>
-    <a href="automation-scripts.html" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
-    <a href="gp-tools.html" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
-    <a href="power-automate.html" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
-    <div class="nav-group-label">2. Maintenance Guide</div>
-    <a href="maintenance.html"><i class="fas fa-wrench"></i> Maintenance</a>
-    <div class="nav-group-label">3. Municipal Guides</div>
-    <a href="guide-revelstoke.html" class="active nav-indent"><i class="fas fa-city"></i> Revelstoke</a>
-    <div class="nav-group-label">4. Version Control</div>
-    <a href="version-edits.html"><i class="fas fa-history"></i> Version Edits</a>
-    <div class="nav-group-label">5. Quick Reference</div>
-    <a href="quick-reference.html"><i class="fas fa-bolt"></i> Quick Reference</a>
-  </nav>
-  <div class="sidebar-footer">CSRD NG911 &copy; 2025 &middot; Pacific Tech Systems</div>
-</aside>
-<div class="main">
-
 <div class="hero-wrapper" id="hero">
   <div class="hero-card">
     <div class="hero-card-inner">
@@ -52,7 +5,7 @@
         <h1>City of Revelstoke <span>NG9-1-1</span> Central<br>Addressing System</h1>
         <div class="subtitle">Editor User Guide &amp; Workflow Timeline</div>
         <div class="hero-actions" style="margin-top: 24px;">
-          <a href="../DownloadFiles/Revelstoke_NG911_Central_Addressing_User_Guide.pdf" download class="btn" style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">
+          <a href="DownloadFiles/Revelstoke_NG911_Central_Addressing_User_Guide.pdf" download class="btn" style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">
             <i class="fas fa-download"></i> Download Original PDF
           </a>
         </div>
@@ -150,7 +103,7 @@
       <li>Confirm you are logged in successfully before proceeding.</li>
     </ol>
     <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="assets/revelstoke/1-CSRD Portal Home Page.png" alt="CSRD Portal Home Page" style="width: 100%; display: block;">
+        <img src="docs/assets/revelstoke/1-CSRD Portal Home Page.png" alt="CSRD Portal Home Page" style="width: 100%; display: block;">
     </div>
   </div>
 
@@ -162,10 +115,10 @@
     </ol>
     <div class="grid-2" style="margin-top: 15px;">
         <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-            <img src="assets/revelstoke/2-Portal Groups.png" alt="Portal Groups" style="width: 100%; display: block;">
+            <img src="docs/assets/revelstoke/2-Portal Groups.png" alt="Portal Groups" style="width: 100%; display: block;">
         </div>
         <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-            <img src="assets/revelstoke/3-Revelstoke Group.png" alt="Revelstoke Group" style="width: 100%; display: block;">
+            <img src="docs/assets/revelstoke/3-Revelstoke Group.png" alt="Revelstoke Group" style="width: 100%; display: block;">
         </div>
     </div>
   </div>
@@ -178,7 +131,7 @@
       <li>Confirm layer ownership and metadata match Revelstoke editing workflow.</li>
     </ol>
     <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="assets/revelstoke/4-Revelstoke Edit layer overview.png" alt="Edit Feature Layer" style="width: 100%; display: block;">
+        <img src="docs/assets/revelstoke/4-Revelstoke Edit layer overview.png" alt="Edit Feature Layer" style="width: 100%; display: block;">
     </div>
   </div>
 
@@ -191,10 +144,10 @@
       <li>Confirm the layer loads successfully into your map/project.</li>
     </ol>
     <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="assets/revelstoke/5-Confirm CSRD Portal Sign in in Arcgis Pro.png" alt="Open in Pro" style="width: 100%; display: block;">
+        <img src="docs/assets/revelstoke/5-Confirm CSRD Portal Sign in in Arcgis Pro.png" alt="Open in Pro" style="width: 100%; display: block;">
     </div>
     <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="assets/revelstoke/6- Revelstoke ArcGIS pro.png" alt="Layer in Pro Context" style="width: 100%; display: block;">
+        <img src="docs/assets/revelstoke/6- Revelstoke ArcGIS pro.png" alt="Layer in Pro Context" style="width: 100%; display: block;">
     </div>
   </div>
 
@@ -207,7 +160,7 @@
       <li>Validate geometry placement and attribute completeness before saving.</li>
     </ol>
     <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="assets/revelstoke/7-Revelstoke ArcGISPro Edit.png" alt="Editing in ArcGIS Pro" style="width: 100%; display: block;">
+        <img src="docs/assets/revelstoke/7-Revelstoke ArcGISPro Edit.png" alt="Editing in ArcGIS Pro" style="width: 100%; display: block;">
     </div>
   </div>
 
@@ -219,7 +172,7 @@
       <li>Optionally review the updated feature in the attribute table or map popup.</li>
     </ol>
     <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="assets/revelstoke/8-Revelstoke ArcGISPro Save Edits.png" alt="Save Edits" style="width: 100%; display: block;">
+        <img src="docs/assets/revelstoke/8-Revelstoke ArcGISPro Save Edits.png" alt="Save Edits" style="width: 100%; display: block;">
     </div>
   </div>
 
@@ -292,60 +245,3 @@
   </div>
 </section>
 </div><!-- /content-wrap -->
-
-<footer class="site-footer">
-  <img src="assets/revelstoke/Revelstoke.png" alt="Revelstoke Logo" style="max-height: 48px;">
-  <p>CSRD NG911 Central Database System &mdash; Documentation &amp; Maintenance Guide</p>
-  <p class="sub">Pacific Tech Systems &middot; Last updated February 2026</p>
-</footer>
-</div><!-- /main -->
-
-<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
-  <i class="fas fa-arrow-up"></i>
-</button>
-
-<script>
-(function(){
-  const io=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
-  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-})();
-
-(function(){
-  const bar=document.getElementById('progress');
-  function update(){
-    const st=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;
-    bar.style.width=(h>0?Math.min(st/h*100,100):0)+'%';
-  }
-  window.addEventListener('scroll',update,{passive:true});update();
-})();
-
-(function(){
-  const btt=document.getElementById('backToTop');
-  window.addEventListener('scroll',function(){
-    btt.classList.toggle('visible',window.scrollY>400);
-  },{passive:true});
-})();
-
-// Doc toggles
-(function(){
-  document.querySelectorAll('.doc-toggle').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var id=this.getAttribute('data-target');
-      var body=id?document.getElementById(id):null;
-      if(!body)return;
-      var isCollapsed=body.classList.contains('collapsed');
-      body.classList.toggle('collapsed',!isCollapsed);
-      this.setAttribute('aria-expanded',isCollapsed?'true':'false');
-      var icon=this.querySelector('i');
-      if(icon){
-         icon.className = isCollapsed ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
-      }
-    });
-  });
-})();
-</script>
-<script src="editor-core.js"></script>
-</body>
-</html>
