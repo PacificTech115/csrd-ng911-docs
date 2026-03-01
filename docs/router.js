@@ -147,6 +147,22 @@ class SPA_Router {
         if (typeof window.initEditorUI === 'function') {
             window.initEditorUI();
         }
+
+        // Attach Tokenized Download Handlers for ArcGIS Portal Items
+        const revBtn = document.getElementById('btn-revelstoke-pitemx');
+        if (revBtn) {
+            revBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const token = auth.getToken();
+                if (!token) {
+                    alert("Authentication token expired. Please reload the page to sign in again before downloading.");
+                    return;
+                }
+                // Build the authenticated REST API endpoint
+                const downloadUrl = `https://apps.csrd.bc.ca/hub/sharing/rest/content/items/f0c4a2487440451d81a7e1a8bf04b81e/item.pitemx?token=${token}`;
+                window.location.href = downloadUrl;
+            });
+        }
     }
 
     enforcePageRBAC(hash) {
