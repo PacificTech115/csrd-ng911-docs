@@ -108,6 +108,7 @@ class SPA_Router {
             if (response.ok) {
                 const htmlContent = await response.text();
                 this.appRoot.innerHTML = htmlContent;
+                this.enforcePageRBAC(hash);
                 this.initializePageScripts();
 
                 // Highlight active nav link
@@ -145,6 +146,41 @@ class SPA_Router {
         // Let editor-core.js know we navigated
         if (typeof window.initEditorUI === 'function') {
             window.initEditorUI();
+        }
+    }
+
+    enforcePageRBAC(hash) {
+        if (hash === '' || hash === 'home') {
+            const user = auth.getUser();
+            const isAdmin = auth.isAdmin ? auth.isAdmin() : false;
+
+            if (!isAdmin) {
+                // Hide admin-only cards
+                document.querySelectorAll('[data-admin-only="true"]').forEach(el => el.remove());
+
+                // Update municipal guide link to point directly to their specific municipality
+                const uName = (user && user.username) ? user.username.toLowerCase() : '';
+                const muniCard = document.getElementById('municipal-guide-card');
+
+                if (muniCard) {
+                    if (uName.includes('revelstoke')) {
+                        muniCard.setAttribute('href', '#revelstoke');
+                    } else if (uName.includes('golden')) {
+                        muniCard.setAttribute('href', '#golden');
+                    } else if (uName.includes('salmonarm')) {
+                        muniCard.setAttribute('href', '#salmonarm');
+                    } else if (uName.includes('sicamous')) {
+                        muniCard.setAttribute('href', '#sicamous');
+                    } else {
+                        // Fallback if no specific municipal access is found
+                        muniCard.remove();
+                    }
+                }
+            } else {
+                // Admins see everything, but we can default their municipal guide card to revelstoke or keep it generic
+                const muniCard = document.getElementById('municipal-guide-card');
+                if (muniCard) muniCard.setAttribute('href', '#revelstoke');
+            }
         }
     }
 
