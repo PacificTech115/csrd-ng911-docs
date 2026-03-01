@@ -80,16 +80,27 @@ class ArcGISAuth {
     handleRedirectCallback() {
         const hash = window.location.hash;
         if (hash && hash.includes('access_token=')) {
-            const params = new URLSearchParams(hash.substring(1)); // strip '#'
-            const token = params.get('access_token');
-            const expiresIn = params.get('expires_in');
-            const username = params.get('username');
+            try {
+                // Safely parse hash (some OAuth responses use standard '&' ampersands, others might not)
+                const hashParams = hash.substring(1).split('&').reduce((acc, item) => {
+                    const [k, v] = item.split('=');
+                    acc[k] = decodeURIComponent(v);
+                    return acc;
+                }, {});
 
-            if (token) {
-                localStorage.setItem(this.tokenKey, token);
-                const expireTime = new Date().getTime() + (parseInt(expiresIn) * 1000);
-                localStorage.setItem(this.expiresKey, expireTime.toString());
-                return true;
+                const token = hashParams['access_token'];
+                const expiresIn = hashParams['expires_in'] || '14400';
+
+                if (token) {
+                    localStorage.setItem(this.tokenKey, token);
+                    const expireTime = new Date().getTime() + (parseInt(expiresIn) * 1000);
+                    localStorage.setItem(this.expiresKey, expireTime.toString());
+                    return true;
+                } else {
+                    alert("OAuth Error: access_token missing in URL payload -> " + hash);
+                }
+            } catch (e) {
+                alert("OAuth Parse Error: " + e.message);
             }
         }
         return false;
@@ -123,8 +134,8 @@ class ArcGISAuth {
 
         } catch (error) {
             console.error('Error fetching user info from Portal:', error);
-            // If the token is invalid, log out
-            this.logout();
+            alert("ArcGIS Portal Connection Error:\n\n" + error.message + "\n\nAuto-redirect paused for debugging. Please check developer console.");
+            // this.logout(); // Disabled to stop the infinite redirect loop
         }
     }
 
