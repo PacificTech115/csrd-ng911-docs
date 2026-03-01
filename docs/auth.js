@@ -23,9 +23,7 @@ class ArcGISAuth {
             return;
         }
 
-        if (!this.isAuthenticated()) {
-            this.login();
-        } else {
+        if (this.isAuthenticated()) {
             // Check if we need to refresh user info (e.g. groups)
             if (!localStorage.getItem(this.userKey)) {
                 await this.fetchUserInfo();
@@ -34,7 +32,7 @@ class ArcGISAuth {
     }
 
     login() {
-        const authUrl = \`\${config.portalUrl}/sharing/rest/oauth2/authorize?client_id=\${config.appId}&response_type=token&expiration=1440&redirect_uri=\${encodeURIComponent(config.redirectUri)}\`;
+        const authUrl = `${config.portalUrl}/sharing/rest/oauth2/authorize?client_id=${config.appId}&response_type=token&expiration=1440&redirect_uri=${encodeURIComponent(config.redirectUri)}`;
         window.location.href = authUrl;
     }
 
@@ -106,18 +104,18 @@ class ArcGISAuth {
 
         try {
             // Get basic self info
-            const selfRes = await fetch(\`\${config.portalUrl}/sharing/rest/portals/self?f=json&token=\${token}\`);
+            const selfRes = await fetch(`${config.portalUrl}/sharing/rest/portals/self?f=json&token=${token}`);
             const selfData = await selfRes.json();
-            
+
             if (selfData.error) throw new Error(selfData.error.message);
-            
+
             const username = selfData.user.username;
             localStorage.setItem(this.userKey, JSON.stringify(selfData.user));
 
             // Get groups
-            const userRes = await fetch(\`\${config.portalUrl}/sharing/rest/community/users/\${username}?f=json&token=\${token}\`);
+            const userRes = await fetch(`${config.portalUrl}/sharing/rest/community/users/${username}?f=json&token=${token}`);
             const userData = await userRes.json();
-            
+
             if (userData.groups) {
                 const groupNames = userData.groups.map(g => g.title);
                 localStorage.setItem(this.groupsKey, JSON.stringify(groupNames));
@@ -136,7 +134,7 @@ class ArcGISAuth {
     isEditor() {
         const user = this.getUser();
         if (!user) return false;
-        
+
         // Either they have the explicit "_Editing" suffix, or they are a global CSRD admin
         const uName = user.username.toLowerCase();
         return uName.includes('_editing') || uName === 'csrd' || uName.includes('admin');
@@ -151,7 +149,7 @@ class ArcGISAuth {
         if (!user) return false;
 
         const uName = user.username.toLowerCase();
-        
+
         // Global access
         if (uName === 'csrd' || uName.includes('admin')) return true;
 

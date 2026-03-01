@@ -32,10 +32,51 @@ class SPA_Router {
         if (auth.isAuthenticated()) {
             this.buildSidebarNav();
             this.initRouter();
+        } else {
+            this.showLoginScreen();
         }
     }
 
+    showLoginScreen() {
+        // Hide sidebar
+        document.getElementById('sidebar').style.display = 'none';
+
+        // Adjust main content area to take full width
+        const mainArea = document.querySelector('.main');
+        if (mainArea) {
+            mainArea.style.marginLeft = '0';
+        }
+
+        this.appRoot.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; gap: 20px; font-family: 'Inter', sans-serif;">
+                <img src="csrd-logo.png" alt="CSRD Logo" style="max-width: 250px; margin-bottom: 20px;">
+                <h1 style="color: var(--navy); font-family: 'Poppins', sans-serif; font-size: 2.5rem; margin: 0;">CSRD NG911 Documentation</h1>
+                <p style="color: var(--text-secondary); max-width: 600px; font-size: 1.1rem; line-height: 1.6;">Welcome to the Columbia Shuswap Regional District NG911 mapping documentation hub. Please sign in with your ArcGIS Enterprise Portal account to securely access the architectural schema and municipal user guides.</p>
+                <button id="btn-login-portal" style="margin-top: 20px; background-color: var(--teal); color: white; border: none; padding: 15px 30px; font-size: 1.1rem; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; gap: 10px; align-items: center; transition: all 0.2s ease;">
+                    <i class="fas fa-sign-in-alt"></i> Sign in to CSRD Portal
+                </button>
+            </div>
+        `;
+
+        // Add hover effect
+        const btn = document.getElementById('btn-login-portal');
+        btn.addEventListener('mouseenter', () => btn.style.transform = 'translateY(-2px)');
+        btn.addEventListener('mouseleave', () => btn.style.transform = 'none');
+
+        btn.addEventListener('click', () => {
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Redirecting...';
+            auth.login();
+        });
+    }
+
     initRouter() {
+        // Restore layout if coming from login screen
+        document.getElementById('sidebar').style.display = 'flex';
+        const mainArea = document.querySelector('.main');
+        if (mainArea) {
+            mainArea.style.marginLeft = '';
+        }
+
         window.addEventListener('hashchange', () => this.handleRoute());
         this.handleRoute(); // Execute immediately on load
     }
@@ -54,16 +95,16 @@ class SPA_Router {
         const restrictedRoutes = ['revelstoke', 'golden', 'salmonarm', 'sicamous'];
         if (restrictedRoutes.includes(hash)) {
             if (!auth.hasAccessTo(hash)) {
-                this.appRoot.innerHTML = `<div class="alert danger">
-                    <i class="fas fa-ban"></i> Access Denied. Your ArcGIS account (${user.username}) does not have permission to view the ${hash.charAt(0).toUpperCase() + hash.slice(1)} User Guide.
-                </div>`;
+                this.appRoot.innerHTML = `< div class="alert danger" >
+            <i class="fas fa-ban"></i> Access Denied.Your ArcGIS account(${user.username}) does not have permission to view the ${hash.charAt(0).toUpperCase() + hash.slice(1)} User Guide.
+                </div > `;
                 return;
             }
         }
 
         // Load Content
         try {
-            const response = await fetch(`partials/${this.routes[hash]}`);
+            const response = await fetch(`partials / ${this.routes[hash]} `);
             if (response.ok) {
                 const htmlContent = await response.text();
                 this.appRoot.innerHTML = htmlContent;
@@ -72,7 +113,7 @@ class SPA_Router {
                 // Highlight active nav link
                 document.querySelectorAll('.sidebar-nav a').forEach(a => {
                     a.classList.remove('active');
-                    if (a.getAttribute('href') === `#${hash}`) {
+                    if (a.getAttribute('href') === `#${hash} `) {
                         a.classList.add('active');
                     }
                 });
@@ -110,7 +151,7 @@ class SPA_Router {
     buildSidebarNav() {
         const nav = document.getElementById('dynamic-nav');
         let navHtml = `
-            <a href="#"><i class="fas fa-home"></i> Home</a>
+            < a href = "#" > <i class="fas fa-home"></i> Home</a >
             <a href="#architecture"><i class="fas fa-sitemap"></i> Architecture</a>
             <div class="nav-group-label">1. Technical Documentation</div>
             <div class="nav-sub-label">Database</div>
@@ -129,23 +170,23 @@ class SPA_Router {
         const user = auth.getUser();
         const isAdmin = user.username.toLowerCase() === 'csrd' || user.username.toLowerCase().includes('admin');
 
-        navHtml += `<div class="nav-group-label">3. Municipal Guides</div>`;
+        navHtml += `< div class="nav-group-label" > 3. Municipal Guides</div > `;
 
         if (isAdmin || user.username.toLowerCase().includes('revelstoke')) {
-            navHtml += `<a href="#revelstoke" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>`;
+            navHtml += `< a href = "#revelstoke" class="nav-indent" > <i class="fas fa-city"></i> Revelstoke</a > `;
         }
         if (isAdmin || user.username.toLowerCase().includes('golden')) {
-            navHtml += `<a href="#golden" class="nav-indent"><i class="fas fa-city"></i> Golden</a>`;
+            navHtml += `< a href = "#golden" class="nav-indent" > <i class="fas fa-city"></i> Golden</a > `;
         }
         if (isAdmin || user.username.toLowerCase().includes('salmonarm')) {
-            navHtml += `<a href="#salmonarm" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>`;
+            navHtml += `< a href = "#salmonarm" class="nav-indent" > <i class="fas fa-city"></i> Salmon Arm</a > `;
         }
         if (isAdmin || user.username.toLowerCase().includes('sicamous')) {
-            navHtml += `<a href="#sicamous" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>`;
+            navHtml += `< a href = "#sicamous" class="nav-indent" > <i class="fas fa-city"></i> Sicamous</a > `;
         }
 
         navHtml += `
-            <div class="nav-group-label">4. Version Control</div>
+            < div class="nav-group-label" > 4. Version Control</div >
             <a href="#version-edits"><i class="fas fa-history"></i> Version Edits</a>
             <div class="nav-group-label">5. Quick Reference</div>
             <a href="#quick-reference"><i class="fas fa-bolt"></i> Quick Reference</a>
@@ -165,7 +206,7 @@ class SPA_Router {
         userInfo.style.marginTop = '15px';
         userInfo.style.fontSize = '0.8rem';
         userInfo.style.color = 'var(--text-secondary)';
-        userInfo.innerHTML = `<i class="fas fa-user-circle"></i> Logged in as: <strong>${user.username}</strong> <br> <a href="#" id="logout-btn" style="color:var(--red); text-decoration:none; display:inline-block; margin-top:5px;"><i class="fas fa-sign-out-alt"></i> Logout</a>`;
+        userInfo.innerHTML = `< i class="fas fa-user-circle" ></i > Logged in as: <strong>${user.username}</strong> <br> <a href="#" id="logout-btn" style="color:var(--red); text-decoration:none; display:inline-block; margin-top:5px;"><i class="fas fa-sign-out-alt"></i> Logout</a>`;
 
         // If the user is an Editor based on their ArcGIS Role, inject the toggle
         if (auth.isEditor()) {
