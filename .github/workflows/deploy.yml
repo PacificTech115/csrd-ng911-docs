@@ -33,22 +33,6 @@ jobs:
         with:
           node-version: "20"
 
-      # Install any dependencies (if package.json exists)
-      - name: Install dependencies
-        run: npm ci || echo "No package.json found, skipping npm ci"
-
-      # Generate HTML from LaTeX or raw constants
-      - name: Build Municipal Guides
-        run: |
-          node build_revelstoke.js
-          node build_golden.js
-          node build_salmonarm.js
-          node build_sicamous.js
-
-      # Rip and publish isolated portals into the /dist folder
-      - name: Publish Isolated Portals
-        run: node publish_municipalities.js
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
