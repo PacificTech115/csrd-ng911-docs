@@ -140,15 +140,26 @@ class ArcGISAuth {
     }
 
     /**
-     * Helper to verify if the user has editor privileges
+     * Determines if the user has full global admin access to all pages and edit tools
      */
-    isEditor() {
+    isAdmin() {
         const user = this.getUser();
         if (!user) return false;
 
-        // Either they have the explicit "_Editing" suffix, or they are a global CSRD admin
         const uName = user.username.toLowerCase();
-        return uName.includes('_editing') || uName === 'csrd' || uName.includes('admin');
+
+        // Allowed Full Admins requested by user
+        const admins = ['csrd_service', 'csrd_gis', 'dmajor@csrd'];
+
+        return admins.includes(uName) || uName === 'csrd' || uName.includes('admin');
+    }
+
+    /**
+     * Helper to verify if the user has editor privileges
+     */
+    isEditor() {
+        // Only global admins are allowed to edit anything spanning the whole site.
+        return this.isAdmin();
     }
 
     /**
@@ -156,15 +167,13 @@ class ArcGISAuth {
      * Returns true if Global Admin or matches municipality.
      */
     hasAccessTo(municipality) {
+        if (this.isAdmin()) return true;
+
         const user = this.getUser();
         if (!user) return false;
 
         const uName = user.username.toLowerCase();
-
-        // Global access
-        if (uName === 'csrd' || uName.includes('admin')) return true;
-
-        // E.g., user "Golden" or "Golden_Editing" has access to "golden"
+        // E.g., user "Revelstoke", "Revelstoke_Editing" has access to "revelstoke"
         return uName.includes(municipality.toLowerCase());
     }
 }

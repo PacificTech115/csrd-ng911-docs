@@ -1,4 +1,4 @@
-import { auth } from './auth.js?v=2';
+import { auth } from './auth.js?v=3';
 
 class SPA_Router {
     constructor() {
@@ -150,47 +150,51 @@ class SPA_Router {
 
     buildSidebarNav() {
         const nav = document.getElementById('dynamic-nav');
+        const user = auth.getUser();
+        const isAdmin = auth.isAdmin ? auth.isAdmin() : (user.username.toLowerCase() === 'csrd' || user.username.toLowerCase().includes('admin'));
+
         let navHtml = `
             <a href="#"><i class="fas fa-home"></i> Home</a>
             <a href="#architecture"><i class="fas fa-sitemap"></i> Architecture</a>
-            <div class="nav-group-label">1. Technical Documentation</div>
+            <div class="nav-group-label">Technical Documentation</div>
             <div class="nav-sub-label">Database</div>
             <a href="#schema-guide" class="nav-indent"><i class="fas fa-table-columns"></i> Schema Guide</a>
             <a href="#attribute-rules" class="nav-indent"><i class="fas fa-wand-magic-sparkles"></i> Attribute Rules</a>
             <a href="#domains" class="nav-indent"><i class="fas fa-list-check"></i> Domains</a>
+        `;
+
+        if (isAdmin) {
+            navHtml += `
             <div class="nav-sub-label">Automations</div>
             <a href="#automation-scripts" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
             <a href="#gp-tools" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
             <a href="#power-automate" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
-            <div class="nav-group-label">2. Maintenance Guide</div>
+            <div class="nav-group-label">Maintenance Guide</div>
             <a href="#maintenance"><i class="fas fa-wrench"></i> Maintenance</a>
-        `;
-
-        // Render Municipalities based on permissions
-        const user = auth.getUser();
-        const isAdmin = user.username.toLowerCase() === 'csrd' || user.username.toLowerCase().includes('admin');
-
-        navHtml += `<div class="nav-group-label">3. Municipal Guides</div>`;
-
-        if (isAdmin || user.username.toLowerCase().includes('revelstoke')) {
-            navHtml += `<a href="#revelstoke" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>`;
-        }
-        if (isAdmin || user.username.toLowerCase().includes('golden')) {
-            navHtml += `<a href="#golden" class="nav-indent"><i class="fas fa-city"></i> Golden</a>`;
-        }
-        if (isAdmin || user.username.toLowerCase().includes('salmonarm')) {
-            navHtml += `<a href="#salmonarm" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>`;
-        }
-        if (isAdmin || user.username.toLowerCase().includes('sicamous')) {
-            navHtml += `<a href="#sicamous" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>`;
+            `;
         }
 
-        navHtml += `
-            <div class="nav-group-label">4. Version Control</div>
+        const hasRevelstoke = isAdmin || user.username.toLowerCase().includes('revelstoke');
+        const hasGolden = isAdmin || user.username.toLowerCase().includes('golden');
+        const hasSalmonarm = isAdmin || user.username.toLowerCase().includes('salmonarm');
+        const hasSicamous = isAdmin || user.username.toLowerCase().includes('sicamous');
+
+        if (hasRevelstoke || hasGolden || hasSalmonarm || hasSicamous) {
+            navHtml += `<div class="nav-group-label">Municipal Guides</div>`;
+            if (hasRevelstoke) navHtml += `<a href="#revelstoke" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>`;
+            if (hasGolden) navHtml += `<a href="#golden" class="nav-indent"><i class="fas fa-city"></i> Golden</a>`;
+            if (hasSalmonarm) navHtml += `<a href="#salmonarm" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>`;
+            if (hasSicamous) navHtml += `<a href="#sicamous" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>`;
+        }
+
+        if (isAdmin) {
+            navHtml += `
+            <div class="nav-group-label">Version Control</div>
             <a href="#version-edits"><i class="fas fa-history"></i> Version Edits</a>
-            <div class="nav-group-label">5. Quick Reference</div>
+            <div class="nav-group-label">Quick Reference</div>
             <a href="#quick-reference"><i class="fas fa-bolt"></i> Quick Reference</a>
-        `;
+            `;
+        }
 
         nav.innerHTML = navHtml;
 
