@@ -149,20 +149,24 @@ class SPA_Router {
         }
 
         // Attach Tokenized Download Handlers for ArcGIS Portal Items
-        const revBtn = document.getElementById('btn-revelstoke-pitemx');
-        if (revBtn) {
-            revBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const token = auth.getToken();
-                if (!token) {
-                    alert("Authentication token expired. Please reload the page to sign in again before downloading.");
-                    return;
-                }
-                // Build the authenticated REST API endpoint
-                const downloadUrl = `https://apps.csrd.bc.ca/hub/sharing/rest/content/items/f0c4a2487440451d81a7e1a8bf04b81e/item.pitemx?token=${token}`;
-                window.location.href = downloadUrl;
-            });
-        }
+        const revBtnIds = ['btn-revelstoke-pitemx', 'home-btn-revelstoke-pitemx'];
+
+        revBtnIds.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const token = auth.getToken();
+                    if (!token) {
+                        alert("Authentication token expired. Please reload the page to sign in again before downloading.");
+                        return;
+                    }
+                    // Build the authenticated REST API endpoint
+                    const downloadUrl = `https://apps.csrd.bc.ca/hub/sharing/rest/content/items/f0c4a2487440451d81a7e1a8bf04b81e/item.pitemx?token=${token}`;
+                    window.location.href = downloadUrl;
+                });
+            }
+        });
     }
 
     enforcePageRBAC(hash) {
@@ -181,6 +185,9 @@ class SPA_Router {
                 if (muniCard) {
                     if (uName.includes('revelstoke')) {
                         muniCard.setAttribute('href', '#revelstoke');
+                        // Show Revelstoke quick action on home page
+                        const revHomeBtn = document.getElementById('home-btn-revelstoke-pitemx');
+                        if (revHomeBtn) revHomeBtn.style.display = 'flex';
                     } else if (uName.includes('golden')) {
                         muniCard.setAttribute('href', '#golden');
                     } else if (uName.includes('salmonarm')) {
