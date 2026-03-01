@@ -186,8 +186,8 @@ class SPA_Router {
                     if (uName.includes('revelstoke')) {
                         muniCard.setAttribute('href', '#revelstoke');
                         // Show Revelstoke quick action on home page
-                        const revHomeBtn = document.getElementById('home-btn-revelstoke-pitemx');
-                        if (revHomeBtn) revHomeBtn.style.display = 'flex';
+                        const quickActionsSection = document.getElementById('quick-actions');
+                        if (quickActionsSection) quickActionsSection.style.display = 'block';
                     } else if (uName.includes('golden')) {
                         muniCard.setAttribute('href', '#golden');
                     } else if (uName.includes('salmonarm')) {
@@ -203,6 +203,10 @@ class SPA_Router {
                 // Admins see everything, but we can default their municipal guide card to revelstoke or keep it generic
                 const muniCard = document.getElementById('municipal-guide-card');
                 if (muniCard) muniCard.setAttribute('href', '#revelstoke');
+
+                // Show Quick Actions section for Admins as well
+                const quickActionsSection = document.getElementById('quick-actions');
+                if (quickActionsSection) quickActionsSection.style.display = 'block';
             }
         }
     }
