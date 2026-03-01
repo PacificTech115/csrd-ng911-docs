@@ -494,7 +494,7 @@ body {
 }
 
 .nav-card {
-  display: flex !important;
+  display: flex;
   flex-direction: row;
   align-items: center;
   gap: 16px;
