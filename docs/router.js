@@ -149,9 +149,19 @@ class SPA_Router {
         }
 
         // Attach Tokenized Download Handlers for ArcGIS Portal Items
-        const revBtnIds = ['btn-revelstoke-pitemx', 'home-btn-revelstoke-pitemx'];
+        const pitemxBtnIds = [
+            'btn-revelstoke-pitemx', 'home-btn-revelstoke-pitemx',
+            'btn-golden-pitemx', 'home-btn-golden-pitemx',
+            'btn-sicamous-pitemx', 'home-btn-sicamous-pitemx'
+        ];
 
-        revBtnIds.forEach(id => {
+        const itemMap = {
+            'revelstoke': 'f0c4a2487440451d81a7e1a8bf04b81e',
+            'golden': '5bc18cd5614f413a8aea25e57d55873a',
+            'sicamous': 'f820d1ba962846d1bd71fa0d3c975043'
+        };
+
+        pitemxBtnIds.forEach(id => {
             const btn = document.getElementById(id);
             if (btn) {
                 btn.addEventListener('click', (e) => {
@@ -161,8 +171,14 @@ class SPA_Router {
                         alert("Authentication token expired. Please reload the page to sign in again before downloading.");
                         return;
                     }
+                    // Determine which item ID to use based on the button ID
+                    let itemId = '';
+                    if (id.includes('revelstoke')) itemId = itemMap['revelstoke'];
+                    else if (id.includes('golden')) itemId = itemMap['golden'];
+                    else if (id.includes('sicamous')) itemId = itemMap['sicamous'];
+
                     // Build the authenticated REST API endpoint
-                    const downloadUrl = `https://apps.csrd.bc.ca/hub/sharing/rest/content/items/f0c4a2487440451d81a7e1a8bf04b81e/item.pitemx?token=${token}`;
+                    const downloadUrl = `https://apps.csrd.bc.ca/hub/sharing/rest/content/items/${itemId}/item.pitemx?token=${token}`;
                     window.location.href = downloadUrl;
                 });
             }
@@ -185,15 +201,28 @@ class SPA_Router {
                 if (muniCard) {
                     if (uName.includes('revelstoke')) {
                         muniCard.setAttribute('href', '#revelstoke');
-                        // Show Revelstoke quick action on home page
+                        const revHomeBtn = document.getElementById('home-btn-revelstoke-pitemx');
+                        if (revHomeBtn) revHomeBtn.style.display = 'flex';
                         const quickActionsSection = document.getElementById('quick-actions');
                         if (quickActionsSection) quickActionsSection.style.display = 'block';
                     } else if (uName.includes('golden')) {
                         muniCard.setAttribute('href', '#golden');
+                        const goldHomeBtn = document.getElementById('home-btn-golden-pitemx');
+                        if (goldHomeBtn) goldHomeBtn.style.display = 'flex';
+                        const quickActionsSection = document.getElementById('quick-actions');
+                        if (quickActionsSection) quickActionsSection.style.display = 'block';
                     } else if (uName.includes('salmonarm')) {
                         muniCard.setAttribute('href', '#salmonarm');
+                        const salHomeBtn = document.getElementById('home-btn-salmonarm-overwrite');
+                        if (salHomeBtn) salHomeBtn.style.display = 'flex';
+                        const quickActionsSection = document.getElementById('quick-actions');
+                        if (quickActionsSection) quickActionsSection.style.display = 'block';
                     } else if (uName.includes('sicamous')) {
                         muniCard.setAttribute('href', '#sicamous');
+                        const sicHomeBtn = document.getElementById('home-btn-sicamous-pitemx');
+                        if (sicHomeBtn) sicHomeBtn.style.display = 'flex';
+                        const quickActionsSection = document.getElementById('quick-actions');
+                        if (quickActionsSection) quickActionsSection.style.display = 'block';
                     } else {
                         // Fallback if no specific municipal access is found
                         muniCard.remove();
@@ -207,6 +236,11 @@ class SPA_Router {
                 // Show Quick Actions section for Admins as well
                 const quickActionsSection = document.getElementById('quick-actions');
                 if (quickActionsSection) quickActionsSection.style.display = 'block';
+
+                ['home-btn-revelstoke-pitemx', 'home-btn-golden-pitemx', 'home-btn-salmonarm-overwrite', 'home-btn-sicamous-pitemx'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) btn.style.display = 'flex';
+                });
             }
         }
     }

@@ -5,7 +5,8 @@
         <h1>City of Salmon Arm <span>NG9-1-1</span> Central<br>Addressing System</h1>
         <div class="subtitle">Editor User Guide &amp; Workflow Timeline</div>
         <div class="hero-actions" style="margin-top: 24px;">
-          <a href="DownloadFiles/Salmon_Arm_NG911_Central_Addressing_User_Guide.pdf" download class="btn" style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">
+          <a href="DownloadFiles/Salmon_Arm_NG911_Central_Addressing_User_Guide.pdf" download class="btn"
+            style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">
             <i class="fas fa-download"></i> Download Original PDF
           </a>
         </div>
@@ -19,180 +20,262 @@
 
 <div class="content-wrap">
 
-<section>
-  <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Pipeline Timeline</h2>
-  <div class="pipeline reveal">
-    <div class="pipeline-step s1">Local GDB<small>Zip Archive</small></div>
-    <div class="pipeline-arrow"><div class="dot"></div></div>
-    <div class="pipeline-step s2">Hosted Layer<small>Portal Overwrite</small></div>
-    <div class="pipeline-arrow"><div class="dot"></div></div>
-    <div class="pipeline-step s3">Automated ETL<small>Sync to SDE</small></div>
-    <div class="pipeline-arrow"><div class="dot"></div></div>
-    <div class="pipeline-step s4">DEFAULT SDE<small>Production</small></div>
-    <div class="pipeline-arrow"><div class="dot"></div></div>
-    <div class="pipeline-step s5">Provincial Export<small>NextGen 911</small></div>
-  </div>
-</section>
+  <!-- ═══ QUICK ACTIONS ═══ -->
+  <section id="quick-actions" style="padding-bottom: 20px;">
+    <h2 class="reveal" style="margin-bottom: 20px;"><i class="fas fa-bolt"></i>&nbsp; Quick Actions</h2>
+    <div class="grid-2 reveal">
+      <a href="https://apps.csrd.bc.ca/hub/home/item.html?id=8cf1681215c540878625fdb4ec7434e4" target="_blank"
+        class="nav-card link-card">
+        <div class="nav-card-icon" style="background-color: var(--green); color: white;"><i
+            class="fas fa-cloud-upload-alt"></i></div>
+        <div class="nav-card-body">
+          <h4 style="margin: 0 0 5px 0;">Open Salmon Arm Overwrite Feature Layer</h4>
+          <p style="margin: 0; font-size: 0.9rem;">Navigate to Portal to upload the updated Default.gdb.zip for Salmon
+            Arm.</p>
+        </div>
+        <i class="fas fa-external-link-alt nav-card-chevron"></i>
+      </a>
+    </div>
+  </section>
 
-<section>
-  <h2 class="reveal"><i class="fas fa-video"></i>&nbsp; Workflow Walkthrough (Salmon Arm)</h2>
-  <div class="video-container reveal" style="margin-top: 20px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-      <iframe src="https://www.youtube.com/embed/eDtJPrff6-g?rel=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-  </div>
-</section>
-<section>
-  <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose and Scope</h2>
-  <div class="card reveal">
-    <p>This guide explains the standard Salmon Arm workflow for editing NG911 central addressing data via the <strong>Overwrite Hosted Feature Layer + ETL Reconcile</strong> process:</p>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>Go to CSRD Portal Home and log in.</li>
-      <li>Click on the Content tab.</li>
-      <li>Open the <code>SalmonArmOverwrite</code> Hosted Feature layer.</li>
-      <li>Click on Update Data &rarr; Overwrite Entire Feature Layer.</li>
-      <li>Upload your zipped GDB file.</li>
-      <li>Verify the updates on the Data tab.</li>
-    </ol>
-  </div>
-</section>
+  <section>
+    <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Pipeline Timeline</h2>
+    <div class="pipeline reveal">
+      <div class="pipeline-step s1">Local GDB<small>Zip Archive</small></div>
+      <div class="pipeline-arrow">
+        <div class="dot"></div>
+      </div>
+      <div class="pipeline-step s2">Hosted Layer<small>Portal Overwrite</small></div>
+      <div class="pipeline-arrow">
+        <div class="dot"></div>
+      </div>
+      <div class="pipeline-step s3">Automated ETL<small>Sync to SDE</small></div>
+      <div class="pipeline-arrow">
+        <div class="dot"></div>
+      </div>
+      <div class="pipeline-step s4">DEFAULT SDE<small>Production</small></div>
+      <div class="pipeline-arrow">
+        <div class="dot"></div>
+      </div>
+      <div class="pipeline-step s5">Provincial Export<small>NextGen 911</small></div>
+    </div>
+  </section>
 
-<section>
-  <h2 class="reveal"><i class="fas fa-key"></i>&nbsp; System Access Details</h2>
-  
-  <div class="grid-2 reveal">
-    <div class="card">
-      <h4>Portal & Item URLs</h4>
-      <table style="margin-top: 10px;">
-        <tbody>
-          <tr><td><strong>CSRD Portal Home</strong></td><td><a href="https://apps.csrd.bc.ca/hub/home" target="_blank" style="word-break: break-all;">https://apps.csrd.bc.ca/hub/home</a></td></tr>
-          <tr><td><strong>Salmon Arm Group</strong></td><td><a href="https://apps.csrd.bc.ca/hub/home/group.html?id=8bfe21794ce441a2af179df0abcda994#overview" target="_blank">Open Group</a></td></tr>
-          <tr><td><strong>Central DB Layer</strong></td><td><a href="https://apps.csrd.bc.ca/hub/home/item.html?id=aa1e950efc324d809ad4e6d005706a3e" target="_blank">View External Item</a></td></tr>
-          <tr><td><strong>Overwrite Layer</strong></td><td><a href="https://apps.csrd.bc.ca/hub/home/item.html?id=8cf1681215c540878625fdb4ec7434e4" target="_blank">Open Overwrite Item</a></td></tr>
-        </tbody>
-      </table>
+  <section>
+    <h2 class="reveal"><i class="fas fa-video"></i>&nbsp; Workflow Walkthrough (Salmon Arm)</h2>
+    <div class="video-container reveal"
+      style="margin-top: 20px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+      <iframe src="https://www.youtube.com/embed/eDtJPrff6-g?rel=0"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen
+        referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+  </section>
+  <section>
+    <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose and Scope</h2>
+    <div class="card reveal">
+      <p>This guide explains the standard Salmon Arm workflow for editing NG911 central addressing data via the
+        <strong>Overwrite Hosted Feature Layer + ETL Reconcile</strong> process:</p>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>Go to CSRD Portal Home and log in.</li>
+        <li>Click on the Content tab.</li>
+        <li>Open the <code>SalmonArmOverwrite</code> Hosted Feature layer.</li>
+        <li>Click on Update Data &rarr; Overwrite Entire Feature Layer.</li>
+        <li>Upload your zipped GDB file.</li>
+        <li>Verify the updates on the Data tab.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="reveal"><i class="fas fa-key"></i>&nbsp; System Access Details</h2>
+
+    <div class="grid-2 reveal">
+      <div class="card">
+        <h4>Portal & Item URLs</h4>
+        <table style="margin-top: 10px;">
+          <tbody>
+            <tr>
+              <td><strong>CSRD Portal Home</strong></td>
+              <td><a href="https://apps.csrd.bc.ca/hub/home" target="_blank"
+                  style="word-break: break-all;">https://apps.csrd.bc.ca/hub/home</a></td>
+            </tr>
+            <tr>
+              <td><strong>Salmon Arm Group</strong></td>
+              <td><a href="https://apps.csrd.bc.ca/hub/home/group.html?id=8bfe21794ce441a2af179df0abcda994#overview"
+                  target="_blank">Open Group</a></td>
+            </tr>
+            <tr>
+              <td><strong>Central DB Layer</strong></td>
+              <td><a href="https://apps.csrd.bc.ca/hub/home/item.html?id=aa1e950efc324d809ad4e6d005706a3e"
+                  target="_blank">View External Item</a></td>
+            </tr>
+            <tr>
+              <td><strong>Overwrite Layer</strong></td>
+              <td><a href="https://apps.csrd.bc.ca/hub/home/item.html?id=8cf1681215c540878625fdb4ec7434e4"
+                  target="_blank">Open Overwrite Item</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h4>User Credentials</h4>
+        <table style="margin-top: 10px;">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Username</th>
+              <th>Password</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="card-tag" style="background:rgba(14,165,233,.1);color:var(--blue)">Viewer</span></td>
+              <td><code>SalmonArm</code></td>
+              <td><code>SamlonArm@2024</code></td>
+            </tr>
+            <tr>
+              <td><span class="card-tag" style="background:rgba(16,185,129,.1);color:var(--green)">Editor</span></td>
+              <td><code>Salmon_Arm_Editing</code></td>
+              <td><code>Salmonarm2026</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="alert info" style="margin-top:15px; margin-bottom:0;"><i class="fas fa-info-circle"></i><span>Use
+            the <strong>Viewer</strong> account for read-only validation. Only use the <strong>Editor</strong> account
+            for production edits and data overwrites.</span></div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <h2 class="reveal"><i class="fas fa-list-ol"></i>&nbsp; Step-by-Step Overwrite Workflow</h2>
+
+    <div class="card reveal">
+      <h4>Step 1: Log in to the CSRD portal</h4>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>Go to the CSRD Portal Home.</li>
+        <li>Log in with your Editor Credentials.</li>
+      </ol>
+      <div
+        style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="docs/assets/salmonarm/1 portalhome.png" alt="CSRD Portal Home Page"
+          style="width: 100%; display: block;">
+      </div>
     </div>
 
-    <div class="card">
-      <h4>User Credentials</h4>
-      <table style="margin-top: 10px;">
-        <thead><tr><th>Role</th><th>Username</th><th>Password</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><span class="card-tag" style="background:rgba(14,165,233,.1);color:var(--blue)">Viewer</span></td>
-            <td><code>SalmonArm</code></td>
-            <td><code>SamlonArm@2024</code></td>
-          </tr>
-          <tr>
-            <td><span class="card-tag" style="background:rgba(16,185,129,.1);color:var(--green)">Editor</span></td>
-            <td><code>Salmon_Arm_Editing</code></td>
-            <td><code>Salmonarm2026</code></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="alert info" style="margin-top:15px; margin-bottom:0;"><i class="fas fa-info-circle"></i><span>Use the <strong>Viewer</strong> account for read-only validation. Only use the <strong>Editor</strong> account for production edits and data overwrites.</span></div>
+    <div class="card reveal">
+      <h4>Step 2: Navigate to Content</h4>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>Click on the <strong>Content</strong> tab at the top of the page.</li>
+      </ol>
+      <div
+        style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="docs/assets/salmonarm/2 portal content tab.png" alt="Portal Content Tab"
+          style="width: 100%; display: block;">
+      </div>
     </div>
-  </div>
-</section>
-<section>
-  <h2 class="reveal"><i class="fas fa-list-ol"></i>&nbsp; Step-by-Step Overwrite Workflow</h2>
-  
-  <div class="card reveal">
-    <h4>Step 1: Log in to the CSRD portal</h4>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>Go to the CSRD Portal Home.</li>
-      <li>Log in with your Editor Credentials.</li>
-    </ol>
-    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="docs/assets/salmonarm/1 portalhome.png" alt="CSRD Portal Home Page" style="width: 100%; display: block;">
-    </div>
-  </div>
 
-  <div class="card reveal">
-    <h4>Step 2: Navigate to Content</h4>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>Click on the <strong>Content</strong> tab at the top of the page.</li>
-    </ol>
-    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="docs/assets/salmonarm/2 portal content tab.png" alt="Portal Content Tab" style="width: 100%; display: block;">
+    <div class="card reveal">
+      <h4>Step 3: Open the Overwrite Hosted Feature Layer</h4>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>Locate and click on the <code>SalmonArmOverwrite</code> Hosted Feature layer item.</li>
+      </ol>
+      <div
+        style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="docs/assets/salmonarm/3 overwrite layer item.png" alt="Overwrite Item Overview"
+          style="width: 100%; display: block;">
+      </div>
     </div>
-  </div>
 
-  <div class="card reveal">
-    <h4>Step 3: Open the Overwrite Hosted Feature Layer</h4>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>Locate and click on the <code>SalmonArmOverwrite</code> Hosted Feature layer item.</li>
-    </ol>
-    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="docs/assets/salmonarm/3 overwrite layer item.png" alt="Overwrite Item Overview" style="width: 100%; display: block;">
+    <div class="card reveal">
+      <h4>Step 4: Click Update Data</h4>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>On the Overview page, click on <strong>Update Data</strong>.</li>
+      </ol>
+      <div class="alert warning" style="margin-top:10px;margin-bottom:10px;"><i
+          class="fas fa-exclamation-triangle"></i><span>Note: It may take a few seconds for the Update Data button to
+          appear.</span></div>
+      <div
+        style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="docs/assets/salmonarm/4 update data menu.png" alt="Update Data Menu"
+          style="width: 100%; display: block;">
+      </div>
     </div>
-  </div>
 
-  <div class="card reveal">
-    <h4>Step 4: Click Update Data</h4>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>On the Overview page, click on <strong>Update Data</strong>.</li>
-    </ol>
-    <div class="alert warning" style="margin-top:10px;margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i><span>Note: It may take a few seconds for the Update Data button to appear.</span></div>
-    <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="docs/assets/salmonarm/4 update data menu.png" alt="Update Data Menu" style="width: 100%; display: block;">
+    <div class="card reveal">
+      <h4>Step 5: Overwrite Entire Feature Layer</h4>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>Select <strong>Overwrite Entire Feature Layer</strong> from the dropdown menu.</li>
+      </ol>
+      <div
+        style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="docs/assets/salmonarm/5 Overwrite Option.png" alt="Overwrite Option"
+          style="width: 100%; display: block;">
+      </div>
     </div>
-  </div>
 
-  <div class="card reveal">
-    <h4>Step 5: Overwrite Entire Feature Layer</h4>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>Select <strong>Overwrite Entire Feature Layer</strong> from the dropdown menu.</li>
-    </ol>
-    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="docs/assets/salmonarm/5 Overwrite Option.png" alt="Overwrite Option" style="width: 100%; display: block;">
-    </div>
-  </div>
-
-  <div class="card reveal">
-    <h4>Step 6: Upload the updated Database</h4>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>Upload the zipped GDB file of your updated Salmon Arm Database.</li>
-    </ol>
-    <div class="alert warning" style="margin-top:10px;margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i><span><strong>Important:</strong> The Geodatabase name must be <code>Default.gdb.zip</code> and the Feature Class must be <code>NG911_AddressPoints_SalmonArm_Overwrite</code> for the overwrite to succeed.</span></div>
-    <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+    <div class="card reveal">
+      <h4>Step 6: Upload the updated Database</h4>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>Upload the zipped GDB file of your updated Salmon Arm Database.</li>
+      </ol>
+      <div class="alert warning" style="margin-top:10px;margin-bottom:10px;"><i
+          class="fas fa-exclamation-triangle"></i><span><strong>Important:</strong> The Geodatabase name must be
+          <code>Default.gdb.zip</code> and the Feature Class must be
+          <code>NG911_AddressPoints_SalmonArm_Overwrite</code> for the overwrite to succeed.</span></div>
+      <div
+        style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
         <img src="docs/assets/salmonarm/6 upload gdb.png" alt="Upload GDB" style="width: 100%; display: block;">
+      </div>
     </div>
-  </div>
 
-  <div class="card reveal">
-    <h4>Step 7: Proceed with Overwrite</h4>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>Click on <strong>Proceed</strong> to confirm the overwrite.</li>
-    </ol>
-    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="docs/assets/salmonarm/7 proceed overwrite.png" alt="Proceed Overwrite" style="width: 100%; display: block;">
+    <div class="card reveal">
+      <h4>Step 7: Proceed with Overwrite</h4>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>Click on <strong>Proceed</strong> to confirm the overwrite.</li>
+      </ol>
+      <div
+        style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="docs/assets/salmonarm/7 proceed overwrite.png" alt="Proceed Overwrite"
+          style="width: 100%; display: block;">
+      </div>
     </div>
-  </div>
 
-  <div class="card reveal">
-    <h4>Step 8 &amp; 9: Wait and Verify Updates</h4>
-    <ol style="margin-top:10px; margin-left: 20px;">
-      <li>Wait for the hosted feature layer to finish updating (do not close the window).</li>
-      <li>Once completed, go to the <strong>Data</strong> tab to ensure attributes were overwritten.</li>
-    </ol>
-    <div class="grid-2" style="margin-top: 15px;">
-        <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-            <img src="docs/assets/salmonarm/8 updating status.png" alt="Updating Status" style="width: 100%; display: block;">
+    <div class="card reveal">
+      <h4>Step 8 &amp; 9: Wait and Verify Updates</h4>
+      <ol style="margin-top:10px; margin-left: 20px;">
+        <li>Wait for the hosted feature layer to finish updating (do not close the window).</li>
+        <li>Once completed, go to the <strong>Data</strong> tab to ensure attributes were overwritten.</li>
+      </ol>
+      <div class="grid-2" style="margin-top: 15px;">
+        <div
+          style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+          <img src="docs/assets/salmonarm/8 updating status.png" alt="Updating Status"
+            style="width: 100%; display: block;">
         </div>
-        <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-            <img src="docs/assets/salmonarm/9 data verification.png" alt="Data Verification" style="width: 100%; display: block;">
+        <div
+          style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+          <img src="docs/assets/salmonarm/9 data verification.png" alt="Data Verification"
+            style="width: 100%; display: block;">
         </div>
+      </div>
     </div>
-  </div>
-</section>
-<section>
-  <h2 class="reveal"><i class="fas fa-envelope-open-text"></i>&nbsp; ETL Process Verification</h2>
-  <div class="card reveal">
-    <p>The automated ETL script runs on a scheduled basis every Saturday at 12:00 AM to synchronize your overwrites from the hosted feature layer directly to the Central Database Feature Layer.</p>
-    <p style="margin-top:10px;">After every scheduled run, the system automatically sends out a status email outlining the complete status of the ETL job, detailing all applied operations including Inserts, Updates, and Deletes.</p>
-    
-    <div style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <img src="docs/assets/salmonarm/10 ETL Process Verification Email.png" alt="ETL Verification Email" style="width: 100%; display: block;">
+  </section>
+  <section>
+    <h2 class="reveal"><i class="fas fa-envelope-open-text"></i>&nbsp; ETL Process Verification</h2>
+    <div class="card reveal">
+      <p>The automated ETL script runs on a scheduled basis every Saturday at 12:00 AM to synchronize your overwrites
+        from the hosted feature layer directly to the Central Database Feature Layer.</p>
+      <p style="margin-top:10px;">After every scheduled run, the system automatically sends out a status email outlining
+        the complete status of the ETL job, detailing all applied operations including Inserts, Updates, and Deletes.
+      </p>
+
+      <div
+        style="margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <img src="docs/assets/salmonarm/10 ETL Process Verification Email.png" alt="ETL Verification Email"
+          style="width: 100%; display: block;">
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 </div><!-- /content-wrap -->
