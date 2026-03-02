@@ -7,6 +7,15 @@ class CMSController {
         this.tableUrl = 'https://apps.csrd.bc.ca/arcgis/rest/services/Hosted/NG911_Docs_CMS/FeatureServer/0';
         this.isLoaded = false;
         this.pendingEdits = {}; // Stores edits before saving to ArcGIS
+
+        // ArcGIS often lowercases or removes spaces from user-provided field names
+        // We will dynamically map our expected names to the real DB field names here:
+        this.fieldMap = {
+            key: 'KeyName',
+            content: 'ContentValue',
+            type: 'ContentType',
+            id: 'OBJECTID'
+        };
     }
 
     /**
@@ -31,12 +40,24 @@ class CMSController {
                 return;
             }
 
+            // Dynamically map exact field names from the DB schema
+            if (data.fields) {
+                data.fields.forEach(f => {
+                    const lowerName = f.name.toLowerCase();
+                    if (lowerName.includes('key')) this.fieldMap.key = f.name;
+                    if (lowerName.includes('contentvalue') || lowerName.includes('content_value')) this.fieldMap.content = f.name;
+                    if (lowerName.includes('type')) this.fieldMap.type = f.name;
+                    if (lowerName === 'objectid') this.fieldMap.id = f.name;
+                });
+            }
+
             if (data.features) {
                 this.cache = {};
                 data.features.forEach(f => {
                     const attr = f.attributes;
-                    if (attr.KeyName) {
-                        this.cache[attr.KeyName] = attr; // Store full row data (ContentValue, objectid, etc)
+                    const keyVal = attr[this.fieldMap.key];
+                    if (keyVal) {
+                        this.cache[keyVal] = attr; // Store full row data (ContentValue, objectid, etc)
                     }
                 });
                 console.log(`CMS: Loaded ${data.features.length} content keys.`);
@@ -57,18 +78,22 @@ class CMSController {
         const elements = container.querySelectorAll('[data-cms-key]');
         elements.forEach(el => {
             const key = el.getAttribute('data-cms-key');
-            if (this.cache[key] && this.cache[key].ContentValue) {
+            const row = this.cache[key];
+            if (row && row[this.fieldMap.content]) {
+                const contentVal = row[this.fieldMap.content];
+                const typeVal = row[this.fieldMap.type];
+
                 // If the field is a regular link href
-                if (el.tagName === 'A' && el.hasAttribute('href') && this.cache[key].ContentType === 'url') {
-                    el.setAttribute('href', this.cache[key].ContentValue);
+                if (el.tagName === 'A' && el.hasAttribute('href') && typeVal === 'url') {
+                    el.setAttribute('href', contentVal);
                 }
                 // If the field is an image source
-                else if (el.tagName === 'IMG' && el.hasAttribute('src') && this.cache[key].ContentType === 'url') {
-                    el.setAttribute('src', this.cache[key].ContentValue);
+                else if (el.tagName === 'IMG' && el.hasAttribute('src') && typeVal === 'url') {
+                    el.setAttribute('src', contentVal);
                 }
                 // Otherwise treat as inner HTML content
                 else {
-                    el.innerHTML = this.cache[key].ContentValue;
+                    el.innerHTML = contentVal;
                 }
             }
         });
@@ -79,9 +104,9 @@ class CMSController {
      */
     trackEdit(key, newContent, contentType = 'html') {
         this.pendingEdits[key] = {
-            KeyName: key,
-            ContentValue: newContent,
-            ContentType: contentType
+            keyVal: key,
+            contentVal: newContent,
+            typeVal: contentType
         };
     }
 
@@ -102,24 +127,20 @@ class CMSController {
             const editData = this.pendingEdits[key];
             const existingRow = this.cache[key];
 
-            if (existingRow && existingRow.OBJECTID) {
-                // Row exists in ArcGIS, update it
-                updates.push({
-                    attributes: {
-                        OBJECTID: existingRow.OBJECTID,
-                        ContentValue: editData.ContentValue,
-                        ContentType: existingRow.ContentType || editData.ContentType
-                    }
-                });
+            if (existingRow && existingRow[this.fieldMap.id]) {
+                // Update
+                const attrs = {};
+                attrs[this.fieldMap.id] = existingRow[this.fieldMap.id];
+                attrs[this.fieldMap.content] = editData.contentVal;
+                attrs[this.fieldMap.type] = existingRow[this.fieldMap.type] || editData.typeVal;
+                updates.push({ attributes: attrs });
             } else {
-                // Row doesn't exist, insert new
-                adds.push({
-                    attributes: {
-                        KeyName: key,
-                        ContentValue: editData.ContentValue,
-                        ContentType: editData.ContentType
-                    }
-                });
+                // Insert
+                const attrs = {};
+                attrs[this.fieldMap.key] = editData.keyVal;
+                attrs[this.fieldMap.content] = editData.contentVal;
+                attrs[this.fieldMap.type] = editData.typeVal;
+                adds.push({ attributes: attrs });
             }
         });
 
@@ -155,7 +176,7 @@ class CMSController {
             // Success! Update local cache
             keysToSave.forEach(key => {
                 if (!this.cache[key]) this.cache[key] = {};
-                this.cache[key].ContentValue = this.pendingEdits[key].ContentValue;
+                this.cache[key][this.fieldMap.content] = this.pendingEdits[key].contentVal;
 
                 // If it was a new ADD, we should reload the CMS entirely to get the new OBJECTIDs
                 // but for now, the UI will just work on the current page session.
