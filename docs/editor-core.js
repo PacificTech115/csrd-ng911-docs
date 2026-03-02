@@ -101,8 +101,8 @@ window.insertLink = function () {
 };
 
 function makeNodesEditable() {
-    const selectors = '.content-wrap p, .content-wrap h1, .content-wrap h2, .content-wrap h3, .content-wrap h4, .content-wrap li, .content-wrap td, .card p, .card h4, .nav-card-body p, .nav-card-body h4';
-    const nodes = document.querySelectorAll(selectors);
+    // Only target elements designated for CMS control
+    const nodes = document.querySelectorAll('[data-cms-key]');
 
     nodes.forEach(node => {
         // Skip nodes inside details summary or code blocks or existing UI buttons
@@ -111,6 +111,9 @@ function makeNodesEditable() {
         if (!node.classList.contains('editable-node')) {
             node.setAttribute('contenteditable', 'true');
             node.classList.add('editable-node');
+
+            // Store original content to detect changes
+            node.dataset.originalCmsContent = node.innerHTML;
 
             // Handle focus explicitly to update the toolbar context
             node.addEventListener('focus', function () {
@@ -122,6 +125,16 @@ function makeNodesEditable() {
 
             node.addEventListener('blur', function () {
                 this.classList.remove('focused');
+
+                // Track edit if content changed
+                const newContent = this.innerHTML;
+                const oldContent = this.dataset.originalCmsContent;
+                if (newContent !== oldContent && window.cms) {
+                    const key = this.getAttribute('data-cms-key');
+                    window.cms.trackEdit(key, newContent, 'html');
+                    trackEdit(getPageId(), "CMS Update", oldContent, newContent);
+                    this.dataset.originalCmsContent = newContent; // Update baseline
+                }
             });
 
             // Intercept Enter key inside p and li tags to spawn adjacent blocks instead of internal <br>
@@ -131,7 +144,6 @@ function makeNodesEditable() {
                     if (tag === 'li' || tag === 'p' || tag === 'td') {
                         e.preventDefault();
                         activeNode = this;
-                        // For tables, Enter won't add a whole row automatically to avoid chaos. 
                         // You must click the dedicated "Add Row" button. 
                         // But for li and p, Enter spawns a sibling seamlessly.
                         if (tag !== 'td') {
@@ -263,28 +275,41 @@ window.deleteActiveNode = function () {
     }
 };
 
-window.savePageHTML = function () {
-    const wrap = document.querySelector('.content-wrap');
-    if (!wrap) return;
+window.savePageHTML = async function () {
+    const btn = document.querySelector('.btn-save');
+    if (!btn) return;
 
-    const clone = wrap.cloneNode(true);
-    const editables = clone.querySelectorAll('.editable-node');
+    // Disable button to prevent double clicks
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
+    // Strip out editable attributes
+    const editables = document.querySelectorAll('.editable-node');
     editables.forEach(node => {
         node.removeAttribute('contenteditable');
         node.classList.remove('editable-node', 'focused', 'new-node-flash');
         if (node.classList.length === 0) node.removeAttribute('class');
     });
 
-    const cleanHtml = clone.innerHTML;
-    localStorage.setItem(`csrd_page_${getPageId()}`, cleanHtml);
+    try {
+        if (window.cms) {
+            const numSaved = await window.cms.saveAllEdits();
+            showToast(`Successfully saved ${numSaved} content blocks to ArcGIS.`);
 
-    showToast('Page contents saved successfully!');
-    trackEdit(getPageId(), "SAVE", "Page structural save", "Saved updated HTML");
-
-    const btn = document.querySelector('.btn-save');
-    btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-    setTimeout(() => { btn.innerHTML = '<i class="fas fa-save"></i> Save Page'; }, 2000);
+            btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Save Page';
+            }, 2000);
+        } else {
+            throw new Error("CMS controller not found.");
+        }
+    } catch (err) {
+        showToast(`Failed to save: ${err.message}`);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Save Failed';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-save"></i> Retry Save'; }, 3000);
+    }
 };
 
 // --- LOGGING & REVERSAL ---

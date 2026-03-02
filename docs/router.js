@@ -39,6 +39,7 @@ class SPA_Router {
         await auth.init();
 
         if (auth.isAuthenticated()) {
+            await window.cms.fetchAllContent();
             this.buildSidebarNav();
             this.initRouter();
         } else {
@@ -117,6 +118,12 @@ class SPA_Router {
             if (response.ok) {
                 const htmlContent = await response.text();
                 this.appRoot.innerHTML = htmlContent;
+
+                // Apply CMS text/links before showing to user
+                if (window.cms) {
+                    window.cms.applyContentToDOM(this.appRoot);
+                }
+
                 this.enforcePageRBAC(hash);
                 this.initializePageScripts();
 
