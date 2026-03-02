@@ -249,34 +249,37 @@ class SPA_Router {
                 const uName = (user && user.username) ? user.username.toLowerCase() : '';
                 const muniCard = document.getElementById('municipal-guide-card');
 
+                // Ensure ALL quick-action cards are hidden first
+                const allActionBtns = ['home-btn-revelstoke-pitemx', 'home-btn-golden-pitemx', 'home-btn-salmonarm-overwrite', 'home-btn-sicamous-pitemx'];
+                allActionBtns.forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) btn.style.display = 'none';
+                });
+
                 if (muniCard) {
+                    let showBtnId = null;
                     if (uName.includes('revelstoke')) {
                         muniCard.setAttribute('href', '#revelstoke');
-                        const revHomeBtn = document.getElementById('home-btn-revelstoke-pitemx');
-                        if (revHomeBtn) revHomeBtn.style.display = 'flex';
-                        const quickActionsSection = document.getElementById('quick-actions');
-                        if (quickActionsSection) quickActionsSection.style.display = 'block';
+                        showBtnId = 'home-btn-revelstoke-pitemx';
                     } else if (uName.includes('golden')) {
                         muniCard.setAttribute('href', '#golden');
-                        const goldHomeBtn = document.getElementById('home-btn-golden-pitemx');
-                        if (goldHomeBtn) goldHomeBtn.style.display = 'flex';
-                        const quickActionsSection = document.getElementById('quick-actions');
-                        if (quickActionsSection) quickActionsSection.style.display = 'block';
-                    } else if (uName.includes('salmonarm')) {
+                        showBtnId = 'home-btn-golden-pitemx';
+                    } else if (uName.includes('salmonarm') || uName.includes('salmon_arm')) {
                         muniCard.setAttribute('href', '#salmonarm');
-                        const salHomeBtn = document.getElementById('home-btn-salmonarm-overwrite');
-                        if (salHomeBtn) salHomeBtn.style.display = 'flex';
-                        const quickActionsSection = document.getElementById('quick-actions');
-                        if (quickActionsSection) quickActionsSection.style.display = 'block';
+                        showBtnId = 'home-btn-salmonarm-overwrite';
                     } else if (uName.includes('sicamous')) {
                         muniCard.setAttribute('href', '#sicamous');
-                        const sicHomeBtn = document.getElementById('home-btn-sicamous-pitemx');
-                        if (sicHomeBtn) sicHomeBtn.style.display = 'flex';
+                        showBtnId = 'home-btn-sicamous-pitemx';
+                    } else {
+                        // No matching municipality
+                        muniCard.remove();
+                    }
+
+                    if (showBtnId) {
+                        const btn = document.getElementById(showBtnId);
+                        if (btn) btn.style.display = 'flex';
                         const quickActionsSection = document.getElementById('quick-actions');
                         if (quickActionsSection) quickActionsSection.style.display = 'block';
-                    } else {
-                        // Fallback if no specific municipal access is found
-                        muniCard.remove();
                     }
                 }
             } else {
