@@ -143,6 +143,11 @@ class SPA_Router {
 
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+        // Initialize search engine if the search box exists on this page
+        if (typeof window.initSearch === 'function') {
+            window.initSearch();
+        }
+
         // Let editor-core.js know we navigated
         if (typeof window.initEditorUI === 'function') {
             window.initEditorUI();
@@ -186,9 +191,13 @@ class SPA_Router {
     }
 
     enforcePageRBAC(hash) {
+        const user = auth.getUser();
+        const isAdmin = auth.isAdmin ? auth.isAdmin() : false;
+
+        // Apply municipal branding to the sidebar logo
+        this.applyMunicipalBranding(user, isAdmin);
+
         if (hash === '' || hash === 'home') {
-            const user = auth.getUser();
-            const isAdmin = auth.isAdmin ? auth.isAdmin() : false;
 
             if (!isAdmin) {
                 // Hide admin-only cards
@@ -241,6 +250,49 @@ class SPA_Router {
                     const btn = document.getElementById(id);
                     if (btn) btn.style.display = 'flex';
                 });
+            }
+        }
+    }
+
+    applyMunicipalBranding(user, isAdmin) {
+        if (!user) return;
+        const uName = user.username.toLowerCase();
+        const logo = document.getElementById('sidebar-logo');
+        const brandTitle = document.getElementById('sidebar-brand-title');
+        const heroH1 = document.querySelector('#hero h1');
+
+        const muniConfig = {
+            'revelstoke': {
+                name: 'City of Revelstoke',
+                logo: 'docs/assets/revelstoke/logoonly.png',
+                heroTitle: 'City of Revelstoke <span>NG9-1-1</span> Central<br>Addressing System'
+            },
+            'golden': {
+                name: 'Town of Golden',
+                logo: null,
+                heroTitle: 'Town of Golden <span>NG9-1-1</span> Central<br>Addressing System'
+            },
+            'salmonarm': {
+                name: 'City of Salmon Arm',
+                logo: null,
+                heroTitle: 'City of Salmon Arm <span>NG9-1-1</span> Central<br>Addressing System'
+            },
+            'sicamous': {
+                name: 'District of Sicamous',
+                logo: null,
+                heroTitle: 'District of Sicamous <span>NG9-1-1</span> Central<br>Addressing System'
+            }
+        };
+
+        // Only apply municipal branding for non-admin municipal users
+        if (!isAdmin) {
+            for (const [key, config] of Object.entries(muniConfig)) {
+                if (uName.includes(key)) {
+                    if (config.logo && logo) logo.src = config.logo;
+                    if (brandTitle) brandTitle.textContent = config.name;
+                    if (heroH1) heroH1.innerHTML = config.heroTitle;
+                    break;
+                }
             }
         }
     }

@@ -3,8 +3,10 @@
  * Merges static search index with live localStorage edits.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+window.initSearch = function () {
     const input = document.getElementById('docSearch');
+    if (!input || input.dataset.searchBound) return;
+    input.dataset.searchBound = 'true';
     if (!input) return;
 
     // Create dropdown container
@@ -110,4 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dropdown.style.display = 'block';
         }
     });
-});
+};
+
+// Fallback for legacy pages where `docSearch` is in the static HTML
+document.addEventListener('DOMContentLoaded', () => { window.initSearch(); });
