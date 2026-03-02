@@ -177,6 +177,19 @@ class SPA_Router {
             });
         });
 
+        // Initialize field-group-header toggles (Schema Guide collapsible tables)
+        document.querySelectorAll('.field-group-header').forEach(header => {
+            if (header.dataset.toggleBound) return;
+            header.dataset.toggleBound = 'true';
+            header.addEventListener('click', function () {
+                this.classList.toggle('collapsed');
+                const body = this.nextElementSibling;
+                if (body && body.classList.contains('field-group-body')) {
+                    body.classList.toggle('collapsed');
+                }
+            });
+        });
+
         // Let editor-core.js know we navigated
         if (typeof window.initEditorUI === 'function') {
             window.initEditorUI();

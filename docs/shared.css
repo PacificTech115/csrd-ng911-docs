@@ -494,7 +494,7 @@ body {
 }
 
 .nav-card {
-  display: flex;
+  display: flex !important;
   flex-direction: row;
   align-items: center;
   gap: 16px;
@@ -1057,6 +1057,93 @@ tbody tr:nth-child(even) {
 
 tbody tr:nth-child(even):hover {
   background: var(--teal-glow)
+}
+
+/* ═══ Schema Guide – Collapsible Field Groups ═══ */
+.field-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-top: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.field-group-header:hover {
+  background: var(--teal-glow);
+  border-color: var(--teal);
+  box-shadow: var(--shadow-sm);
+}
+
+.field-group-header .group-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.field-group-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.field-group-header .field-count {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(100, 116, 139, 0.08);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.field-group-header .toggle-icon {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.field-group-header.collapsed .toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.field-group-body {
+  overflow: hidden;
+  max-height: 2000px;
+  transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+  opacity: 1;
+  padding: 0 4px;
+}
+
+.field-group-body.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+}
+
+.field-group-body table {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.field-group-body table td:first-child code {
+  font-weight: 600;
+  color: var(--teal);
+  font-size: 0.82rem;
 }
 
 td code,

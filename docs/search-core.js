@@ -23,12 +23,15 @@ window.initSearch = function () {
     input.addEventListener('input', function () {
         const q = this.value.toLowerCase().trim();
 
-        // Show/hide link cards just like before (for the quick-nav section)
-        const cards = document.querySelectorAll('.link-card');
-        cards.forEach(card => {
-            const text = card.textContent.toLowerCase();
-            card.style.display = q === '' || text.includes(q) ? '' : 'none';
-        });
+        // Show/hide link cards only within the quick-nav section (not quick-actions)
+        const navSection = document.getElementById('quick-nav');
+        if (navSection) {
+            const cards = navSection.querySelectorAll('.link-card');
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = q === '' || text.includes(q) ? '' : 'none';
+            });
+        }
 
         if (q.length < 2) {
             dropdown.style.display = 'none';
