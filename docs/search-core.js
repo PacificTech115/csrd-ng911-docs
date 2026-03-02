@@ -7,7 +7,6 @@ window.initSearch = function () {
     const input = document.getElementById('docSearch');
     if (!input || input.dataset.searchBound) return;
     input.dataset.searchBound = 'true';
-    if (!input) return;
 
     // Create dropdown container
     const searchContainer = input.closest('.hero-search');
@@ -40,8 +39,11 @@ window.initSearch = function () {
         if (!window.CSRD_SEARCH_INDEX) return;
 
         let results = [];
+        const allowedPages = window.CSRD_ALLOWED_PAGES; // null = all allowed
 
         window.CSRD_SEARCH_INDEX.forEach(page => {
+            // RBAC: skip pages the user cannot access
+            if (allowedPages && !allowedPages.includes(page.pageId)) return;
             // Check Live Editor Cache first
             let searchableText = page.content;
             const liveEdit = localStorage.getItem('csrd_page_' + page.pageId);

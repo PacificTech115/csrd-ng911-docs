@@ -8,6 +8,15 @@ class SPA_Router {
             'architecture': 'architecture.html',
             'schema-guide': 'schema-guide.html',
             'attribute-rules': 'attribute-rules.html',
+            'rule-full-address': 'rule-full-address.html',
+            'rule-nguid': 'rule-nguid.html',
+            'rule-longitude': 'rule-longitude.html',
+            'rule-latitude': 'rule-latitude.html',
+            'rule-addcode': 'rule-addcode.html',
+            'rule-dateupdate': 'rule-dateupdate.html',
+            'rule-qastatus': 'rule-qastatus.html',
+            'rule-defaultagency': 'rule-defaultagency.html',
+            'rule-mandatory': 'rule-mandatory.html',
             'domains': 'domains.html',
             'automation-scripts': 'automation-scripts.html',
             'gp-tools': 'gp-tools.html',
@@ -148,6 +157,26 @@ class SPA_Router {
             window.initSearch();
         }
 
+        // Initialize doc-toggle expandable sections
+        document.querySelectorAll('.doc-toggle').forEach(btn => {
+            if (btn.dataset.toggleBound) return;
+            btn.dataset.toggleBound = 'true';
+            btn.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const target = document.getElementById(targetId);
+                if (!target) return;
+                const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', String(!isExpanded));
+                target.classList.toggle('collapsed');
+                // Toggle chevron icon
+                const icon = this.querySelector('i.fas');
+                if (icon) {
+                    icon.classList.toggle('fa-chevron-down');
+                    icon.classList.toggle('fa-chevron-up');
+                }
+            });
+        });
+
         // Let editor-core.js know we navigated
         if (typeof window.initEditorUI === 'function') {
             window.initEditorUI();
@@ -264,22 +293,22 @@ class SPA_Router {
         const muniConfig = {
             'revelstoke': {
                 name: 'City of Revelstoke',
-                logo: 'docs/assets/revelstoke/logoonly.png',
+                logo: 'docs/assets/revelstoke/Revelstoke.png',
                 heroTitle: 'City of Revelstoke <span>NG9-1-1</span> Central<br>Addressing System'
             },
             'golden': {
                 name: 'Town of Golden',
-                logo: null,
+                logo: 'docs/assets/golden/Golden.jpg',
                 heroTitle: 'Town of Golden <span>NG9-1-1</span> Central<br>Addressing System'
             },
             'salmonarm': {
                 name: 'City of Salmon Arm',
-                logo: null,
+                logo: 'docs/assets/salmonarm/SalmonArm.png',
                 heroTitle: 'City of Salmon Arm <span>NG9-1-1</span> Central<br>Addressing System'
             },
             'sicamous': {
                 name: 'District of Sicamous',
-                logo: null,
+                logo: 'docs/assets/sicamous/Sicamous.png',
                 heroTitle: 'District of Sicamous <span>NG9-1-1</span> Central<br>Addressing System'
             }
         };
@@ -301,6 +330,24 @@ class SPA_Router {
         const nav = document.getElementById('dynamic-nav');
         const user = auth.getUser();
         const isAdmin = auth.isAdmin ? auth.isAdmin() : (user.username.toLowerCase() === 'csrd' || user.username.toLowerCase().includes('admin'));
+
+        // Define allowed pages for search scope filtering
+        const baseMuniPages = ['home.html', 'architecture.html', 'schema-guide.html', 'attribute-rules.html',
+            'rule-full-address.html', 'rule-nguid.html', 'rule-longitude.html', 'rule-latitude.html',
+            'rule-addcode.html', 'rule-dateupdate.html', 'rule-qastatus.html', 'rule-defaultagency.html',
+            'rule-mandatory.html', 'domains.html'];
+
+        if (isAdmin) {
+            window.CSRD_ALLOWED_PAGES = null; // null = all pages allowed
+        } else {
+            const uName = user.username.toLowerCase();
+            const allowedPages = [...baseMuniPages];
+            if (uName.includes('revelstoke')) allowedPages.push('revelstoke.html');
+            else if (uName.includes('golden')) allowedPages.push('golden.html');
+            else if (uName.includes('salmonarm')) allowedPages.push('salmonarm.html');
+            else if (uName.includes('sicamous')) allowedPages.push('sicamous.html');
+            window.CSRD_ALLOWED_PAGES = allowedPages;
+        }
 
         let navHtml = `
             <a href="#"><i class="fas fa-home"></i> Home</a>
