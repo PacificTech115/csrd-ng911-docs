@@ -170,7 +170,8 @@ class CMSController {
             const failed = allResults.filter(r => !r.success);
 
             if (failed.length > 0) {
-                throw new Error(`Failed to save ${failed.length} items. Check network logs.`);
+                const firstError = failed[0].error ? (failed[0].error.description || failed[0].error.message || JSON.stringify(failed[0].error)) : "Unknown ArcGIS rejection";
+                throw new Error(`ArcGIS rejected save: ${firstError}`);
             }
 
             // Success! Update local cache
