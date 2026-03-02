@@ -14,7 +14,7 @@ class CMSController {
      * This is called once on site load.
      */
     async fetchAllContent() {
-        const token = auth.getToken();
+        const token = localStorage.getItem('csrd_arcgis_token');
         if (!token) {
             console.warn("CMS: No token found. Skipping content fetch.");
             return;
@@ -89,7 +89,7 @@ class CMSController {
      * Saves all tracked edits back to the ArcGIS Hosted Table via applyEdits
      */
     async saveAllEdits() {
-        const token = auth.getToken();
+        const token = localStorage.getItem('csrd_arcgis_token');
         if (!token) throw new Error("Authentication required to save.");
 
         const keysToSave = Object.keys(this.pendingEdits);
