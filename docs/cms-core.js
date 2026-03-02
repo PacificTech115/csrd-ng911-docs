@@ -80,8 +80,18 @@ class CMSController {
             const key = el.getAttribute('data-cms-key');
             const row = this.cache[key];
             if (row && row[this.fieldMap.content]) {
-                const contentVal = row[this.fieldMap.content];
+                let contentVal = row[this.fieldMap.content];
                 const typeVal = row[this.fieldMap.type];
+
+                // Attempt to decode Base64 (to bypass ArcGIS XSS filters)
+                try {
+                    // Try to decode as base64
+                    if (contentVal && contentVal.match(/^[A-Za-z0-9+/=]+$/)) {
+                        contentVal = decodeURIComponent(escape(atob(contentVal)));
+                    }
+                } catch (e) {
+                    // Was likely raw, unencoded text. Fall back to raw.
+                }
 
                 // If the field is a regular link href
                 if (el.tagName === 'A' && el.hasAttribute('href') && typeVal === 'url') {
@@ -103,9 +113,12 @@ class CMSController {
      * Stash an edit locally in memory (used by editor-core.js when a user types)
      */
     trackEdit(key, newContent, contentType = 'html') {
+        // Base64 encode the content before saving it so ArcGIS doesn't reject HTML tags like <br>
+        const encodedContent = btoa(unescape(encodeURIComponent(newContent)));
+
         this.pendingEdits[key] = {
             keyVal: key,
-            contentVal: newContent,
+            contentVal: encodedContent,
             typeVal: contentType
         };
     }
