@@ -75,6 +75,25 @@ class CMSController {
     applyContentToDOM(container) {
         if (!this.isLoaded) return; // If DB failed or still loading, skip
 
+        // 1. Process Structural Blocks first (so nested elements are restored)
+        const htmlElements = container.querySelectorAll('[data-cms-html]');
+        htmlElements.forEach(el => {
+            const key = el.getAttribute('data-cms-html');
+            const row = this.cache[key];
+            if (row && row[this.fieldMap.content]) {
+                let contentVal = row[this.fieldMap.content];
+                try {
+                    // Try to decode as base64
+                    if (contentVal && contentVal.match(/^[A-Za-z0-9+/=]+$/)) {
+                        contentVal = decodeURIComponent(escape(atob(contentVal)));
+                    }
+                } catch (e) { }
+
+                el.innerHTML = contentVal;
+            }
+        });
+
+        // 2. Process Individual Text/Media Variables
         const elements = container.querySelectorAll('[data-cms-key]');
         elements.forEach(el => {
             const key = el.getAttribute('data-cms-key');
@@ -85,13 +104,10 @@ class CMSController {
 
                 // Attempt to decode Base64 (to bypass ArcGIS XSS filters)
                 try {
-                    // Try to decode as base64
                     if (contentVal && contentVal.match(/^[A-Za-z0-9+/=]+$/)) {
                         contentVal = decodeURIComponent(escape(atob(contentVal)));
                     }
-                } catch (e) {
-                    // Was likely raw, unencoded text. Fall back to raw.
-                }
+                } catch (e) { }
 
                 // If the field is a regular link href
                 if (el.tagName === 'A' && el.hasAttribute('href') && typeVal === 'url') {
