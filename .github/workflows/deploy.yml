@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository, which now includes the populated /dist folders
-          path: '.'
+          path: './Web App'
 
   # Deployment job
   deploy:
