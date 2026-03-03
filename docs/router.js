@@ -114,7 +114,7 @@ class SPA_Router {
 
         // Load Content
         try {
-            const response = await fetch(`docs/partials/${this.routes[hash]}`);
+            const response = await fetch(`docs/partials/${this.routes[hash]}?t=${Date.now()}`);
             if (response.ok) {
                 const htmlContent = await response.text();
                 this.appRoot.innerHTML = htmlContent;
@@ -130,7 +130,7 @@ class SPA_Router {
                 // Highlight active nav link
                 document.querySelectorAll('.sidebar-nav a').forEach(a => {
                     a.classList.remove('active');
-                    if (a.getAttribute('href') === `#${hash} `) {
+                    if (a.getAttribute('href') === `#${hash}`) {
                         a.classList.add('active');
                     }
                 });
