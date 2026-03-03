@@ -27,7 +27,11 @@ class SPA_Router {
             'revelstoke': 'revelstoke.html',
             'golden': 'golden.html',
             'salmonarm': 'salmonarm.html',
-            'sicamous': 'sicamous.html'
+            'sicamous': 'sicamous.html',
+            'script-etl': 'script-etl.html',
+            'script-export': 'script-export.html',
+            'script-orchestrator': 'script-orchestrator.html',
+            'script-qa': 'script-qa.html'
         };
 
         // Enforce Authentication
@@ -405,17 +409,25 @@ class SPA_Router {
             `;
         }
 
-        const hasRevelstoke = isAdmin || user.username.toLowerCase().includes('revelstoke');
-        const hasGolden = isAdmin || user.username.toLowerCase().includes('golden');
-        const hasSalmonarm = isAdmin || user.username.toLowerCase().includes('salmonarm');
-        const hasSicamous = isAdmin || user.username.toLowerCase().includes('sicamous');
-
-        if (hasRevelstoke || hasGolden || hasSalmonarm || hasSicamous) {
+        if (isAdmin) {
             navHtml += `<div class="nav-group-label">Municipal Guides</div>`;
-            if (hasRevelstoke) navHtml += `<a href="#revelstoke" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>`;
-            if (hasGolden) navHtml += `<a href="#golden" class="nav-indent"><i class="fas fa-city"></i> Golden</a>`;
-            if (hasSalmonarm) navHtml += `<a href="#salmonarm" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>`;
-            if (hasSicamous) navHtml += `<a href="#sicamous" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>`;
+            navHtml += `<a href="#revelstoke" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>`;
+            navHtml += `<a href="#golden" class="nav-indent"><i class="fas fa-city"></i> Golden</a>`;
+            navHtml += `<a href="#salmonarm" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>`;
+            navHtml += `<a href="#sicamous" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>`;
+        } else {
+            const hasRevelstoke = user.username.toLowerCase().includes('revelstoke');
+            const hasGolden = user.username.toLowerCase().includes('golden');
+            const hasSalmonarm = user.username.toLowerCase().includes('salmonarm');
+            const hasSicamous = user.username.toLowerCase().includes('sicamous');
+
+            if (hasRevelstoke || hasGolden || hasSalmonarm || hasSicamous) {
+                navHtml += `<div class="nav-group-label">Municipal Guides</div>`;
+                if (hasRevelstoke) navHtml += `<a href="#revelstoke" class="nav-indent"><i class="fas fa-city"></i> Revelstoke</a>`;
+                if (hasGolden) navHtml += `<a href="#golden" class="nav-indent"><i class="fas fa-city"></i> Golden</a>`;
+                if (hasSalmonarm) navHtml += `<a href="#salmonarm" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>`;
+                if (hasSicamous) navHtml += `<a href="#sicamous" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>`;
+            }
         }
 
         if (isAdmin) {
