@@ -1,13 +1,14 @@
-<div class="hero-wrapper" id="hero">
+<div class="hero-wrapper" id="hero" data-cms-html="salmonarm.heroBlock">
   <div class="hero-card">
     <div class="hero-card-inner">
       <div class="hero-text">
-        <h1>City of Salmon Arm <span>NG9-1-1</span> Central<br>Addressing System</h1>
+        <h1 data-cms-key="salmonarm.heroTitle">City of Salmon Arm <span>NG9-1-1</span> Central<br>Addressing System</h1>
         <div class="subtitle" data-cms-key="salmonarm.subtitle">Editor User Guide &amp; Workflow Timeline</div>
         <div class="hero-actions" style="margin-top: 24px;">
           <a href="DownloadFiles/Salmon_Arm_NG911_Central_Addressing_User_Guide.pdf" download class="btn"
-            style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">
-            <i class="fas fa-download"></i> Download Original PDF
+            style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)"
+            data-cms-href="salmonarm.guidePdf.link">
+            <i class="fas fa-download"></i> <span data-cms-key="salmonarm.guidePdf.text">Download Original PDF</span>
           </a>
         </div>
       </div>
@@ -22,15 +23,19 @@
 
   <!-- ═══ QUICK ACTIONS ═══ -->
   <section id="quick-actions" style="padding-bottom: 20px;">
-    <h2 class="reveal" style="margin-bottom: 20px;"><i class="fas fa-bolt"></i>&nbsp; Quick Actions</h2>
-    <div class="grid-2 reveal">
+    <h2 class="reveal" style="margin-bottom: 20px;" data-cms-html="salmonarm.quickActionsTitle"><i
+        class="fas fa-bolt"></i>&nbsp; <span data-cms-key="salmonarm.quickActionsText">Quick Actions</span></h2>
+    <div class="grid-2 reveal" data-cms-html="salmonarm.quickActionsGrid">
       <a href="https://apps.csrd.bc.ca/hub/home/item.html?id=8cf1681215c540878625fdb4ec7434e4" target="_blank"
-        class="nav-card link-card">
+        class="nav-card link-card" data-cms-href="salmonarm.btnSalmonArmWeb.link"
+        data-cms-html="salmonarm.quickAction.1">
         <div class="nav-card-icon" style="background-color: var(--green); color: white;"><i
             class="fas fa-cloud-upload-alt"></i></div>
         <div class="nav-card-body">
-          <h4 style="margin: 0 0 5px 0;">Open Salmon Arm Overwrite Feature Layer</h4>
-          <p style="margin: 0; font-size: 0.9rem;">Navigate to Portal to upload the updated Default.gdb.zip for Salmon
+          <h4 data-cms-key="salmonarm.btnSalmonArmWeb.title" style="margin: 0 0 5px 0;">Open Salmon Arm Overwrite
+            Feature Layer</h4>
+          <p data-cms-key="salmonarm.btnSalmonArmWeb.desc" style="margin: 0; font-size: 0.9rem;">Navigate to Portal to
+            upload the updated Default.gdb.zip for Salmon
             Arm.</p>
         </div>
         <i class="fas fa-external-link-alt nav-card-chevron"></i>
@@ -38,7 +43,7 @@
     </div>
   </section>
 
-  <section>
+  <section data-cms-html="salmonarm.pipelineSection">
     <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Pipeline Timeline</h2>
     <div class="pipeline reveal">
       <div class="pipeline-step s1">Local GDB<small>Zip Archive</small></div>
@@ -61,7 +66,7 @@
     </div>
   </section>
 
-  <section>
+  <section data-cms-html="salmonarm.videoSection">
     <h2 class="reveal"><i class="fas fa-video"></i>&nbsp; Workflow Walkthrough (Salmon Arm)</h2>
     <div class="video-container reveal"
       style="margin-top: 20px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
@@ -71,14 +76,14 @@
         referrerpolicy="strict-origin-when-cross-origin"></iframe>
     </div>
   </section>
-  <section>
+  <section data-cms-html="salmonarm.purposeSection">
     <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose and Scope</h2>
-    <div class="card reveal">
+    <div class="card reveal" data-cms-html="salmonarm.purposeCard">
       <p data-cms-key="salmonarm.purpose.desc">This guide explains the standard Salmon Arm workflow for editing NG911
         central addressing data via the
         <strong>Overwrite Hosted Feature Layer + ETL Reconcile</strong> process:
       </p>
-      <ol style="margin-top:10px; margin-left: 20px;">
+      <ol style="margin-top:10px; margin-left: 20px;" data-cms-key="salmonarm.purpose.list">
         <li>Go to CSRD Portal Home and log in.</li>
         <li>Click on the Content tab.</li>
         <li>Open the <code>SalmonArmOverwrite</code> Hosted Feature layer.</li>
@@ -89,14 +94,14 @@
     </div>
   </section>
 
-  <section>
+  <section data-cms-html="salmonarm.accessSection">
     <h2 class="reveal"><i class="fas fa-key"></i>&nbsp; System Access Details</h2>
 
     <div class="grid-2 reveal">
-      <div class="card">
+      <div class="card" data-cms-html="salmonarm.access.urls">
         <h4>Portal & Item URLs</h4>
         <table style="margin-top: 10px;">
-          <tbody>
+          <tbody data-cms-key="salmonarm.access.urlsTable">
             <tr>
               <td><strong>CSRD Portal Home</strong></td>
               <td><a href="https://apps.csrd.bc.ca/hub/home" target="_blank"
@@ -121,7 +126,7 @@
         </table>
       </div>
 
-      <div class="card">
+      <div class="card" data-cms-html="salmonarm.access.creds">
         <h4>User Credentials</h4>
         <table style="margin-top: 10px;">
           <thead>
@@ -131,7 +136,7 @@
               <th>Password</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody data-cms-key="salmonarm.access.credsTable">
             <tr>
               <td><span class="card-tag" style="background:rgba(14,165,233,.1);color:var(--blue)">Viewer</span></td>
               <td><code>SalmonArm</code></td>

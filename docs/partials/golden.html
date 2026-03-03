@@ -1,13 +1,14 @@
-<div class="hero-wrapper" id="hero">
+<div class="hero-wrapper" id="hero" data-cms-html="golden.heroBlock">
   <div class="hero-card">
     <div class="hero-card-inner">
       <div class="hero-text">
-        <h1>Town of Golden <span>NG9-1-1</span> Central<br>Addressing System</h1>
+        <h1 data-cms-key="golden.heroTitle">Town of Golden <span>NG9-1-1</span> Central<br>Addressing System</h1>
         <div class="subtitle" data-cms-key="golden.subtitle">Editor User Guide &amp; Workflow Timeline</div>
         <div class="hero-actions" style="margin-top: 24px;">
           <a href="DownloadFiles/Golden_NG911_Central_Addressing_User_Guide.pdf" download class="btn"
-            style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)">
-            <i class="fas fa-download"></i> Download Original PDF
+            style="background:var(--white);color:var(--navy);padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)"
+            data-cms-href="golden.guidePdf.link">
+            <i class="fas fa-download"></i> <span data-cms-key="golden.guidePdf.text">Download Original PDF</span>
           </a>
         </div>
       </div>
@@ -22,15 +23,19 @@
 
   <!-- ═══ QUICK ACTIONS ═══ -->
   <section id="quick-actions" style="padding-bottom: 20px;">
-    <h2 class="reveal" style="margin-bottom: 20px;"><i class="fas fa-bolt"></i>&nbsp; Quick Actions</h2>
-    <div class="grid-2 reveal">
-      <a href="#" id="btn-golden-pitemx" class="nav-card link-card" download>
+    <h2 class="reveal" style="margin-bottom: 20px;" data-cms-html="golden.quickActionsTitle"><i
+        class="fas fa-bolt"></i>&nbsp; <span data-cms-key="golden.quickActionsText">Quick Actions</span></h2>
+    <div class="grid-2 reveal" data-cms-html="golden.quickActionsGrid">
+      <a href="#" id="btn-golden-pitemx" class="nav-card link-card" download data-cms-href="golden.btnGoldenPro.link"
+        data-cms-html="golden.quickAction.1">
         <div class="nav-card-icon" style="background-color: transparent; padding: 0;"><img
             src="docs/assets/arcgis-pro-icon.png" alt="ArcGIS Pro"
             style="width: 44px; height: 44px; border-radius: 8px;"></div>
         <div class="nav-card-body">
-          <h4 style="margin: 0 0 5px 0;">Open Golden NG911 Database in ArcGIS Pro</h4>
-          <p style="margin: 0; font-size: 0.9rem;">Download the .pitemx file to edit the Golden Feature Service
+          <h4 data-cms-key="golden.btnGoldenPro.title" style="margin: 0 0 5px 0;">Open Golden NG911 Database in ArcGIS
+            Pro</h4>
+          <p data-cms-key="golden.btnGoldenPro.desc" style="margin: 0; font-size: 0.9rem;">Download the .pitemx file to
+            edit the Golden Feature Service
             directly.</p>
         </div>
         <i class="fas fa-download nav-card-chevron"></i>
@@ -38,7 +43,7 @@
     </div>
   </section>
 
-  <section>
+  <section data-cms-html="golden.pipelineSection">
     <h2 class="reveal"><i class="fas fa-layer-group"></i>&nbsp; Pipeline Timeline</h2>
     <div class="pipeline reveal">
       <div class="pipeline-step s1">Golden SDE<small>Local Edits</small></div>
@@ -61,7 +66,7 @@
     </div>
   </section>
 
-  <section>
+  <section data-cms-html="golden.videoSection">
     <h2 class="reveal"><i class="fas fa-video"></i>&nbsp; Workflow Walkthrough (Golden)</h2>
     <div class="video-container reveal"
       style="margin-top: 20px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
@@ -71,12 +76,12 @@
         referrerpolicy="strict-origin-when-cross-origin"></iframe>
     </div>
   </section>
-  <section>
+  <section data-cms-html="golden.purposeSection">
     <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose and Scope</h2>
-    <div class="card reveal">
+    <div class="card reveal" data-cms-html="golden.purposeCard">
       <p data-cms-key="golden.purpose.desc">This guide explains the standard Golden workflow for editing the NG911
         central addressing data:</p>
-      <ol style="margin-top:10px; margin-left: 20px;">
+      <ol style="margin-top:10px; margin-left: 20px;" data-cms-key="golden.purpose.list">
         <li>Log in to the CSRD portal.</li>
         <li>Open the Golden NG911 group.</li>
         <li>Open the Golden editing feature layer item.</li>
@@ -87,14 +92,14 @@
     </div>
   </section>
 
-  <section>
+  <section data-cms-html="golden.accessSection">
     <h2 class="reveal"><i class="fas fa-key"></i>&nbsp; System Access Details</h2>
 
     <div class="grid-2 reveal">
-      <div class="card">
+      <div class="card" data-cms-html="golden.access.urls">
         <h4>Portal & Item URLs</h4>
         <table style="margin-top: 10px;">
-          <tbody>
+          <tbody data-cms-key="golden.access.urlsTable">
             <tr>
               <td><strong>CSRD Portal Home</strong></td>
               <td><a href="https://apps.csrd.bc.ca/hub/home" target="_blank"
@@ -114,7 +119,7 @@
         </table>
       </div>
 
-      <div class="card">
+      <div class="card" data-cms-html="golden.access.creds">
         <h4>User Credentials</h4>
         <table style="margin-top: 10px;">
           <thead>
@@ -124,7 +129,7 @@
               <th>Password</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody data-cms-key="golden.access.credsTable">
             <tr>
               <td><span class="card-tag" style="background:rgba(14,165,233,.1);color:var(--blue)">Viewer</span></td>
               <td><code>Golden</code></td>
@@ -137,7 +142,8 @@
             </tr>
           </tbody>
         </table>
-        <div class="alert info" style="margin-top:15px; margin-bottom:0;"><i class="fas fa-info-circle"></i><span>Use
+        <div class="alert info" style="margin-top:15px; margin-bottom:0;" data-cms-key="golden.access.alert"><i
+            class="fas fa-info-circle"></i><span>Use
             the <strong>Viewer</strong> account for read-only validation. Only use the <strong>Editor</strong> account
             for production edits directly to the Golden address layer.</span></div>
       </div>

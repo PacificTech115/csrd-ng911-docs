@@ -2517,6 +2517,89 @@ input:checked+.slider:before {
 /* Toggleable by JS */
 
 
+/*  VISUAL BUILDER (CMS ACTION BAR)  */
+[data-cms-html] {
+  position: relative;
+}
+
+.editor-mode-active [data-cms-html] {
+  outline: 2px dashed rgba(13, 148, 136, 0.2);
+  outline-offset: 4px;
+  border-radius: 8px;
+  transition: outline 0.2s;
+}
+
+.editor-mode-active [data-cms-html]:hover {
+  outline: 2px solid var(--teal);
+}
+
+.cms-action-bar {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  background: var(--navy);
+  color: white;
+  border-radius: 8px;
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  white-space: nowrap;
+}
+
+.editor-mode-active [data-cms-html]:hover>.cms-action-bar,
+.cms-action-bar:hover {
+  display: flex !important;
+}
+
+.cms-action-bar button {
+  background: transparent;
+  color: #cbd5e1;
+  border: none;
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.cms-action-bar button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--white);
+}
+
+.cms-action-bar button.btn-danger:hover {
+  background: var(--red);
+  color: white;
+}
+
+/* Link Editing Indication */
+.editor-mode-active a[data-cms-href] {
+  outline: 2px dashed rgba(75, 122, 140, 0.4);
+  outline-offset: 2px;
+  cursor: pointer !important;
+  position: relative;
+}
+
+.editor-mode-active a[data-cms-href]:hover::after {
+  content: "✏️ Edit Link";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--navy);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
 /*  SEARCH DROPDOWN  */
 .search-dropdown {
   position: absolute;

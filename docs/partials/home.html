@@ -1,5 +1,5 @@
 <!-- ═══ HERO ═══ -->
-<div class="hero-wrapper" id="hero">
+<div class="hero-wrapper" id="hero" data-cms-html="home.heroBlock">
   <div class="hero-card">
     <div class="hero-card-inner">
       <div class="hero-text">
@@ -21,9 +21,11 @@
 
   <!-- ═══ QUICK ACTIONS ═══ -->
   <section id="quick-actions" style="display: none; padding-bottom: 20px;">
-    <h2 class="reveal" style="margin-bottom: 20px;"><i class="fas fa-bolt"></i>&nbsp; Quick Actions</h2>
-    <div class="grid-2 reveal">
-      <a href="#" id="home-btn-revelstoke-pitemx" class="nav-card link-card" download style="display: none;">
+    <h2 class="reveal" style="margin-bottom: 20px;" data-cms-html="home.quickActionsTitle"><i
+        class="fas fa-bolt"></i>&nbsp; <span data-cms-key="home.quickActionsText">Quick Actions</span></h2>
+    <div class="grid-2 reveal" data-cms-html="home.quickActionsGrid">
+      <a href="#" id="home-btn-revelstoke-pitemx" class="nav-card link-card" download style="display: none;"
+        data-cms-href="home.btnRevelstoke.link">
         <div class="nav-card-icon" style="background-color: transparent; padding: 0;"><img
             src="docs/assets/arcgis-pro-icon.png" alt="ArcGIS Pro"
             style="width: 44px; height: 44px; border-radius: 8px;"></div>
@@ -37,7 +39,8 @@
         <i class="fas fa-download nav-card-chevron"></i>
       </a>
 
-      <a href="#" id="home-btn-golden-pitemx" class="nav-card link-card" download style="display: none;">
+      <a href="#" id="home-btn-golden-pitemx" class="nav-card link-card" download style="display: none;"
+        data-cms-href="home.btnGolden.link">
         <div class="nav-card-icon" style="background-color: transparent; padding: 0;"><img
             src="docs/assets/arcgis-pro-icon.png" alt="ArcGIS Pro"
             style="width: 44px; height: 44px; border-radius: 8px;"></div>
@@ -53,7 +56,7 @@
 
       <a href="https://apps.csrd.bc.ca/hub/home/item.html?id=8cf1681215c540878625fdb4ec7434e4" target="_blank"
         id="home-btn-salmonarm-overwrite" class="nav-card link-card" style="display: none;"
-        data-cms-key="home.btnSalmonArm.href">
+        data-cms-href="home.btnSalmonArm.link">
         <div class="nav-card-icon" style="background-color: var(--green); color: white;"><i
             class="fas fa-cloud-upload-alt"></i></div>
         <div class="nav-card-body">
@@ -66,7 +69,8 @@
         <i class="fas fa-external-link-alt nav-card-chevron"></i>
       </a>
 
-      <a href="#" id="home-btn-sicamous-pitemx" class="nav-card link-card" download style="display: none;">
+      <a href="#" id="home-btn-sicamous-pitemx" class="nav-card link-card" download style="display: none;"
+        data-cms-href="home.btnSicamous.link">
         <div class="nav-card-icon" style="background-color: transparent; padding: 0;"><img
             src="docs/assets/arcgis-pro-icon.png" alt="ArcGIS Pro"
             style="width: 44px; height: 44px; border-radius: 8px;"></div>
@@ -84,9 +88,10 @@
 
   <!-- ═══ QUICK NAVIGATION ═══ -->
   <section id="quick-nav">
-    <div class="nav-grid">
+    <div class="nav-grid" data-cms-html="home.navGrid">
 
-      <a class="nav-card link-card reveal" href="#schema-guide">
+      <a class="nav-card link-card reveal" href="#schema-guide" data-cms-html="home.navCard.1"
+        data-cms-href="home.navSchema.link">
         <div class="nav-card-icon"><i class="fas fa-table-columns"></i></div>
         <div class="nav-card-body">
           <h4 data-cms-key="home.navSchema.title">Schema Guide</h4>
@@ -95,7 +100,8 @@
         <i class="fas fa-chevron-right nav-card-chevron"></i>
       </a>
 
-      <a class="nav-card link-card reveal" href="#attribute-rules">
+      <a class="nav-card link-card reveal" href="#attribute-rules" data-cms-html="home.navCard.2"
+        data-cms-href="home.navRules.link">
         <div class="nav-card-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
         <div class="nav-card-body">
           <h4 data-cms-key="home.navRules.title">Attribute Rules</h4>
@@ -104,7 +110,8 @@
         <i class="fas fa-chevron-right nav-card-chevron"></i>
       </a>
 
-      <a class="nav-card link-card reveal" href="#maintenance" data-admin-only="true">
+      <a class="nav-card link-card reveal" href="#maintenance" data-admin-only="true" data-cms-html="home.navCard.3"
+        data-cms-href="home.navMaintenance.link">
         <div class="nav-card-icon"><i class="fas fa-wrench"></i></div>
         <div class="nav-card-body">
           <h4 data-cms-key="home.navMaintenance.title">Maintenance Guide</h4>
@@ -114,7 +121,8 @@
         <i class="fas fa-chevron-right nav-card-chevron"></i>
       </a>
 
-      <a class="nav-card link-card reveal" href="#automation-scripts" data-admin-only="true">
+      <a class="nav-card link-card reveal" href="#automation-scripts" data-admin-only="true"
+        data-cms-html="home.navCard.4" data-cms-href="home.navAutomation.link">
         <div class="nav-card-icon"><i class="fas fa-robot"></i></div>
         <div class="nav-card-body">
           <h4 data-cms-key="home.navAutomation.title">Automation Scripts</h4>
@@ -123,7 +131,8 @@
         <i class="fas fa-chevron-right nav-card-chevron"></i>
       </a>
 
-      <a class="nav-card link-card reveal" href="#domains">
+      <a class="nav-card link-card reveal" href="#domains" data-cms-html="home.navCard.5"
+        data-cms-href="home.navDomains.link">
         <div class="nav-card-icon"><i class="fas fa-list-check"></i></div>
         <div class="nav-card-body">
           <h4 data-cms-key="home.navDomains.title">Domains &amp; Lookups</h4>
@@ -132,7 +141,8 @@
         <i class="fas fa-chevron-right nav-card-chevron"></i>
       </a>
 
-      <a class="nav-card link-card reveal" href="#quick-reference" data-admin-only="true">
+      <a class="nav-card link-card reveal" href="#quick-reference" data-admin-only="true" data-cms-html="home.navCard.6"
+        data-cms-href="home.navReference.link">
         <div class="nav-card-icon"><i class="fas fa-bolt"></i></div>
         <div class="nav-card-body">
           <h4 data-cms-key="home.navReference.title">Quick Reference</h4>
@@ -141,7 +151,8 @@
         <i class="fas fa-chevron-right nav-card-chevron"></i>
       </a>
 
-      <a class="nav-card link-card reveal" href="#guide-revelstoke" id="municipal-guide-card">
+      <a class="nav-card link-card reveal" href="#guide-revelstoke" id="municipal-guide-card"
+        data-cms-html="home.navCard.7" data-cms-href="home.navMuniGuides.link">
         <div class="nav-card-icon"><i class="fas fa-city"></i></div>
         <div class="nav-card-body">
           <h4 data-cms-key="home.navMuniGuides.title">Municipal Guides</h4>
@@ -150,7 +161,8 @@
         <i class="fas fa-chevron-right nav-card-chevron"></i>
       </a>
 
-      <a class="nav-card link-card reveal" href="#system-resources" data-admin-only="true">
+      <a class="nav-card link-card reveal" href="#system-resources" data-admin-only="true"
+        data-cms-html="home.navCard.8" data-cms-href="home.navResources.link">
         <div class="nav-card-icon"><i class="fas fa-link"></i></div>
         <div class="nav-card-body">
           <h4 data-cms-key="home.navResources.title">System Resources</h4>

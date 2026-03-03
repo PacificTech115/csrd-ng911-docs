@@ -101,7 +101,7 @@ window.insertLink = function () {
 };
 
 function makeNodesEditable() {
-    // Only target elements designated for CMS control
+    // 1. Target literal text elements designated for CMS control
     const nodes = document.querySelectorAll('[data-cms-key]');
 
     nodes.forEach(node => {
@@ -134,6 +134,12 @@ function makeNodesEditable() {
                     window.cms.trackEdit(key, newContent, 'html');
                     trackEdit(getPageId(), "CMS Update", oldContent, newContent);
                     this.dataset.originalCmsContent = newContent; // Update baseline
+
+                    // NEW: If this node is inside a data-cms-html container, trigger a save on the container too
+                    const parentContainer = this.closest('[data-cms-html]');
+                    if (parentContainer) {
+                        flagContainerForSave(parentContainer);
+                    }
                 }
             });
 
@@ -159,6 +165,155 @@ function makeNodesEditable() {
                 }
             });
         }
+    });
+
+    // 2. Initialize Visual Builder Structural Blocks (data-cms-html)
+    initVisualBuilderBlocks();
+
+    // 3. Initialize Link Editors
+    initLinkEditors();
+}
+
+// --- VISUAL BUILDER LOGIC ---
+
+function initVisualBuilderBlocks() {
+    const containers = document.querySelectorAll('[data-cms-html]');
+
+    containers.forEach(container => {
+        // Prevent adding multiple action bars
+        if (container.querySelector('.cms-action-bar')) return;
+
+        const actionBar = document.createElement('div');
+        actionBar.className = 'cms-action-bar';
+        actionBar.contentEditable = 'false'; // Keep it out of wysiwyg flow
+
+        // Disable actions if parent is grid and node is only child, etc.
+        const isFlexGrid = window.getComputedStyle(container.parentElement).display === 'grid' || window.getComputedStyle(container.parentElement).display === 'flex';
+
+        actionBar.innerHTML = `
+            <button onclick="moveCmsNode(this.closest('[data-cms-html]'), -1)" title="Move Up/Left"><i class="fas fa-arrow-left"></i></button>
+            <button onclick="moveCmsNode(this.closest('[data-cms-html]'), 1)" title="Move Down/Right"><i class="fas fa-arrow-right"></i></button>
+            <button onclick="duplicateCmsNode(this.closest('[data-cms-html]'))" title="Duplicate Block"><i class="fas fa-copy"></i></button>
+            <button onclick="deleteCmsNode(this.closest('[data-cms-html]'))" class="btn-danger" title="Delete Block"><i class="fas fa-trash"></i></button>
+        `;
+
+        container.appendChild(actionBar);
+    });
+}
+
+window.moveCmsNode = function (node, direction) {
+    if (!node || !node.parentNode) return;
+
+    if (direction === -1 && node.previousElementSibling) {
+        node.parentNode.insertBefore(node, node.previousElementSibling);
+        flagContainerForSave(node.parentNode);
+        showToast('Block moved up.');
+    } else if (direction === 1 && node.nextElementSibling) {
+        node.parentNode.insertBefore(node.nextElementSibling, node);
+        flagContainerForSave(node.parentNode);
+        showToast('Block moved down.');
+    } else {
+        showToast('Cannot move block further in that direction.');
+    }
+};
+
+window.duplicateCmsNode = function (node) {
+    if (!node || !node.parentNode) return;
+
+    // Clone node deeply
+    const clone = node.cloneNode(true);
+
+    // Remove the old action bar from the clone so it gets a fresh one
+    const oldBar = clone.querySelector('.cms-action-bar');
+    if (oldBar) oldBar.remove();
+
+    // Reset unique IDs if present
+    if (clone.id) clone.id = clone.id + '_copy_' + Date.now();
+
+    // Attempt to rename nested data-cms-key if present so they don't overwrite each other in DB (optional, but good practice)
+    const nestedKeys = clone.querySelectorAll('[data-cms-key]');
+    nestedKeys.forEach(k => {
+        const oldKey = k.getAttribute('data-cms-key');
+        k.setAttribute('data-cms-key', oldKey + '_copy_' + Date.now());
+    });
+
+    node.parentNode.insertBefore(clone, node.nextSibling);
+
+    // Re-initialize editability on the new clone
+    makeNodesEditable();
+
+    flagContainerForSave(node.parentNode);
+    showToast('Block duplicated.');
+};
+
+window.deleteCmsNode = function (node) {
+    if (!confirm('Are you sure you want to delete this entire layout block?')) return;
+    const parent = node.parentNode;
+    node.remove();
+    flagContainerForSave(parent);
+    showToast('Block deleted.');
+};
+
+// Flags a structural container or parent container to completely resave its HTML
+window.flagContainerForSave = function (containerElement) {
+    // If the element itself isn't a data-cms-html block, find the nearest ancestor that is
+    const target = containerElement.hasAttribute('data-cms-html') ? containerElement : containerElement.closest('[data-cms-html]');
+
+    if (target && window.cms) {
+        // Strip the action bars temporarily to get clean HTML
+        const actionBars = target.querySelectorAll('.cms-action-bar');
+        actionBars.forEach(bar => bar.style.display = 'none'); // Hiding is safer than removing to not break bound events during edit session
+
+        // We actually want to strip them completely for the DB save, so clone it
+        const clone = target.cloneNode(true);
+        clone.querySelectorAll('.cms-action-bar').forEach(b => b.remove());
+        // Also strip contenteditable attributes that might be active
+        clone.querySelectorAll('.editable-node').forEach(n => {
+            n.removeAttribute('contenteditable');
+            n.classList.remove('editable-node', 'focused');
+        });
+
+        const key = target.getAttribute('data-cms-html');
+        // Save the raw outer HTML (or inner, depending on logic. Let's save inner to keep the wrapper intact)
+        window.cms.trackEdit(key, clone.innerHTML, 'html');
+
+        // Restore display 
+        actionBars.forEach(bar => bar.style.display = '');
+    }
+};
+
+// --- LINK EDITOR LOGIC ---
+
+function initLinkEditors() {
+    const links = document.querySelectorAll('a[data-cms-href]');
+
+    links.forEach(link => {
+        // Prevent multiple listeners
+        if (link.dataset.editorBound) return;
+        link.dataset.editorBound = 'true';
+
+        link.addEventListener('click', function (e) {
+            if (!document.body.classList.contains('editor-mode-active')) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const currentUrl = this.getAttribute('href');
+            const newUrl = prompt('Edit Link Destination:', currentUrl);
+
+            if (newUrl !== null && newUrl !== currentUrl) {
+                this.setAttribute('href', newUrl);
+
+                // Track edit structurally
+                const key = this.getAttribute('data-cms-href');
+                window.cms.trackEdit(key, newUrl, 'url');
+
+                // Also trigger save on parent container if it's part of a visual block
+                flagContainerForSave(this);
+
+                showToast('Link updated.');
+            }
+        }, true); // Use capture phase to intercept before navigation
     });
 }
 
@@ -543,6 +698,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const oldText = currentTargetImage.src;
 
                 currentTargetImage.src = dataUrl;
+
+                // NEW: Trigger save on parent container if it's part of a visual block
+                if (typeof flagContainerForSave === 'function') {
+                    flagContainerForSave(currentTargetImage);
+                }
 
                 // Trigger save so it's persisted instantly
                 if (typeof savePageHTML === 'function') {
