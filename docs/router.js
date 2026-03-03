@@ -256,30 +256,41 @@ class SPA_Router {
                 const uName = (user && user.username) ? user.username.toLowerCase() : '';
                 const muniCard = document.getElementById('municipal-guide-card');
 
-                // Ensure ALL quick-action cards are hidden first
-                document.querySelectorAll('.nav-card[data-muni-target]').forEach(card => card.style.display = 'none');
+                // Ensure ALL municipal quick-action cards are hidden first.
+                // We check for `data-muni-target` AND legacy ID handles / cms-href handles to catch duplicated cards or older cached HTML.
+                const allMuniCards = document.querySelectorAll('.nav-card[data-muni-target], .nav-card[id^="home-btn-"], .nav-card[data-cms-href*="btnRevelstoke"], .nav-card[data-cms-href*="btnGolden"], .nav-card[data-cms-href*="btnSalmonArm"], .nav-card[data-cms-href*="btnSicamous"]');
+                allMuniCards.forEach(card => card.style.display = 'none');
 
                 if (muniCard) {
                     let targetMuni = null;
+                    let targetHrefPrefix = '';
+
                     if (uName.includes('revelstoke')) {
                         muniCard.setAttribute('href', '#revelstoke');
                         targetMuni = 'revelstoke';
+                        targetHrefPrefix = 'btnRevelstoke';
                     } else if (uName.includes('golden')) {
                         muniCard.setAttribute('href', '#golden');
                         targetMuni = 'golden';
+                        targetHrefPrefix = 'btnGolden';
                     } else if (uName.includes('salmonarm') || uName.includes('salmon_arm')) {
                         muniCard.setAttribute('href', '#salmonarm');
                         targetMuni = 'salmonarm';
+                        targetHrefPrefix = 'btnSalmonArm';
                     } else if (uName.includes('sicamous')) {
                         muniCard.setAttribute('href', '#sicamous');
                         targetMuni = 'sicamous';
+                        targetHrefPrefix = 'btnSicamous';
                     } else {
                         // No matching municipality
                         muniCard.remove();
                     }
 
                     if (targetMuni) {
-                        document.querySelectorAll(`.nav-card[data-muni-target="${targetMuni}"]`).forEach(card => card.style.display = 'flex');
+                        // Un-hide the specific target's cards (including older cached clones)
+                        const targetCards = document.querySelectorAll(`.nav-card[data-muni-target="${targetMuni}"], .nav-card[id*="${targetMuni}"], .nav-card[data-cms-href*="${targetHrefPrefix}"]`);
+                        targetCards.forEach(card => card.style.display = 'flex');
+
                         const quickActionsSection = document.getElementById('quick-actions');
                         if (quickActionsSection) quickActionsSection.style.display = 'block';
                     }
@@ -293,7 +304,8 @@ class SPA_Router {
                 const quickActionsSection = document.getElementById('quick-actions');
                 if (quickActionsSection) quickActionsSection.style.display = 'block';
 
-                document.querySelectorAll('.nav-card[data-muni-target]').forEach(card => card.style.display = 'flex');
+                const allMuniCards = document.querySelectorAll('.nav-card[data-muni-target], .nav-card[id^="home-btn-"], .nav-card[data-cms-href*="btnRevelstoke"], .nav-card[data-cms-href*="btnGolden"], .nav-card[data-cms-href*="btnSalmonArm"], .nav-card[data-cms-href*="btnSicamous"]');
+                allMuniCards.forEach(card => card.style.display = 'flex');
             }
         }
     }
