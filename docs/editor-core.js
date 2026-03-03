@@ -25,14 +25,9 @@ window.getPageId = function () {
 let activeNode = null;
 
 function applySavedEdits() {
-    const pageId = window.getPageId();
-    if (pageId === 'version-edits.html' || pageId === 'version-edits') return;
-
-    const savedHtml = localStorage.getItem(`csrd_page_${pageId}`);
-    if (savedHtml) {
-        const wrap = document.querySelector('.content-wrap');
-        if (wrap) wrap.innerHTML = savedHtml;
-    }
+    // Deprecated: We now rely entirely on ArcGIS Hosted Tables via cms-core.js
+    // Local storage overrides are disabled so that different editors see the global state.
+    return;
 }
 
 function enableEditMode() {

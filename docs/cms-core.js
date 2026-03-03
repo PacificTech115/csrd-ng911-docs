@@ -29,7 +29,7 @@ class CMSController {
             return;
         }
 
-        const queryUrl = `${this.tableUrl}/query?where=1=1&outFields=*&f=json&token=${token}`;
+        const queryUrl = `${this.tableUrl}/query?where=1=1&outFields=*&f=json&token=${token}&_t=${Date.now()}`;
 
         try {
             const response = await fetch(queryUrl);
