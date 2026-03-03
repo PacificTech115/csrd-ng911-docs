@@ -257,34 +257,29 @@ class SPA_Router {
                 const muniCard = document.getElementById('municipal-guide-card');
 
                 // Ensure ALL quick-action cards are hidden first
-                const allActionBtns = ['home-btn-revelstoke-pitemx', 'home-btn-golden-pitemx', 'home-btn-salmonarm-overwrite', 'home-btn-sicamous-pitemx'];
-                allActionBtns.forEach(id => {
-                    const btn = document.getElementById(id);
-                    if (btn) btn.style.display = 'none';
-                });
+                document.querySelectorAll('.nav-card[data-muni-target]').forEach(card => card.style.display = 'none');
 
                 if (muniCard) {
-                    let showBtnId = null;
+                    let targetMuni = null;
                     if (uName.includes('revelstoke')) {
                         muniCard.setAttribute('href', '#revelstoke');
-                        showBtnId = 'home-btn-revelstoke-pitemx';
+                        targetMuni = 'revelstoke';
                     } else if (uName.includes('golden')) {
                         muniCard.setAttribute('href', '#golden');
-                        showBtnId = 'home-btn-golden-pitemx';
+                        targetMuni = 'golden';
                     } else if (uName.includes('salmonarm') || uName.includes('salmon_arm')) {
                         muniCard.setAttribute('href', '#salmonarm');
-                        showBtnId = 'home-btn-salmonarm-overwrite';
+                        targetMuni = 'salmonarm';
                     } else if (uName.includes('sicamous')) {
                         muniCard.setAttribute('href', '#sicamous');
-                        showBtnId = 'home-btn-sicamous-pitemx';
+                        targetMuni = 'sicamous';
                     } else {
                         // No matching municipality
                         muniCard.remove();
                     }
 
-                    if (showBtnId) {
-                        const btn = document.getElementById(showBtnId);
-                        if (btn) btn.style.display = 'flex';
+                    if (targetMuni) {
+                        document.querySelectorAll(`.nav-card[data-muni-target="${targetMuni}"]`).forEach(card => card.style.display = 'flex');
                         const quickActionsSection = document.getElementById('quick-actions');
                         if (quickActionsSection) quickActionsSection.style.display = 'block';
                     }
@@ -298,10 +293,7 @@ class SPA_Router {
                 const quickActionsSection = document.getElementById('quick-actions');
                 if (quickActionsSection) quickActionsSection.style.display = 'block';
 
-                ['home-btn-revelstoke-pitemx', 'home-btn-golden-pitemx', 'home-btn-salmonarm-overwrite', 'home-btn-sicamous-pitemx'].forEach(id => {
-                    const btn = document.getElementById(id);
-                    if (btn) btn.style.display = 'flex';
-                });
+                document.querySelectorAll('.nav-card[data-muni-target]').forEach(card => card.style.display = 'flex');
             }
         }
     }
