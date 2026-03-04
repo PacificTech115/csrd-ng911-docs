@@ -1035,6 +1035,249 @@ a.link-card .card-sub {
 }
 
 /* ══════════════════════════════════════
+   SYSTEM RESOURCES PAGE
+   ══════════════════════════════════════ */
+.resource-section {
+  padding-top: 32px
+}
+
+.resource-section h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
+
+.resource-section h3 i {
+  color: var(--teal);
+  font-size: .95rem
+}
+
+.resource-section .section-desc {
+  font-size: .84rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.6
+}
+
+.download-section {
+  margin-top: 8px
+}
+
+.download-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px
+}
+
+.download-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  transition: all .25s;
+  border-left: 4px solid var(--teal)
+}
+
+.download-item:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+  border-color: var(--teal-border)
+}
+
+.download-item.sub-item {
+  margin-left: 28px;
+  border-left-color: var(--border-strong);
+  background: #fafbfc
+}
+
+.download-item.sub-item:hover {
+  border-left-color: var(--teal)
+}
+
+.download-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  min-width: 0
+}
+
+.download-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+  width: 20px;
+  text-align: center
+}
+
+.download-filename {
+  font-family: 'Poppins', sans-serif;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap
+}
+
+.download-desc {
+  font-size: .82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 2px
+}
+
+.download-path {
+  font-family: 'Fira Code', monospace;
+  font-size: .72rem;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+  word-break: break-all
+}
+
+/* Resource type badges */
+.resource-type {
+  font-size: .62rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  flex-shrink: 0
+}
+
+.type-file {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe
+}
+
+.type-folder {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0
+}
+
+.type-notebook {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fcd34d
+}
+
+.type-geoprocessingservice {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #c4b5fd
+}
+
+.type-mapservice {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0
+}
+
+.type-featureservice {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #93c5fd
+}
+
+.type-webmap {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fdba74
+}
+
+.type-siteapplication,
+.type-application,
+.type-sitepage,
+.type-webexperience {
+  background: #fdf2f8;
+  color: #db2777;
+  border: 1px solid #f9a8d4
+}
+
+.type-datastore {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1
+}
+
+.type-filegeodatabase {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #7dd3fc
+}
+
+/* Action buttons */
+.action-group {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap
+}
+
+.btn-resource {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: .74rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap
+}
+
+.btn-resource i {
+  font-size: .68rem
+}
+
+.btn-resource.btn-primary {
+  background: var(--teal);
+  color: white
+}
+
+.btn-resource.btn-primary:hover {
+  background: #0a7d76;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, .3)
+}
+
+.btn-resource.btn-secondary {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  border: 1px solid var(--border)
+}
+
+.btn-resource.btn-secondary:hover {
+  background: var(--teal-glow);
+  border-color: var(--teal-border);
+  color: var(--teal)
+}
+
+/* ══════════════════════════════════════
    GRIDS
    ══════════════════════════════════════ */
 .grid-2 {
