@@ -22,6 +22,7 @@ class SPA_Router {
             'gp-tools': 'gp-tools.html',
             'power-automate': 'power-automate.html',
             'maintenance': 'maintenance.html',
+            'system-resources': 'system-resources.html',
             'version-edits': 'version-edits.html',
             'quick-reference': 'quick-reference.html',
             'revelstoke': 'revelstoke.html',
@@ -428,6 +429,7 @@ class SPA_Router {
             <a href="#power-automate" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>
             <div class="nav-group-label">Maintenance Guide</div>
             <a href="#maintenance"><i class="fas fa-wrench"></i> Maintenance</a>
+            <a href="#system-resources"><i class="fas fa-link"></i> System Resources</a>
             `;
         }
 
