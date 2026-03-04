@@ -90,6 +90,17 @@ class CMSController {
                 } catch (e) { }
 
                 el.innerHTML = contentVal;
+
+                // Post-process: fix stale image paths from old saves
+                el.querySelectorAll('img').forEach(img => {
+                    const src = img.getAttribute('src');
+                    if (src && !src.startsWith('docs/') && !src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('/')) {
+                        img.setAttribute('src', 'docs/' + src);
+                    }
+                });
+                // Strip leftover editor metadata from restored HTML
+                el.querySelectorAll('[data-original-cms-content]').forEach(n => n.removeAttribute('data-original-cms-content'));
+                el.querySelectorAll('[data-editor-bound]').forEach(n => n.removeAttribute('data-editor-bound'));
             }
         });
 

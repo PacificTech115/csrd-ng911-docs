@@ -262,11 +262,17 @@ window.flagContainerForSave = function (containerElement) {
         // We actually want to strip them completely for the DB save, so clone it
         const clone = target.cloneNode(true);
         clone.querySelectorAll('.cms-action-bar').forEach(b => b.remove());
-        // Also strip contenteditable attributes that might be active
+        // Strip contenteditable attributes that might be active
         clone.querySelectorAll('.editable-node').forEach(n => {
             n.removeAttribute('contenteditable');
             n.classList.remove('editable-node', 'focused');
         });
+        // Strip all editor metadata attributes to prevent state leaking into DB
+        clone.querySelectorAll('[data-original-cms-content]').forEach(n => n.removeAttribute('data-original-cms-content'));
+        clone.querySelectorAll('[data-editor-bound]').forEach(n => n.removeAttribute('data-editor-bound'));
+        clone.querySelectorAll('[data-toggle-bound]').forEach(n => n.removeAttribute('data-toggle-bound'));
+        // Strip empty class attributes
+        clone.querySelectorAll('[class=""]').forEach(n => n.removeAttribute('class'));
 
         const key = target.getAttribute('data-cms-html');
         // Save the raw outer HTML (or inner, depending on logic. Let's save inner to keep the wrapper intact)
