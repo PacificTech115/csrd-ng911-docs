@@ -340,8 +340,13 @@ function initResourceAdder() {
         };
     });
 
-    // 2. Bind existing Delete Buttons on loaded custom cards
-    bindCustomCardDeletes();
+    // Show the static delete buttons
+    document.querySelectorAll('.static-delete').forEach(btn => {
+        btn.style.display = 'inline-block';
+    });
+
+    // 2. Bind existing Delete Buttons on ALL loaded cards (custom and static)
+    bindCardDeletes();
 }
 
 async function openPortalPickerModal(container) {
@@ -442,7 +447,7 @@ async function openPortalPickerModal(container) {
             card.onclick = () => {
                 const html = createCustomCardHTML(item, portalUrl);
                 container.insertAdjacentHTML('beforeend', html);
-                bindCustomCardDeletes();
+                bindCardDeletes();
                 flagContainerForSave(container);
                 showToast(`Added: ${item.title}. Click "Save Page" to keep it.`);
                 closeModal();
@@ -508,7 +513,7 @@ function createCustomCardHTML(item, portalUrl) {
     </li>`;
 }
 
-function bindCustomCardDeletes() {
+function bindCardDeletes() {
     document.querySelectorAll('.custom-card-delete').forEach(btn => {
         // Remove existing listener to prevent doubling
         const newBtn = btn.cloneNode(true);
@@ -519,11 +524,15 @@ function bindCustomCardDeletes() {
             e.stopPropagation();
 
             if (confirm('Remove this resource?')) {
-                const card = this.closest('.custom-card');
-                const container = card.closest('.custom-cards-container');
-                card.remove();
-                flagContainerForSave(container);
-                showToast('Resource removed. Click "Save Page" to keep changes.');
+                const card = this.closest('.download-item');
+                // Container might be .custom-cards-container (dynamic) or .download-section (static)
+                const container = card.closest('.custom-cards-container') || card.closest('.download-section');
+
+                if (card && container) {
+                    card.remove();
+                    flagContainerForSave(container);
+                    showToast('Resource removed. Click "Save Page" to keep changes.');
+                }
             }
         });
     });
