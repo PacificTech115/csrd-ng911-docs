@@ -47,7 +47,15 @@ function blockNavigation() {
         const link = e.target.closest('a');
         const btn = e.target.closest('button');
 
+        // Allow toolbar buttons
         if (e.target.closest('.editor-toolbar')) return;
+
+        // Allow Add Resource and specific custom card actions
+        if (e.target.closest('.add-resource-btn') ||
+            e.target.closest('.resource-add-form') ||
+            e.target.closest('.custom-card-delete')) {
+            return;
+        }
 
         if (link || (btn && !btn.classList.contains('mobile-toggle'))) {
             e.preventDefault();
