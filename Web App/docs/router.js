@@ -323,38 +323,33 @@ class SPA_Router {
         const uName = user.username.toLowerCase();
         const logo = document.getElementById('sidebar-logo');
         const brandTitle = document.getElementById('sidebar-brand-title');
-        const heroH1 = document.querySelector('#hero h1');
 
         const muniConfig = {
             'revelstoke': {
                 name: 'City of Revelstoke',
-                logo: 'docs/assets/revelstoke/Revelstoke.png',
-                heroTitle: 'City of Revelstoke <span>NG9-1-1</span> Central<br>Addressing System'
+                logo: 'docs/assets/revelstoke/Revelstoke.png'
             },
             'golden': {
                 name: 'Town of Golden',
-                logo: 'docs/assets/golden/Golden.jpg',
-                heroTitle: 'Town of Golden <span>NG9-1-1</span> Central<br>Addressing System'
+                logo: 'docs/assets/golden/Golden.jpg'
             },
             'salmonarm': {
                 name: 'City of Salmon Arm',
-                logo: 'docs/assets/salmonarm/SalmonArm.png',
-                heroTitle: 'City of Salmon Arm <span>NG9-1-1</span> Central<br>Addressing System'
+                logo: 'docs/assets/salmonarm/SalmonArm.png'
             },
             'sicamous': {
                 name: 'District of Sicamous',
-                logo: 'docs/assets/sicamous/Sicamous.png',
-                heroTitle: 'District of Sicamous <span>NG9-1-1</span> Central<br>Addressing System'
+                logo: 'docs/assets/sicamous/Sicamous.png'
             }
         };
 
-        // Only apply municipal branding for non-admin municipal users
+        // Only apply municipal sidebar branding for non-admin users
+        // Hero title is now fully CMS-controlled, so we don't touch it here
         if (!isAdmin) {
             for (const [key, config] of Object.entries(muniConfig)) {
                 if (uName.includes(key)) {
                     if (config.logo && logo) logo.src = config.logo;
                     if (brandTitle) brandTitle.textContent = config.name;
-                    if (heroH1) heroH1.innerHTML = config.heroTitle;
                     break;
                 }
             }
