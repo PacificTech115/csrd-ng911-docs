@@ -1369,6 +1369,157 @@ a.link-card .card-sub {
   color: var(--text-primary);
 }
 
+/* Portal Item Picker Modal */
+.portal-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.portal-modal-content {
+  background: white;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.portal-modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+}
+
+.portal-modal-header h3 {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  color: var(--navy);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portal-modal-header h3 i {
+  color: var(--teal);
+}
+
+.portal-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.portal-modal-close:hover {
+  color: #ef4444;
+}
+
+.portal-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  background: var(--bg-page);
+}
+
+.portal-picker-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+}
+
+.portal-picker-state .spinner {
+  margin: 0 auto 20px auto;
+}
+
+.portal-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.portal-picker-card {
+  background: white;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portal-picker-card:hover {
+  border-color: var(--teal);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
+  transform: translateY(-2px);
+}
+
+.picker-card-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.3;
+}
+
+.picker-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.picker-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.picker-card-snippet {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.portal-modal-footer {
+  padding: 12px 24px;
+  background: #f8fafc;
+  border-top: 1px solid var(--border-strong);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.portal-picker-hint i {
+  color: var(--teal);
+  margin-right: 4px;
+}
+
 .custom-card-delete {
   background: none;
   border: none;

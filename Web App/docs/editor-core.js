@@ -335,76 +335,132 @@ function initResourceAdder() {
 
         btn.onclick = (e) => {
             e.preventDefault();
-            // Don't spawn multiple forms
-            if (btn.nextElementSibling && btn.nextElementSibling.classList.contains('resource-add-form')) return;
-
-            // Create inline form
-            const form = document.createElement('div');
-            form.className = 'resource-add-form';
-            form.innerHTML = `
-                <input type="text" placeholder="Enter ArcGIS Portal Item ID (e.g. 1a2b3c...)" maxlength="32" id="new-item-id">
-                <button type="button" class="fetch-btn">Add Resource</button>
-                <button type="button" class="cancel-btn">Cancel</button>
-            `;
-
-            btn.parentNode.insertBefore(form, btn.nextSibling);
-            const input = form.querySelector('#new-item-id');
-            input.focus();
-
-            // Cancel
-            form.querySelector('.cancel-btn').onclick = () => form.remove();
-
-            // Fetch
-            form.querySelector('.fetch-btn').onclick = async () => {
-                const itemId = input.value.trim();
-                if (!itemId || itemId.length !== 32) {
-                    showToast('Invalid Item ID format. Must be 32 characters.');
-                    return;
-                }
-
-                try {
-                    const fetchBtn = form.querySelector('.fetch-btn');
-                    fetchBtn.innerText = 'Fetching...';
-                    fetchBtn.disabled = true;
-
-                    // Query Portal
-                    const token = localStorage.getItem('csrd_arcgis_token'); // Make sure we use the token
-                    const portalUrl = 'https://apps.csrd.bc.ca/hub'; // Use portal directly
-                    const res = await fetch(`${portalUrl}/sharing/rest/content/items/${itemId}?f=json&token=${token || ''}`);
-                    const data = await res.json();
-
-                    if (data.error) {
-                        throw new Error(data.error.message || 'Item not found');
-                    }
-
-                    // Build Card HTML
-                    const container = btn.previousElementSibling; // .custom-cards-container
-                    const card = createCustomCardHTML(data, portalUrl);
-
-                    // Inject into container
-                    container.insertAdjacentHTML('beforeend', card);
-
-                    // Bind delete button for the newly added card
-                    bindCustomCardDeletes();
-
-                    // Trigger CMS Save for the container
-                    flagContainerForSave(container);
-                    showToast('Resource Added! Click "Save Page" to keep changes.');
-
-                    form.remove();
-
-                } catch (err) {
-                    console.error('Portal Fetch Error:', err);
-                    showToast(`Error: ${err.message}`);
-                    form.querySelector('.fetch-btn').innerText = 'Add Resource';
-                    form.querySelector('.fetch-btn').disabled = false;
-                }
-            };
+            const container = btn.previousElementSibling; // .custom-cards-container
+            openPortalPickerModal(container);
         };
     });
 
     // 2. Bind existing Delete Buttons on loaded custom cards
     bindCustomCardDeletes();
+}
+
+async function openPortalPickerModal(container) {
+    // Check if modal already exists
+    if (document.getElementById('portal-picker-modal')) return;
+
+    // Create modal structure
+    const modal = document.createElement('div');
+    modal.id = 'portal-picker-modal';
+    modal.className = 'portal-modal-overlay';
+    modal.innerHTML = `
+        <div class="portal-modal-content">
+            <div class="portal-modal-header">
+                <h3><i class="fas fa-satellite-dish"></i> Select Resource from Portal</h3>
+                <button type="button" class="portal-modal-close" id="close-portal-picker"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="portal-modal-body">
+                <div id="portal-picker-loading" class="portal-picker-state">
+                    <div class="spinner"></div>
+                    <p>Loading your ArcGIS Portal content...</p>
+                </div>
+                <div id="portal-picker-error" class="portal-picker-state" style="display:none; color: #ef4444;"></div>
+                <div class="portal-item-grid" id="portal-picker-grid" style="display:none;"></div>
+            </div>
+            <div class="portal-modal-footer">
+                <span class="portal-picker-hint"><i class="fas fa-info-circle"></i> Click to instantly add a card to this section.</span>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Bind close
+    const closeModal = () => modal.remove();
+    document.getElementById('close-portal-picker').onclick = closeModal;
+    modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+
+    // Fetch User Content
+    try {
+        const token = localStorage.getItem('csrd_arcgis_token');
+        const userStr = localStorage.getItem('csrd_arcgis_user');
+        if (!token || !userStr) throw new Error("Not authenticated with ArcGIS.");
+
+        const user = JSON.parse(userStr);
+        const portalUrl = 'https://apps.csrd.bc.ca/hub';
+
+        // Fetch up to 100 items from the root folder first
+        const res = await fetch(`${portalUrl}/sharing/rest/content/users/${user.username}?f=json&num=100&token=${token}`);
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error.message);
+
+        const grid = document.getElementById('portal-picker-grid');
+        const loading = document.getElementById('portal-picker-loading');
+
+        const typeMap = {
+            'Feature Service': 'type-featureservice',
+            'Map Service': 'type-mapservice',
+            'Geoprocessing Service': 'type-geoprocessingservice',
+            'Web Map': 'type-webmap',
+            'Web Mapping Application': 'type-siteapplication',
+            'Dashboard': 'type-siteapplication',
+            'Notebook': 'type-notebook',
+            'File Geodatabase': 'type-filegeodatabase',
+            'Data Store': 'type-datastore',
+            'Folder': 'type-folder'
+        };
+
+        let items = data.items || [];
+
+        if (items.length === 0) {
+            loading.style.display = 'none';
+            const errorDiv = document.getElementById('portal-picker-error');
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = 'No items found in your root ArcGIS Portal folder.';
+            return;
+        }
+
+        // Render mini-cards
+        items.forEach(item => {
+            const typeClass = typeMap[item.type] || 'type-file';
+            const card = document.createElement('div');
+            card.className = 'portal-picker-card';
+
+            // Format time
+            const dateStr = new Date(item.modified).toLocaleDateString();
+
+            card.innerHTML = `
+                <div class="picker-card-title">${item.title}</div>
+                <div class="picker-card-meta">
+                    <span class="resource-type ${typeClass}">${item.type}</span>
+                    <span class="picker-date">${dateStr}</span>
+                </div>
+                <div class="picker-card-snippet">${item.snippet || 'No snippet available.'}</div>
+            `;
+
+            // Click Handler -> Add to page
+            card.onclick = () => {
+                const html = createCustomCardHTML(item, portalUrl);
+                container.insertAdjacentHTML('beforeend', html);
+                bindCustomCardDeletes();
+                flagContainerForSave(container);
+                showToast(`Added: ${item.title}. Click "Save Page" to keep it.`);
+                closeModal();
+            };
+
+            grid.appendChild(card);
+        });
+
+        loading.style.display = 'none';
+        grid.style.display = 'grid';
+
+    } catch (err) {
+        console.error('Portal Content Fetch Error:', err);
+        document.getElementById('portal-picker-loading').style.display = 'none';
+        const errorDiv = document.getElementById('portal-picker-error');
+        errorDiv.style.display = 'block';
+        errorDiv.innerHTML = `Error: ${err.message}`;
+    }
 }
 
 function createCustomCardHTML(item, portalUrl) {
