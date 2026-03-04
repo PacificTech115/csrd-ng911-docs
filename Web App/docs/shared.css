@@ -914,7 +914,7 @@ a.link-card .card-sub {
   margin-top: 2px
 }
 
-/* ── BREAKDOWN CARDS ── */
+/* ── BREAKDOWN CARDS (collapsible) ── */
 .breakdown-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -922,11 +922,19 @@ a.link-card .card-sub {
   padding: 20px;
   margin: 10px 0;
   transition: all .25s;
-  border-left: 4px solid var(--teal)
+  border-left: 4px solid var(--teal);
+  cursor: pointer;
+  position: relative
 }
 
 .breakdown-card:hover {
-  box-shadow: var(--shadow-sm)
+  box-shadow: var(--shadow-sm);
+  border-left-color: var(--accent)
+}
+
+.breakdown-card.expanded {
+  border-left-color: var(--accent);
+  box-shadow: var(--shadow-md)
 }
 
 .breakdown-card h4 {
@@ -934,7 +942,26 @@ a.link-card .card-sub {
   font-size: .9rem;
   font-weight: 700;
   color: var(--navy);
-  margin: 0 0 8px
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between
+}
+
+.breakdown-card h4::after {
+  content: '\f078';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: .65rem;
+  color: var(--text-muted);
+  transition: transform .3s ease;
+  flex-shrink: 0;
+  margin-left: 12px
+}
+
+.breakdown-card.expanded h4::after {
+  transform: rotate(180deg);
+  color: var(--teal)
 }
 
 .breakdown-card .breakdown-meta {
@@ -957,10 +984,22 @@ a.link-card .card-sub {
 .breakdown-card p {
   font-size: .86rem;
   color: var(--text-secondary);
-  margin-bottom: 8px
+  margin-bottom: 0
 }
 
 .breakdown-card .breakdown-detail {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  transition: max-height .4s ease, opacity .3s ease, margin-top .3s ease, padding-top .3s ease
+}
+
+.breakdown-card.expanded .breakdown-detail {
+  max-height: 600px;
+  opacity: 1;
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid var(--border)
@@ -983,6 +1022,16 @@ a.link-card .card-sub {
 
 .breakdown-card .breakdown-detail li {
   margin-bottom: 3px
+}
+
+/* ── Code Section Highlight ── */
+.code-section.highlighted {
+  background: rgba(13, 148, 136, 0.08);
+  border-left: 3px solid var(--teal);
+  padding-left: 8px;
+  display: inline-block;
+  border-radius: 0 4px 4px 0;
+  transition: background .3s ease
 }
 
 /* ══════════════════════════════════════

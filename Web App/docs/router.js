@@ -197,6 +197,37 @@ class SPA_Router {
             });
         });
 
+        // Initialize breakdown-card toggles (Attribute Rule section expand/collapse)
+        document.querySelectorAll('.breakdown-card[data-section]').forEach(card => {
+            if (card.dataset.toggleBound) return;
+            card.dataset.toggleBound = 'true';
+            card.addEventListener('click', function (e) {
+                // Don't toggle if they clicked a link inside
+                if (e.target.closest('a')) return;
+
+                const wasExpanded = this.classList.contains('expanded');
+                // Collapse all cards first
+                document.querySelectorAll('.breakdown-card.expanded').forEach(c => c.classList.remove('expanded'));
+                // Clear all code highlights
+                document.querySelectorAll('.code-section.highlighted').forEach(s => s.classList.remove('highlighted'));
+
+                if (!wasExpanded) {
+                    this.classList.add('expanded');
+                    // Highlight corresponding code section
+                    const sectionId = this.getAttribute('data-section');
+                    const codeSection = document.querySelector(`.code-section[data-section="${sectionId}"]`);
+                    if (codeSection) {
+                        codeSection.classList.add('highlighted');
+                        // Open the source code details if closed
+                        const details = codeSection.closest('details');
+                        if (details && !details.open) details.open = true;
+                        // Scroll the code section into view
+                        setTimeout(() => codeSection.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+                    }
+                }
+            });
+        });
+
         // Let editor-core.js know we navigated
         if (typeof window.initEditorUI === 'function') {
             window.initEditorUI();
