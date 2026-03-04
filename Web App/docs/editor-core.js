@@ -34,6 +34,7 @@ function enableEditMode() {
     document.body.classList.add('editor-mode-active');
     injectToolbar();
     makeNodesEditable();
+    initResourceAdder();
     blockNavigation();
     showToast('WYSIWYG Editor Active. Toolbar at top.');
 }
@@ -315,6 +316,152 @@ function initLinkEditors() {
                 showToast('Link updated.');
             }
         }, true); // Use capture phase to intercept before navigation
+    });
+}
+
+// --- ADD RESOURCE CARD LOGIC ---
+function initResourceAdder() {
+    // 1. Show Add Buttons
+    document.querySelectorAll('.add-resource-btn').forEach(btn => {
+        btn.style.display = 'flex';
+
+        btn.onclick = (e) => {
+            e.preventDefault();
+            // Don't spawn multiple forms
+            if (btn.nextElementSibling && btn.nextElementSibling.classList.contains('resource-add-form')) return;
+
+            // Create inline form
+            const form = document.createElement('div');
+            form.className = 'resource-add-form';
+            form.innerHTML = `
+                <input type="text" placeholder="Enter ArcGIS Portal Item ID (e.g. 1a2b3c...)" maxlength="32" id="new-item-id">
+                <button type="button" class="fetch-btn">Add Resource</button>
+                <button type="button" class="cancel-btn">Cancel</button>
+            `;
+
+            btn.parentNode.insertBefore(form, btn.nextSibling);
+            const input = form.querySelector('#new-item-id');
+            input.focus();
+
+            // Cancel
+            form.querySelector('.cancel-btn').onclick = () => form.remove();
+
+            // Fetch
+            form.querySelector('.fetch-btn').onclick = async () => {
+                const itemId = input.value.trim();
+                if (!itemId || itemId.length !== 32) {
+                    showToast('Invalid Item ID format. Must be 32 characters.');
+                    return;
+                }
+
+                try {
+                    const fetchBtn = form.querySelector('.fetch-btn');
+                    fetchBtn.innerText = 'Fetching...';
+                    fetchBtn.disabled = true;
+
+                    // Query Portal
+                    const token = localStorage.getItem('csrd_arcgis_token'); // Make sure we use the token
+                    const portalUrl = 'https://apps.csrd.bc.ca/hub'; // Use portal directly
+                    const res = await fetch(`${portalUrl}/sharing/rest/content/items/${itemId}?f=json&token=${token || ''}`);
+                    const data = await res.json();
+
+                    if (data.error) {
+                        throw new Error(data.error.message || 'Item not found');
+                    }
+
+                    // Build Card HTML
+                    const container = btn.previousElementSibling; // .custom-cards-container
+                    const card = createCustomCardHTML(data, portalUrl);
+
+                    // Inject into container
+                    container.insertAdjacentHTML('beforeend', card);
+
+                    // Bind delete button for the newly added card
+                    bindCustomCardDeletes();
+
+                    // Trigger CMS Save for the container
+                    flagContainerForSave(container);
+                    showToast('Resource Added! Click "Save Page" to keep changes.');
+
+                    form.remove();
+
+                } catch (err) {
+                    console.error('Portal Fetch Error:', err);
+                    showToast(`Error: ${err.message}`);
+                    form.querySelector('.fetch-btn').innerText = 'Add Resource';
+                    form.querySelector('.fetch-btn').disabled = false;
+                }
+            };
+        };
+    });
+
+    // 2. Bind existing Delete Buttons on loaded custom cards
+    bindCustomCardDeletes();
+}
+
+function createCustomCardHTML(item, portalUrl) {
+    // Map item types to CSS classes
+    const typeMap = {
+        'Feature Service': 'type-featureservice',
+        'Map Service': 'type-mapservice',
+        'Geoprocessing Service': 'type-geoprocessingservice',
+        'Web Map': 'type-webmap',
+        'Web Mapping Application': 'type-siteapplication',
+        'Dashboard': 'type-siteapplication',
+        'Notebook': 'type-notebook',
+        'File Geodatabase': 'type-filegeodatabase',
+        'Data Store': 'type-datastore',
+        'Folder': 'type-folder'
+    };
+
+    const typeClass = typeMap[item.type] || 'type-file';
+    let urlHtml = '';
+
+    // Portal Link always present
+    urlHtml += `<a href="${portalUrl}/home/item.html?id=${item.id}" target="_blank" class="btn-resource btn-primary"><i class="fas fa-external-link-alt"></i> Portal</a>`;
+
+    // REST Endpoint if it's a service
+    if (item.url) {
+        urlHtml += `<a href="${item.url}" target="_blank" class="btn-resource btn-secondary"><i class="fas fa-server"></i> REST</a>`;
+    }
+
+    return `
+    <li class="download-item custom-card">
+        <div class="download-info">
+            <div class="download-icon"><i class="fas fa-link"></i></div>
+            <div style="flex:1">
+                <div class="download-filename">
+                    ${item.title} <span class="resource-type ${typeClass}">${item.type}</span>
+                </div>
+                <div class="download-desc">${item.snippet || item.description || 'No description available in Portal.'}</div>
+                <div class="download-path">ID: ${item.id}</div>
+            </div>
+        </div>
+        <div class="action-group">
+            ${urlHtml}
+            <button type="button" class="custom-card-delete" title="Remove Resource"><i class="fas fa-trash"></i></button>
+        </div>
+    </li>`;
+}
+
+function bindCustomCardDeletes() {
+    document.querySelectorAll('.custom-card-delete').forEach(btn => {
+        // Remove existing listener to prevent doubling
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+
+        newBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (confirm('Remove this resource?')) {
+                const card = this.closest('.custom-card');
+                const container = card.closest('.custom-cards-container');
+                card.remove();
+                flagContainerForSave(container);
+                showToast('Resource removed. Click "Save Page" to keep changes.');
+            }
+        });
     });
 }
 

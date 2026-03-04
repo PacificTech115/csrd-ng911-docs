@@ -1277,6 +1277,121 @@ a.link-card .card-sub {
   color: var(--teal)
 }
 
+/* Custom Resource Cards (Admin Added) */
+.custom-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.custom-cards-container:empty {
+  margin: 0;
+}
+
+.add-resource-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.add-resource-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-glow);
+}
+
+.resource-add-form {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--teal-border);
+  border-radius: var(--radius);
+  margin-top: 8px;
+  align-items: center;
+}
+
+.resource-add-form input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.resource-add-form input:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-glow);
+}
+
+.resource-add-form button {
+  padding: 10px 20px;
+  background: var(--teal);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.resource-add-form button:hover {
+  background: #0a7d76;
+}
+
+.resource-add-form .cancel-btn {
+  background: white;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+}
+
+.resource-add-form .cancel-btn:hover {
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+
+.custom-card-delete {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: all 0.2s;
+  display: none;
+}
+
+.editor-mode-active .custom-card-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-card-delete:hover {
+  background: #fee2e2;
+  opacity: 1;
+}
+
 /* ══════════════════════════════════════
    GRIDS
    ══════════════════════════════════════ */
