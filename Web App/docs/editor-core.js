@@ -324,7 +324,15 @@ function initLinkEditors() {
 function openLinkEditorModal(linkTarget) {
     if (document.getElementById('link-editor-modal')) return;
 
-    const currentUrl = linkTarget.getAttribute('href') || '';
+    // Try to get the real value from CMS first if it has a direct key
+    let currentUrl = linkTarget.getAttribute('href') || '';
+    if (window.cms && linkTarget.hasAttribute('data-cms-href')) {
+        const key = linkTarget.getAttribute('data-cms-href');
+        const cachedRow = window.cms.cache[key];
+        if (cachedRow && cachedRow[window.cms.fieldMap.content]) {
+            currentUrl = cachedRow[window.cms.fieldMap.content];
+        }
+    }
     
     // Check if it's one of the Special Municipal Pitemx Cards (they have # as href but function differently)
     const isPitemx = window.location.hash !== '' && linkTarget.hasAttribute('download');
