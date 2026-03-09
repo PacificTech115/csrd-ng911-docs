@@ -250,8 +250,9 @@ class SPA_Router {
         pitemxBtnIds.forEach(id => {
             const btn = document.getElementById(id);
             if (btn) {
-                btn.addEventListener('click', (e) => {
+                btn.addEventListener('click', async (e) => {
                     e.preventDefault();
+                    
                     const token = auth.getToken();
                     if (!token) {
                         alert("Authentication token expired. Please reload the page to sign in again before downloading.");
@@ -264,9 +265,39 @@ class SPA_Router {
                     else if (id.includes('golden')) serviceUrl = serviceMap['golden'];
                     else if (id.includes('sicamous')) serviceUrl = serviceMap['sicamous'];
 
-                    // Build the authenticated REST API endpoint requesting a pitemx
-                    const downloadUrl = `${serviceUrl}?f=pitemx&token=${token}`;
-                    window.location.href = downloadUrl;
+                    if (!serviceUrl) return;
+
+                    // Provide visual feedback while fetching the Item ID
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Locating...';
+                    btn.style.pointerEvents = 'none';
+                    if (window.showToast) window.showToast('Locating Portal Item...');
+
+                    try {
+                        // 1. Fetch the Feature Service metadata
+                        const response = await fetch(`${serviceUrl}?f=json&token=${token}`);
+                        const data = await response.json();
+
+                        if (data.error) throw new Error(data.error.message || "Failed to fetch service metadata");
+                        if (!data.serviceItemId) throw new Error("Feature Service does not have an underlying serviceItemId.");
+
+                        const itemId = data.serviceItemId;
+
+                        // 2. Build the authenticated REST API endpoint requesting the pitemx from the Portal Item
+                        const downloadUrl = `https://apps.csrd.bc.ca/hub/sharing/rest/content/items/${itemId}/item.pitemx?token=${token}`;
+                        
+                        // Fire the download
+                        window.location.href = downloadUrl;
+                        if (window.showToast) window.showToast('Download started.');
+
+                    } catch (err) {
+                        console.error("Download Error:", err);
+                        alert("Could not generate download link: " + err.message);
+                    } finally {
+                        // Restore button state
+                        btn.innerHTML = originalText;
+                        btn.style.pointerEvents = 'auto';
+                    }
                 });
             }
         });
