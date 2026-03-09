@@ -57,27 +57,11 @@ function blockNavigation() {
             return;
         }
 
-        // Links inside CMS-managed containers: show inline link editor prompt
+        // Links inside CMS-managed containers: show inline link editor modal
         if (link && (link.closest('[data-cms-html]') || link.closest('[data-cms-key]') || link.hasAttribute('data-cms-href'))) {
             e.preventDefault();
             e.stopPropagation();
-
-            const currentUrl = link.getAttribute('href') || '';
-            const newUrl = prompt('Edit Link Destination:', currentUrl);
-
-            if (newUrl !== null && newUrl !== currentUrl) {
-                link.setAttribute('href', newUrl);
-
-                // If it has a dedicated CMS key, track it
-                if (link.hasAttribute('data-cms-href')) {
-                    const key = link.getAttribute('data-cms-href');
-                    if (window.cms) window.cms.trackEdit(key, newUrl, 'url');
-                }
-
-                // Flag the parent container for saving
-                flagContainerForSave(link);
-                showToast('Link updated.');
-            }
+            openLinkEditorModal(link);
             return;
         }
 
@@ -332,23 +316,78 @@ function initLinkEditors() {
             e.preventDefault();
             e.stopPropagation();
 
-            const currentUrl = this.getAttribute('href');
-            const newUrl = prompt('Edit Link Destination:', currentUrl);
-
-            if (newUrl !== null && newUrl !== currentUrl) {
-                this.setAttribute('href', newUrl);
-
-                // Track edit structurally
-                const key = this.getAttribute('data-cms-href');
-                window.cms.trackEdit(key, newUrl, 'url');
-
-                // Also trigger save on parent container if it's part of a visual block
-                flagContainerForSave(this);
-
-                showToast('Link updated.');
-            }
+            openLinkEditorModal(this);
         }, true); // Use capture phase to intercept before navigation
     });
+}
+
+function openLinkEditorModal(linkTarget) {
+    if (document.getElementById('link-editor-modal')) return;
+
+    const currentUrl = linkTarget.getAttribute('href') || '';
+    
+    // Check if it's one of the Special Municipal Pitemx Cards (they have # as href but function differently)
+    const isPitemx = window.location.hash !== '' && linkTarget.hasAttribute('download');
+    
+    const modal = document.createElement('div');
+    modal.id = 'link-editor-modal';
+    modal.className = 'portal-modal-overlay';
+    modal.innerHTML = `
+        <div class="portal-modal-content" style="max-width: 500px;">
+            <div class="portal-modal-header">
+                <h3><i class="fas fa-link"></i> Edit Link Destination</h3>
+                <button type="button" class="portal-modal-close" id="close-link-editor"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="portal-modal-body" style="padding: 20px;">
+                <label for="link-url-input" style="display:block; margin-bottom:10px; font-weight: 600; color: var(--navy);">URL or URI:</label>
+                <input type="text" id="link-url-input" value="${currentUrl}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; margin-bottom: 20px;" ${isPitemx ? 'disabled title="Managed by router.js"' : ''}>
+                
+                ${isPitemx ? '<div style="background:var(--gray-border); padding: 10px; border-radius: 4px; font-size: 0.9rem; color:var(--text-secondary);"><i class="fas fa-info-circle"></i> This is a special ArcGIS internal download link managed by the router. You cannot change its href directly.</div>' : ''}
+            </div>
+            <div class="portal-modal-footer" style="justify-content: flex-end;">
+                <button type="button" id="cancel-link-editor" style="background: transparent; border: 1px solid #ccc; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 10px;">Cancel</button>
+                <button type="button" id="save-link-editor" style="background: var(--teal); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; ${isPitemx ? 'opacity: 0.5; pointer-events:none;' : ''}">Save Link</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const closeBtn = modal.querySelector('#close-link-editor');
+    const cancelBtn = modal.querySelector('#cancel-link-editor');
+    const saveBtn = modal.querySelector('#save-link-editor');
+    const input = modal.querySelector('#link-url-input');
+
+    const closeModal = () => modal.remove();
+
+    closeBtn.onclick = closeModal;
+    cancelBtn.onclick = closeModal;
+
+    if (!isPitemx) {
+        saveBtn.onclick = () => {
+            const newUrl = input.value.trim();
+            if (newUrl !== currentUrl) {
+                linkTarget.setAttribute('href', newUrl);
+
+                if (linkTarget.hasAttribute('data-cms-href')) {
+                    const key = linkTarget.getAttribute('data-cms-href');
+                    if (window.cms) window.cms.trackEdit(key, newUrl, 'url');
+                }
+
+                flagContainerForSave(linkTarget);
+                showToast('Link updated.');
+            }
+            closeModal();
+        };
+
+        // Allow pressing Enter to save
+        input.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') saveBtn.click();
+        });
+        
+        // Focus input
+        setTimeout(() => input.focus(), 50);
+    }
 }
 
 // --- ADD RESOURCE CARD LOGIC ---
