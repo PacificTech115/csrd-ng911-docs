@@ -57,11 +57,28 @@ function blockNavigation() {
             return;
         }
 
-        // Allow links inside CMS-managed containers so the link editor prompt works
+        // Links inside CMS-managed containers: show inline link editor prompt
         if (link && (link.closest('[data-cms-html]') || link.closest('[data-cms-key]') || link.hasAttribute('data-cms-href'))) {
-            // Let the link editor capture-phase handler deal with this click
-            e.preventDefault(); // Still prevent actual navigation
-            return;             // But don't block the event from reaching the link editor
+            e.preventDefault();
+            e.stopPropagation();
+
+            const currentUrl = link.getAttribute('href') || '';
+            const newUrl = prompt('Edit Link Destination:', currentUrl);
+
+            if (newUrl !== null && newUrl !== currentUrl) {
+                link.setAttribute('href', newUrl);
+
+                // If it has a dedicated CMS key, track it
+                if (link.hasAttribute('data-cms-href')) {
+                    const key = link.getAttribute('data-cms-href');
+                    if (window.cms) window.cms.trackEdit(key, newUrl, 'url');
+                }
+
+                // Flag the parent container for saving
+                flagContainerForSave(link);
+                showToast('Link updated.');
+            }
+            return;
         }
 
         if (link || (btn && !btn.classList.contains('mobile-toggle'))) {
