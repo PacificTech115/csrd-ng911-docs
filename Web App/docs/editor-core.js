@@ -57,6 +57,13 @@ function blockNavigation() {
             return;
         }
 
+        // Allow links inside CMS-managed containers so the link editor prompt works
+        if (link && (link.closest('[data-cms-html]') || link.closest('[data-cms-key]') || link.hasAttribute('data-cms-href'))) {
+            // Let the link editor capture-phase handler deal with this click
+            e.preventDefault(); // Still prevent actual navigation
+            return;             // But don't block the event from reaching the link editor
+        }
+
         if (link || (btn && !btn.classList.contains('mobile-toggle'))) {
             e.preventDefault();
             e.stopPropagation();
