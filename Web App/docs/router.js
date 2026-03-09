@@ -241,10 +241,10 @@ class SPA_Router {
             'btn-sicamous-pitemx', 'home-btn-sicamous-pitemx'
         ];
 
-        const itemMap = {
-            'revelstoke': 'f0c4a2487440451d81a7e1a8bf04b81e',
-            'golden': '5bc18cd5614f413a8aea25e57d55873a',
-            'sicamous': 'f820d1ba962846d1bd71fa0d3c975043'
+        const serviceMap = {
+            'revelstoke': 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/NG911_Address_Revelstoke_Edit/FeatureServer',
+            'golden': 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/NG911_Address_Golden_Edit/FeatureServer',
+            'sicamous': 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/NG911_Address_Sicamous_Edit/FeatureServer'
         };
 
         pitemxBtnIds.forEach(id => {
@@ -257,14 +257,15 @@ class SPA_Router {
                         alert("Authentication token expired. Please reload the page to sign in again before downloading.");
                         return;
                     }
-                    // Determine which item ID to use based on the button ID
-                    let itemId = '';
-                    if (id.includes('revelstoke')) itemId = itemMap['revelstoke'];
-                    else if (id.includes('golden')) itemId = itemMap['golden'];
-                    else if (id.includes('sicamous')) itemId = itemMap['sicamous'];
+                    
+                    // Determine which service URL to use based on the button ID
+                    let serviceUrl = '';
+                    if (id.includes('revelstoke')) serviceUrl = serviceMap['revelstoke'];
+                    else if (id.includes('golden')) serviceUrl = serviceMap['golden'];
+                    else if (id.includes('sicamous')) serviceUrl = serviceMap['sicamous'];
 
-                    // Build the authenticated REST API endpoint
-                    const downloadUrl = `https://apps.csrd.bc.ca/hub/sharing/rest/content/items/${itemId}/item.pitemx?token=${token}`;
+                    // Build the authenticated REST API endpoint requesting a pitemx
+                    const downloadUrl = `${serviceUrl}?f=pitemx&token=${token}`;
                     window.location.href = downloadUrl;
                 });
             }
