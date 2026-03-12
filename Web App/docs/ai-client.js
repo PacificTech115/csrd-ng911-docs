@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Authentication Check ---
+    const token = localStorage.getItem('csrd_arcgis_token');
+    const aiWidgetContainer = document.getElementById('ai-widget-container');
+    
+    // Auto-hide the entire widget if the user is not authenticated with the CSRD Portal
+    if (!token) {
+        if (aiWidgetContainer) aiWidgetContainer.style.display = 'none';
+        return; // Stop initialization
+    }
+
     const fab = document.getElementById('ai-fab');
     const modal = document.getElementById('ai-chat-modal');
     const btnClose = document.getElementById('ai-btn-close');
@@ -14,18 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State Toggles ---
     fab.addEventListener('click', () => {
-        document.getElementById('ai-widget-container').classList.remove('ai-widget-closed');
-        document.getElementById('ai-widget-container').classList.add('ai-widget-open');
+        aiWidgetContainer.classList.remove('ai-widget-closed');
+        aiWidgetContainer.classList.add('ai-widget-open');
         inputField.focus();
     });
 
     btnClose.addEventListener('click', () => {
-        document.getElementById('ai-widget-container').classList.remove('ai-widget-open');
-        document.getElementById('ai-widget-container').classList.add('ai-widget-closed');
+        aiWidgetContainer.classList.remove('ai-widget-open');
+        aiWidgetContainer.classList.add('ai-widget-closed');
         // Reset full screen if closed
         if (isFullScreen) {
             isFullScreen = false;
-            document.getElementById('ai-widget-container').classList.remove('ai-widget-fullscreen');
+            aiWidgetContainer.classList.remove('ai-widget-fullscreen');
             btnExpand.innerHTML = '<i class="fas fa-expand"></i>';
         }
     });
@@ -33,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnExpand.addEventListener('click', () => {
         isFullScreen = !isFullScreen;
         if (isFullScreen) {
-            document.getElementById('ai-widget-container').classList.add('ai-widget-fullscreen');
+            aiWidgetContainer.classList.add('ai-widget-fullscreen');
             btnExpand.innerHTML = '<i class="fas fa-compress"></i>';
         } else {
-            document.getElementById('ai-widget-container').classList.remove('ai-widget-fullscreen');
+            aiWidgetContainer.classList.remove('ai-widget-fullscreen');
             btnExpand.innerHTML = '<i class="fas fa-expand"></i>';
         }
     });
@@ -81,7 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('https://cheryl-sandier-caylee.ngrok-free.dev/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, thread_id: sessionId })
+                body: JSON.stringify({ 
+                    message: text, 
+                    thread_id: sessionId,
+                    token: token 
+                })
             });
 
             if (!response.ok) throw new Error("API returned status " + response.status);
