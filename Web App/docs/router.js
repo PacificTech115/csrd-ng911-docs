@@ -37,7 +37,22 @@ class SPA_Router {
     }
 
     async enforceAuth() {
-        // Blocks rendering until auth is verified
+        // [DEV MODE BYPASS]: Allow local 8080 testing without getting 'invalid redirect uri' from ArcGIS Portal
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log("Local Dev Mode: Bypassing ArcGIS Authentication");
+            
+            // Mock a temporary user so the CMS and editor tools don't crash
+            localStorage.setItem('csrd_arcgis_user', JSON.stringify({ username: "local_dev" }));
+            localStorage.setItem('csrd_arcgis_token', 'dev_token_123');
+            localStorage.setItem('csrd_arcgis_expires', (Date.now() + 86400000).toString());
+
+            await window.cms.fetchAllContent();
+            this.buildSidebarNav();
+            this.initRouter();
+            return;
+        }
+
+        // Blocks rendering until auth is verified (Production Behavior)
         await auth.init();
 
         if (auth.isAuthenticated()) {

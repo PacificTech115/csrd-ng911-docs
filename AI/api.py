@@ -6,11 +6,12 @@ directly to the Web App frontend.
 
 import json
 import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 import uvicorn
+import requests
 
 # Import the pre-built, tool-equipped LangGraph agent
 from langchain_core.messages import HumanMessage
@@ -87,7 +88,7 @@ async def stream_agent_events(user_message: str, thread_id: str):
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
     """
-    Accepts a user message and returns an SSE stream of the AI's response execution.
+    Accepts a user message and returns an SSE stream.
     """
     return EventSourceResponse(stream_agent_events(request.message, request.thread_id))
 

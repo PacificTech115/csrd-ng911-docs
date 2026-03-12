@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let accumulatedText = "";
 
         try {
-            // Using Fetch POST to read SSE stream via Ngrok tunnel
-            const response = await fetch('https://cheryl-sandier-caylee.ngrok-free.dev/api/chat', {
+            // Using Fetch POST to read SSE stream via local backend
+            const response = await fetch('http://localhost:8000/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
