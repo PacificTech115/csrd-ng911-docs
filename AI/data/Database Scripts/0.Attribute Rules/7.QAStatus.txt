@@ -1,0 +1,38 @@
+// Preserve explicit QAStatus edits (including GP tool writes)
+if ($originalFeature != null && $feature.QAStatus != $originalFeature.QAStatus) {
+    return $feature.QAStatus;
+}
+
+// On insert, keep incoming QAStatus if provided (e.g., from QA->DEFAULT post);
+// otherwise default to Pending.
+if ($originalFeature == null) {
+    var incomingStatus = Trim(DefaultValue($feature.QAStatus, ""));
+    return IIF(incomingStatus == "", "Pending", $feature.QAStatus);
+}
+
+function sameValue(a, b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    return Text(a) == Text(b);
+}
+
+// Watch only QA-relevant business fields (exclude DateUpdate to avoid rule loops)
+var changed =
+    !sameValue($feature.DiscrpAgID, $originalFeature.DiscrpAgID) ||
+    !sameValue($feature.NGUID, $originalFeature.NGUID) ||
+    !sameValue($feature.Country, $originalFeature.Country) ||
+    !sameValue($feature.A1, $originalFeature.A1) ||
+    !sameValue($feature.A2, $originalFeature.A2) ||
+    !sameValue($feature.A3, $originalFeature.A3) ||
+    !sameValue($feature.Full_Addr, $originalFeature.Full_Addr);
+
+// If watched fields changed and status wasn't already Pending, reset to Pending
+var oldStatus = Lower(Trim(DefaultValue($originalFeature.QAStatus, "")));
+var isPending = Find("pending", oldStatus) == 0;
+
+if (changed && !isPending) {
+    return "Pending";
+}
+
+// Otherwise keep current status
+return $feature.QAStatus;

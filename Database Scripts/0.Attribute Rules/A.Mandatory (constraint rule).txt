@@ -1,0 +1,26 @@
+// Allow deletes
+if ($editcontext.editType == "DELETE") return true;
+
+function isBlank(v) {
+  if (IsEmpty(v)) return true;
+  return Trim(Text(v)) == "";
+}
+
+var missing = [];
+
+if (isBlank($feature.Full_Addr))  Push(missing, "Full_Addr");
+if (isBlank($feature.Agency))     Push(missing, "Agency");
+if (isBlank($feature.DiscrpAgID)) Push(missing, "DiscrpAgID");
+if (isBlank($feature.NGUID))      Push(missing, "NGUID");
+if (isBlank($feature.Country))    Push(missing, "Country");
+if (isBlank($feature.A1))         Push(missing, "A1");
+if (isBlank($feature.A2))         Push(missing, "A2");
+if (isBlank($feature.A3))         Push(missing, "A3");
+
+if (Count(missing) > 0) {
+  return {
+    "errorMessage": "Missing mandatory field(s): " + Concatenate(missing, ", ")
+  };
+}
+
+return true;

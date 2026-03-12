@@ -1,0 +1,218 @@
+<div style="font-family:Segoe UI,Arial,sans-serif;color:#1f2937;max-width:1100px;">
+    <h2 style="margin:0 0 12px 0;">Nightly QA Automation Report</h2>
+  
+    <div style="margin-bottom:14px;">
+      <span style="display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;
+        background:@{if(equals(triggerBody()?['status'],'success'),'#dcfce7','#fee2e2')};
+        color:@{if(equals(triggerBody()?['status'],'success'),'#166534','#991b1b')};">
+        @{if(equals(triggerBody()?['status'],'success'),'PASSED','FAILED')}
+      </span>
+    </div>
+  
+    <table style="border-collapse:collapse;width:100%;margin-bottom:16px;">
+      <tbody>
+        <tr><td style="padding:6px 10px;background:#f8fafc;width:220px;"><b>Run ID</b></td><td style="padding:6px 10px;">@{triggerBody()?['run_id']}</td></tr>
+        <tr><td style="padding:6px 10px;background:#f8fafc;"><b>User</b></td><td style="padding:6px 10px;">@{triggerBody()?['user']}</td></tr>
+        <tr><td style="padding:6px 10px;background:#f8fafc;"><b>Started</b></td><td style="padding:6px 10px;">@{formatDateTime(triggerBody()?['started'],'dddd, MMMM d, yyyy  h:mm tt')}</td></tr>
+        <tr><td style="padding:6px 10px;background:#f8fafc;"><b>Finished</b></td><td style="padding:6px 10px;">@{formatDateTime(triggerBody()?['finished'],'dddd, MMMM d, yyyy  h:mm tt')}</td></tr>
+      </tbody>
+    </table>
+  
+    <h3 style="margin:18px 0 8px 0;">QA Counters</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;margin-bottom:12px;">
+      <thead>
+        <tr style="background:#111827;color:#ffffff;">
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Metric</th>
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Count</th>
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Features checked (new/edited or not previously passed)</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;">
+            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0)}
+          </td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Rows evaluated in this QA run</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Features with blocking issues</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#dc2626;">
+            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)}
+          </td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Mandatory-null failures</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Features passing blocking checks</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#15803d;">
+            @{if(
+              greater(
+                sub(
+                  coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0),
+                  coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)
+                ),
+                0
+              ),
+              sub(
+                coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0),
+                coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)
+              ),
+              0
+            )}
+          </td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Scope minus blocking failures</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Warning issue groups</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#ea580c;">
+            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['address_duplicates']?['duplicate_nguid_count'], 0)}
+          </td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Duplicate address groups (warning only)</td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <h3 style="margin:18px 0 8px 0;">QA Run Details</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;margin-bottom:12px;">
+      <thead>
+        <tr style="background:#0f766e;color:#ffffff;">
+          <th style="text-align:left;padding:8px;border:1px solid #115e59;">QA Check</th>
+          <th style="text-align:left;padding:8px;border:1px solid #115e59;">Result</th>
+          <th style="text-align:left;padding:8px;border:1px solid #115e59;">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Schema fields present</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields']),0),'#15803d','#dc2626')};">
+            @{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields']),0),'PASSED','FAILED')}
+          </td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">
+            Missing required fields: @{length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields'])}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">NGUID uniqueness</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0),'#15803d','#dc2626')};">
+            @{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0),'PASSED','FAILED')}
+          </td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">
+            Duplicate NGUID count: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0)}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Mandatory fields exist</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing']),0),'#15803d','#dc2626')};">
+            @{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing']),0),'PASSED','FAILED')}
+          </td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">
+            Missing mandatory fields: @{length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing'])}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Mandatory field null check</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),'#15803d','#dc2626')};">
+            @{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),'PASSED','FAILED')}
+          </td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">
+            Features with one or more mandatory nulls: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0)}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Address duplicates</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#ea580c;">WARNING</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">
+            Duplicate address groups: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['address_duplicates']?['duplicate_nguid_count'],0)}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div style="display:@{if(greater(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),0),'block','none')};">
+      <h3 style="margin:18px 0 8px 0;color:#dc2626;">Blocking Feature Samples</h3>
+      <p style="font-size:13px;margin:0 0 8px 0;color:#6b7280;">
+        Showing up to 5 of
+        @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0)}
+        features with mandatory-null failures.
+      </p>
+      <table style="border-collapse:collapse;width:100%;font-size:14px;margin-bottom:12px;">
+        <thead>
+          <tr style="background:#991b1b;color:#ffffff;">
+            <th style="text-align:left;padding:8px;border:1px solid #7f1d1d;">Object ID</th>
+            <th style="text-align:left;padding:8px;border:1px solid #7f1d1d;">NGUID</th>
+            <th style="text-align:left;padding:8px;border:1px solid #7f1d1d;">Failing Fields</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),'table-row','none')};">
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['object_id'],'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['nguid'],'N/A'),'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['failing_fields'],', '),'')}</td>
+          </tr>
+          <tr style="display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),'table-row','none')};">
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['object_id'],'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['nguid'],'N/A'),'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['failing_fields'],', '),'')}</td>
+          </tr>
+          <tr style="display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),'table-row','none')};">
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['object_id'],'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['nguid'],'N/A'),'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['failing_fields'],', '),'')}</td>
+          </tr>
+          <tr style="display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),'table-row','none')};">
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['object_id'],'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['nguid'],'N/A'),'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['failing_fields'],', '),'')}</td>
+          </tr>
+          <tr style="display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),'table-row','none')};">
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['object_id'],'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['nguid'],'N/A'),'')}</td>
+            <td style="padding:8px;border:1px solid #fecaca;background:#fef2f2;">@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['failing_fields'],', '),'')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    @{outputs('IssuesByAgencyTableHtml')}
+  
+    <h3 style="margin:18px 0 8px 0;">Pipeline Stages</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;">
+      <thead>
+        <tr style="background:#111827;color:#ffffff;">
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Step</th>
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Stage</th>
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Result</th>
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:8px;border:1px solid #e5e7eb;">1</td><td style="padding:8px;border:1px solid #e5e7eb;">Reconcile and Post Municipal Versions to QA Version</td><td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),'#6b7280',if(equals(triggerBody()?['stage_results']?['MUNI_TO_QA']?['success'],true),'#15803d','#dc2626'))};">@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),'SKIPPED',if(equals(triggerBody()?['stage_results']?['MUNI_TO_QA']?['success'],true),'PASSED','FAILED'))}</td><td style="padding:8px;border:1px solid #e5e7eb;">@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),triggerBody()?['stage_summaries'][0]['summary'],'Stage not reached')}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e5e7eb;">2</td><td style="padding:8px;border:1px solid #e5e7eb;">Run QA Checks and Update QA Status Field</td><td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),'#6b7280',if(equals(triggerBody()?['stage_results']?['RUN_QA']?['success'],true),'#15803d','#dc2626'))};">@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),'SKIPPED',if(equals(triggerBody()?['stage_results']?['RUN_QA']?['success'],true),'PASSED','FAILED'))}</td><td style="padding:8px;border:1px solid #e5e7eb;">@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),triggerBody()?['stage_summaries'][1]['summary'],'Stage not reached')}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e5e7eb;">3</td><td style="padding:8px;border:1px solid #e5e7eb;">Reconcile and Post QA Version to Default Version</td><td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),'#6b7280',if(equals(triggerBody()?['stage_results']?['QA_TO_DEFAULT']?['success'],true),'#15803d','#dc2626'))};">@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),'SKIPPED',if(equals(triggerBody()?['stage_results']?['QA_TO_DEFAULT']?['success'],true),'PASSED','FAILED'))}</td><td style="padding:8px;border:1px solid #e5e7eb;">@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),triggerBody()?['stage_summaries'][2]['summary'],'Stage not reached')}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e5e7eb;">4</td><td style="padding:8px;border:1px solid #e5e7eb;">Export Default Version Geodatabase</td><td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),'#6b7280',if(equals(triggerBody()?['stage_results']?['EXPORT_DEFAULT']?['success'],true),'#15803d','#dc2626'))};">@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),'SKIPPED',if(equals(triggerBody()?['stage_results']?['EXPORT_DEFAULT']?['success'],true),'PASSED','FAILED'))}</td><td style="padding:8px;border:1px solid #e5e7eb;">@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),triggerBody()?['stage_summaries'][3]['summary'],'Stage not reached')}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e5e7eb;">5</td><td style="padding:8px;border:1px solid #e5e7eb;">Sync Default Back to Municipal Versions</td><td style="padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),'#6b7280',if(equals(triggerBody()?['stage_results']?['DEFAULT_TO_MUNI_SYNC']?['success'],true),'#15803d','#dc2626'))};">@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),'SKIPPED',if(equals(triggerBody()?['stage_results']?['DEFAULT_TO_MUNI_SYNC']?['success'],true),'PASSED','FAILED'))}</td><td style="padding:8px;border:1px solid #e5e7eb;">@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),triggerBody()?['stage_summaries'][4]['summary'],'Stage not reached')}</td></tr>
+      </tbody>
+    </table>
+  
+    <h3 style="margin:18px 0 8px 0;">Output</h3>
+    <div style="font-size:13px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;">
+      <b>Nightly run summary JSON:</b><br>
+      <a href="@{if(
+        greater(length(coalesce(triggerBody()?['output_files'], json('[]'))), 0),
+        first(triggerBody()?['output_files'])?['access_link'],
+        concat(
+          'https://apps.csrd.bc.ca/notebook/notebooks/b4ea80afab8d433195aa7f195e4a832a/files/home/run_summaries/',
+          last(split(replace(string(triggerBody()?['run_summary_path']), '\', '/'), '/'))
+        )
+      )}">
+        @{if(
+          greater(length(coalesce(triggerBody()?['output_files'], json('[]'))), 0),
+          first(triggerBody()?['output_files'])?['access_link'],
+          concat(
+            'https://apps.csrd.bc.ca/notebook/notebooks/b4ea80afab8d433195aa7f195e4a832a/files/home/run_summaries/',
+            last(split(replace(string(triggerBody()?['run_summary_path']), '\', '/'), '/'))
+          )
+        )}
+      </a>
+    </div>
+  </div>

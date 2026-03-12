@@ -1,0 +1,14 @@
+--- Result 1 (Source: C:\Users\solim\Arcgis Notebooks\Web App\docs\script-qa.html) ---\nwith arcpy.da.SearchCursor(target, cursor_fields) as cur:
+        for row in cur:
+            oid = row[0]
+            if scoped_oids is not None and oid not in scoped_oids:
+                contin\n\n--- Result 2 (Source: C:\Users\solim\Arcgis Notebooks\Web App\docs\partials\script-qa.html) ---\nwith arcpy.da.SearchCursor(target, cursor_fields) as cur:
+        for row in cur:
+            oid = row[0]
+            if scoped_oids is not None and oid not in scoped_oids:
+                contin\n\n--- Result 3 (Source: C:\Users\solim\Arcgis Notebooks\Web App\docs\search-data.js) ---\nMaps Esri field type strings to short names. load_expected_fields() \u0026mdash; Reads SSAP_Schema.json to build expected field definitions. get_actual_fields() \u0026mdash; Fetches live field definit\n\n--- Result 4 (Source: C:\Users\solim\Arcgis Notebooks\Documentation\Database_Schema_Summary.md) ---\nSDE.NG911_SiteAddress Database Schema\n\nThe NG911 SiteAddress feature class in the central database contains a total exact count of 61 fields.\n\n## Complete Field List\n\n| Field Name | Type | Alias\n\n--- Result 5 (Source: C:\Users\solim\Arcgis Notebooks\Database Scripts\1.ReconcilePost-QA-Export\QASSAPGPtool.py) ---\ndef _check_mandatory_nulls(target, fields, scoped_oids=None):
+    if not fields:
+        return []
+    oid_field = arcpy.Describe(target).OIDFieldName
+    totals = {f: 0 for f in fields}
+    nulls = {\n\n

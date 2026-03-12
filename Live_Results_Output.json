@@ -1,0 +1,198 @@
+{
+  "1.5": {
+    "status": "pass",
+    "details": "HTTP 200"
+  },
+  "1.8": {
+    "status": "fail",
+    "details": "<urlopen error [Errno 11001] getaddrinfo failed>"
+  },
+  "1.2": {
+    "status": "pass",
+    "details": "Connected to "
+  },
+  "1.1": {
+    "status": "pass",
+    "details": "Database host is reachable"
+  },
+  "1.3": {
+    "status": "pass",
+    "details": "Accessible: \\\\GIS\\Scripts\\NG911\\NG911_Automation\\connections"
+  },
+  "1.4": {
+    "status": "pass",
+    "details": "Readable & Writable: \\\\GIS\\Scripts\\Geoshare\\NG911 Exports"
+  },
+  "2.1": {
+    "status": "pass",
+    "details": "sde.DEFAULT found"
+  },
+  "2.2": {
+    "status": "pass",
+    "details": "SDE.QA found"
+  },
+  "2.3": {
+    "status": "pass",
+    "details": "All 5 municipal versions are active"
+  },
+  "2.4": {
+    "status": "skip",
+    "details": "Requires manual UI check for 'Protected' status"
+  },
+  "2.5": {
+    "status": "skip",
+    "details": "Stale locks check deferred"
+  },
+  "2.6": {
+    "status": "skip",
+    "details": "Geodatabase Compress deferred to monthly manual task"
+  },
+  "3.2": {
+    "status": "fail",
+    "details": "Schema validation failed: 'Index' object has no attribute 'isSpatial'"
+  },
+  "3.3": {
+    "status": "pass",
+    "details": "Found 61 fields"
+  },
+  "3.4": {
+    "status": "fail",
+    "details": "Missing domains: ['Directional', 'StreetType', 'Placement', 'RoadClass']"
+  },
+  "4.1": {
+    "status": "fail",
+    "details": "Insert simulation failed"
+  },
+  "4.2": {
+    "status": "fail",
+    "details": "Blocked"
+  },
+  "4.3": {
+    "status": "fail",
+    "details": "Blocked"
+  },
+  "4.4": {
+    "status": "fail",
+    "details": "Blocked"
+  },
+  "4.5": {
+    "status": "fail",
+    "details": "Blocked"
+  },
+  "4.6": {
+    "status": "fail",
+    "details": "Blocked"
+  },
+  "4.7": {
+    "status": "fail",
+    "details": "Blocked"
+  },
+  "6.2": {
+    "status": "fail",
+    "details": "Dependency checks missing"
+  },
+  "6.4": {
+    "status": "fail",
+    "details": "Found 350 duplicate exact addresses"
+  },
+  "5.1": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "5.2": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "5.3": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "5.4": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "5.5": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "5.6": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "5.7": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "5.8": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "6.1": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "6.5": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "7.1": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "7.2": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "7.3": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "7.4": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "7.5": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "7.6": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "7.7": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "7.8": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "8.1": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "8.2": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "8.3": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "8.4": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "8.5": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "10.1": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  },
+  "10.2": {
+    "status": "skip",
+    "details": "Deferred to orchestrated run / Manual"
+  }
+}

@@ -11,6 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css">
     <link rel="stylesheet" href="docs/shared.css?v=13">
 
     <style>
@@ -83,11 +84,48 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 
+    <!-- ── AI ASSISTANT WIDGET ── -->
+    <div id="ai-widget-container" class="ai-widget-closed">
+        <!-- Floating Action Button -->
+        <button id="ai-fab" class="ai-fab" aria-label="Open AI Assistant" title="Ask NG911 AI">
+            <i class="fas fa-sparkles"></i>
+        </button>
+
+        <!-- Chat Modal -->
+        <div id="ai-chat-modal" class="ai-chat-modal">
+            <div class="ai-chat-header">
+                <div class="ai-header-title">
+                    <i class="fas fa-robot"></i> <strong>NG911 AI</strong>
+                </div>
+                <div class="ai-chat-actions">
+                    <button id="ai-btn-expand" title="Toggle Fullscreen" aria-label="Expand"><i class="fas fa-expand"></i></button>
+                    <button id="ai-btn-close" title="Close" aria-label="Close"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div id="ai-chat-messages" class="ai-chat-messages">
+                <div class="ai-message ai-message-assistant">
+                    Hi! I'm the NG911 AI Assistant. You can ask me about schema fields, attribute rules, or system automation scripts.
+                </div>
+            </div>
+            <div class="ai-chat-input-area">
+                <div id="ai-tool-ribbon" class="ai-tool-ribbon"></div>
+                <div class="ai-input-wrapper">
+                    <textarea id="ai-chat-input" placeholder="Ask a question... (Shift+Enter for newline)" rows="1"></textarea>
+                    <button id="ai-chat-submit" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Core Scripts ── -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://js.arcgis.com/4.28/"></script>
     <script src="docs/search-data.js?v=13"></script>
     <script src="docs/search-core.js?v=13"></script>
     <script src="docs/cms-core.js?v=13"></script>
     <script src="docs/editor-core.js?v=18"></script>
-    <script type="module" src="docs/router.js?v=15"></script>
+    <script type="module" src="docs/router.js?v=16"></script>
+    <script src="docs/ai-client.js?v=1"></script>
 </body>
 
 </html>

@@ -70,7 +70,7 @@ def _resolve_target_fc_input(sde_conn: str, target_fc_param_text: str) -> str:
         return raw_norm[len(prefix):]
     return raw_norm
 
-def export_feature_class_from_sde(sde_conn: str, target_fc_name: str, out_fgdb: str):
+def export_feature_class_from_sde(sde_conn: str, target_fc_name: str, out_fgdb: str, agency: str = ""):
     arcpy.env.workspace = sde_conn
 
     if not arcpy.Exists(target_fc_name):
@@ -86,10 +86,17 @@ def export_feature_class_from_sde(sde_conn: str, target_fc_name: str, out_fgdb: 
         raise RuntimeError(f"Target is not a FeatureClass. datasetType={dt}")
 
     out_name = os.path.basename(target_fc_name)
-    _msg(f"Exporting Feature Class: {target_fc_name} -> {out_name}")
-    arcpy.conversion.FeatureClassToFeatureClass(target_fc_name, out_fgdb, out_name)
+    
+    where_clause = ""
+    if agency:
+        where_clause = f"Agency = '{agency}'"
+        _msg(f"Exporting Feature Class: {target_fc_name} -> {out_name} (Filter: {where_clause})")
+    else:
+        _msg(f"Exporting Feature Class: {target_fc_name} -> {out_name}")
+        
+    arcpy.conversion.FeatureClassToFeatureClass(target_fc_name, out_fgdb, out_name, where_clause)
 
-    return {"feature_class": target_fc_name, "output_name": out_name}
+    return {"feature_class": target_fc_name, "output_name": out_name, "where_clause": where_clause}
 
 def main():
     # Republish this as:
@@ -97,10 +104,12 @@ def main():
     #   1 target_fc   (String path, e.g. SDE.NG911\\SDE.NG911_SiteAddress
     #                  or full path under same SDE connection)
     #   2 name_prefix (String)
-    #   3 result_json (Derived output String)
+    #   3 agency      (String, Optional)
+    #   4 result_json (Derived output String)
     sde_conn = arcpy.GetParameterAsText(0)
     target_fc_text = arcpy.GetParameterAsText(1)
     name_prefix = arcpy.GetParameterAsText(2)
+    agency = arcpy.GetParameterAsText(3)
 
     if not sde_conn:
         raise ValueError("sde_conn is required.")
@@ -136,7 +145,7 @@ def main():
     _msg(f"Creating FGDB in scratch: {fgdb_path}")
     arcpy.management.CreateFileGDB(scratch_folder, fgdb_name)
 
-    export_info = export_feature_class_from_sde(sde_conn, target_fc_name, fgdb_path)
+    export_info = export_feature_class_from_sde(sde_conn, target_fc_name, fgdb_path, agency)
 
     release_gdb_locks()
 
@@ -163,8 +172,8 @@ def main():
         "export": export_info
     }
 
-    # result_json output param index (4th parameter / index 3)
-    arcpy.SetParameterAsText(3, json.dumps(result))
+    # result_json output param index (5th parameter / index 4)
+    arcpy.SetParameterAsText(4, json.dumps(result))
 
 if __name__ == "__main__":
     try:
@@ -174,7 +183,7 @@ if __name__ == "__main__":
         _err(str(ex))
         _err(tb)
         try:
-            arcpy.SetParameterAsText(3, json.dumps({"success": False, "error": str(ex), "traceback": tb}))
+            arcpy.SetParameterAsText(4, json.dumps({"success": False, "error": str(ex), "traceback": tb}))
         except Exception:
             pass
         raise

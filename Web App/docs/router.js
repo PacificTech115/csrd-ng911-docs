@@ -28,7 +28,8 @@ class SPA_Router {
             'revelstoke': 'revelstoke.html',
             'golden': 'golden.html',
             'salmonarm': 'salmonarm.html',
-            'sicamous': 'sicamous.html'
+            'sicamous': 'sicamous.html',
+            'sync-app': 'sync-app.html'
         };
 
         // Enforce Authentication
@@ -476,6 +477,11 @@ class SPA_Router {
             if (hasGolden) navHtml += `<a href="#golden" class="nav-indent"><i class="fas fa-city"></i> Golden</a>`;
             if (hasSalmonarm) navHtml += `<a href="#salmonarm" class="nav-indent"><i class="fas fa-city"></i> Salmon Arm</a>`;
             if (hasSicamous) navHtml += `<a href="#sicamous" class="nav-indent"><i class="fas fa-city"></i> Sicamous</a>`;
+            
+            navHtml += `
+            <div class="nav-group-label">Tools</div>
+            <a href="#sync-app"><i class="fas fa-sync"></i> Data Sync App</a>
+            `;
         }
 
         if (isAdmin) {

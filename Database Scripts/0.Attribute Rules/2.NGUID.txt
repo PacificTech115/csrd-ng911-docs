@@ -1,0 +1,8 @@
+var ag = Trim(DefaultValue($feature.DiscrpAgID, ""));
+if (ag == "") return Null;
+
+// GlobalID sometimes comes with { } — strip them
+var gid = Text($feature.GlobalID);
+gid = Replace(Replace(gid, "{", ""), "}", "");
+
+return "urn:emergency:uid:gis:SSAP:" + gid + ":" + ag;

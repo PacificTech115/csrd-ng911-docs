@@ -1,0 +1,50 @@
+var key = Upper(Replace(Trim($feature.A3), ".", ""));
+if (IsEmpty(key)) {
+  return null;
+}
+
+var m = {
+  "ANSTEY ARM": 1066,
+  "BEATON": 60,
+  "BLAEBERRY": 1054,
+  "BLIND BAY": 581,
+  "CANYON HOT SPRINGS": 1053,
+  "CASTLEDALE": 18,
+  "CELISTA": 594,
+  "CRAIGELLACHIE": 182,
+  "DEEP CREEK": 577,
+  "DONALD": 180,
+  "EAGLE BAY": 593,
+  "FALKLAND": 586,
+  "FIELD": 795,
+  "GALENA BAY": 61,
+  "GOLDEN": 179,
+  "HEYWOODS": 587,
+  "LEANCHOLI": 1056,
+  "LEE CREEK": 597,
+  "MAGNA BAY": 880,
+  "MALAKWA": 185,
+  "MICA CREEK": 183,
+  "NORTH MARA": 584,
+  "NOTCH HILL": 592,
+  "OKANAGAN IR NORTH": 1119,
+  "PARSON": 19,
+  "REVELSTOKE": 181,
+  "ROGERS PASS": 178,
+  "SALMON ARM": 574,
+  "SALMON RIVER IR": 1118,
+  "SCOTCH CREEK": 598,
+  "SEYMOUR ARM": 1065,
+  "SICAMOUS": 583,
+  "SOLSQUA": 186,
+  "SORRENTO": 580,
+  "SOUTH KINBASKET LAKE": 872,
+  "SPALLUMCHEEN": 1075,
+  "ST IVES": 595,
+  "TAPPEN": 576,
+  "THREE VALLEY": 555,
+  "TROUT LAKE": 59,
+  "WHITE LAKE": 582
+};
+
+return IIF(HasKey(m, key), Number(m[key]), null);

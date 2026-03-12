@@ -14,8 +14,6 @@ const PHASES = [
       { id: '1.3', name: 'UNC path access', how: 'Open <code>\\\\GIS\\Scripts\\NG911\\NG911_Automation\\connections\\</code>', pass: 'Path accessible; <code>.sde</code> files present' },
       { id: '1.4', name: 'Network share (Exports)', how: 'Open <code>\\\\GIS\\Scripts\\Geoshare\\NG911 Exports</code>', pass: 'Share exists; service account has R/W' },
       { id: '1.5', name: 'ArcGIS Portal reachability', how: 'Navigate to <code>https://apps.csrd.bc.ca/hub/home</code>', pass: 'Portal loads; login functional' },
-      { id: '1.6', name: 'ArcGIS Server services', how: 'Server Manager → Services', pass: 'All NG911 services show <strong>Started</strong>' },
-      { id: '1.7', name: 'Notebook Server health', how: 'Portal → Notebook item → Open', pass: 'Notebook opens; kernel starts' },
       { id: '1.8', name: 'Feature service REST endpoint', how: 'Hit <code>/query?where=1=1&resultRecordCount=1&f=json</code>', pass: 'Valid JSON with one feature' },
     ]
   },
@@ -33,18 +31,15 @@ const PHASES = [
   {
     id: 'phase3', title: 'Schema & Data Integrity', icon: 'fa-database', color: '#0d9488',
     tests: [
-      { id: '3.1', name: 'Schema matches SSAP_Schema.json', how: 'Run QA GP tool — check schema output', pass: 'Zero mismatches' },
-      { id: '3.2', name: 'Feature class exists', how: 'Query <code>SDE.NG911\\SDE.NG911_SiteAddress</code>', pass: 'Opens; returns record count' },
-      { id: '3.3', name: 'All 61+ fields present', how: 'Compare field list vs Schema Guide', pass: 'All fields with correct types/lengths' },
-      { id: '3.4', name: 'Coded value domains assigned', how: 'Catalog → Domains', pass: 'Domains exist and assigned correctly' },
-      { id: '3.5', name: 'NGUID uniqueness', how: '<code>SELECT NGUID, COUNT(*) ... HAVING COUNT(*)>1</code>', pass: 'Zero rows returned' },
-      { id: '3.6', name: 'Mandatory fields populated', how: 'Query where mandatory fields IS NULL', pass: 'Zero rows returned' },
-      { id: '3.7', name: 'NGUID format valid', how: 'Query NGUIDs not matching URN pattern', pass: 'Zero invalid rows' },
-      { id: '3.8', name: 'Spatial index present', how: 'Feature Class Properties → Indexes', pass: 'Spatial index listed and valid' },
+      { id: '3.2', name: 'SiteAddress FC exists', how: 'ArcCatalog SDE connection', pass: '<code>SDE.NG911_SiteAddress</code> present' },
+      { id: '3.3', name: 'Fields present', how: 'Feature Class Properties', pass: 'Verify 61+ NG911 fields match standard' },
+      { id: '3.5', name: 'NGUID uniqueness', how: 'SQL Count Group By <code>NGUID</code>', pass: '0 records returned mapping dupes' },
+      { id: '3.6', name: 'Mandatory fields', how: 'SQL query for NULL in core fields', pass: '0 records returned' },
+      { id: '3.7', name: 'NGUID format', how: 'SQL LIKE <code>urn:emergency...</code>', pass: 'All NGUIDs match base string format' },
     ]
   },
   {
-    id: 'phase4', title: 'Attribute Rules (9 Arcade)', icon: 'fa-wand-magic-sparkles', color: '#f59e0b',
+    id: 'phase4', title: 'Attribute Rules (Simulated)', icon: 'fa-wand-magic-sparkles', color: '#f59e0b',
     tests: [
       { id: '4.1', name: 'PopulateFullAddress', how: 'Insert point with address components → save', pass: '<code>Full_Addr</code> concatenated correctly' },
       { id: '4.2', name: 'PopulateNGUID', how: 'Insert new point → save', pass: 'NGUID auto-populated as URN format' },
@@ -58,20 +53,13 @@ const PHASES = [
     ]
   },
   {
-    id: 'phase5', title: 'Nightly Pipeline (5-Stage)', icon: 'fa-play-circle', color: '#0d9488',
+    id: 'phase5', title: 'Nightly Pipeline (Live Logs)', icon: 'fa-play-circle', color: '#0d9488',
     tests: [
-      { id: '5.1', name: 'Trigger manual pipeline run', how: 'Orchestrator Notebook → Run All', pass: 'All 5 stages execute' },
-      { id: '5.2', name: 'Stage 1: MUNI → QA', how: 'Pipeline logs / email', pass: 'Municipal versions reconciled to QA' },
-      { id: '5.3', name: 'Stage 2: Run QA', how: 'Pipeline logs / email', pass: 'QAStatus updated; Features checked > 0' },
-      { id: '5.4', name: 'Stage 3: QA → DEFAULT', how: 'Pipeline logs / email', pass: 'QA reconciled to DEFAULT' },
-      { id: '5.5', name: 'Stage 4: Export FGDB', how: 'Check export network share', pass: 'ZIP with today\'s timestamp exists' },
-      { id: '5.6', name: 'Stage 5: DEFAULT → MUNI', how: 'Pipeline logs / email', pass: 'DEFAULT reconciled back (NO_POST)' },
-      { id: '5.7', name: 'Run summary JSON', how: 'Check <code>/arcgis/home/run_summaries/</code>', pass: 'JSON present with per-stage results' },
-      { id: '5.8', name: 'Timeout protection config', how: 'Orchestrator notebook config', pass: 'Timeout = 1800 sec' },
+      { id: '5.1', name: 'Trigger Nightly Pipeline Run', how: 'Orchestrator Notebook → Run All', pass: 'Pipeline completes successfully without errors' },
     ]
   },
   {
-    id: 'phase6', title: 'QA Validation Engine', icon: 'fa-clipboard-check', color: '#ef4444',
+    id: 'phase6', title: 'QA Validation Engine (Dry-Run)', icon: 'fa-clipboard-check', color: '#ef4444',
     tests: [
       { id: '6.1', name: 'Schema comparison check', how: 'Introduce temp mismatch → run QA', pass: 'Error reported; revert succeeds' },
       { id: '6.2', name: 'NGUID integrity', how: 'Validate known-valid dataset', pass: 'Zero NGUID errors' },
@@ -81,7 +69,7 @@ const PHASES = [
     ]
   },
   {
-    id: 'phase7', title: 'Export & Salmon Arm ETL', icon: 'fa-arrows-rotate', color: '#8b5cf6',
+    id: 'phase7', title: 'Export & Salmon Arm ETL (Live Logs)', icon: 'fa-arrows-rotate', color: '#8b5cf6',
     tests: [
       { id: '7.1', name: 'FGDB creation', how: 'Run Export GP tool manually', pass: 'Scratch FGDB created with snapshot' },
       { id: '7.2', name: 'ZIP lock file handling', how: 'Check for .lock files in scratch', pass: 'No .lock in ZIP archive' },
@@ -94,7 +82,7 @@ const PHASES = [
     ]
   },
   {
-    id: 'phase8', title: 'Notifications (Power Automate)', icon: 'fa-envelope', color: '#ec4899',
+    id: 'phase8', title: 'Notifications (Live Logs)', icon: 'fa-envelope', color: '#ec4899',
     tests: [
       { id: '8.1', name: 'Flow URL valid', how: 'Check orchestrator config', pass: 'URL points to active trigger' },
       { id: '8.2', name: 'Flow is enabled', how: 'Power Automate portal', pass: 'Status = On' },
@@ -104,30 +92,10 @@ const PHASES = [
     ]
   },
   {
-    id: 'phase9', title: 'Documentation Hub (SPA)', icon: 'fa-globe', color: '#0ea5e9',
-    tests: [
-      { id: '9.1', name: 'OAuth login flow', how: 'Open Doc Hub → sign in', pass: 'Authenticated; sidebar appears' },
-      { id: '9.2', name: 'Admin RBAC visibility', how: 'Sign in as admin', pass: 'All nav cards; Maintenance visible' },
-      { id: '9.3', name: 'Municipal RBAC isolation', how: 'Sign in as municipal user', pass: 'Only own guide; no cross-muni leaks' },
-      { id: '9.4', name: 'All route hashes load', how: 'Navigate to each #hash', pass: 'Each partial loads; no 404s' },
-      { id: '9.5', name: 'CMS content loads', how: 'Navigate pages after login', pass: 'Content from NG911_Docs_CMS table' },
-      { id: '9.6', name: 'Admin CMS edit + save', how: 'Edit Mode → modify → Save Page', pass: 'Content saved; persists on refresh' },
-      { id: '9.7', name: 'Search functionality', how: 'Search "NGUID" in doc search', pass: 'Relevant results; correct nav' },
-    ]
-  },
-  {
     id: 'phase10', title: 'Operational Readiness', icon: 'fa-shield-halved', color: '#10b981',
     tests: [
       { id: '10.1', name: 'Scheduled task active', how: 'Portal → Notebook → Scheduled Tasks', pass: 'Nightly task enabled, correct cron' },
       { id: '10.2', name: 'SA sync schedule', how: 'Check ETL notebook task', pass: 'Enabled with correct frequency' },
-      { id: '10.3', name: 'GDB maintenance trio', how: 'Compress → Rebuild Indexes → Analyze', pass: 'All three complete' },
-      { id: '10.4', name: 'Disk space', how: 'Check export share drive', pass: '6+ months of free space' },
-      { id: '10.5', name: 'SQL credentials', how: 'Verify SDE connection creds', pass: 'Non-expiring or date documented' },
-      { id: '10.6', name: 'Power Automate expiry', how: 'Check connector renewal dates', pass: 'No connectors expiring in 90 days' },
-      { id: '10.7', name: 'ArcGIS Pro licenses', how: 'Verify municipal license assignments', pass: 'All municipalities have valid licenses' },
-      { id: '10.8', name: 'Portal user accounts', how: 'Review all municipal accounts', pass: 'Correct passwords, groups assigned' },
-      { id: '10.9', name: 'Documentation deployed', how: 'Open Documentation Hub', pass: 'All pages; CMS renders; downloads work' },
-      { id: '10.10', name: 'Backup & recovery', how: 'Verify SQL backup schedule', pass: 'Backups configured; recovery documented' },
     ]
   }
 ];

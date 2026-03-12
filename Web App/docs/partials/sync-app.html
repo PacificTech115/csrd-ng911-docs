@@ -1,0 +1,201 @@
+<div class="content-header">
+    <div class="content-header-inner">
+        <h1><i class="fas fa-sync-alt" style="color: var(--teal); margin-right: 15px;"></i> Municipal Data Sync</h1>
+        <p>Compare and append features from a municipal ArcGIS Feature Service into the CSRD NG911 Central Database.</p>
+    </div>
+</div>
+
+<div class="content-body wrapper">
+    <div class="sync-app-container">
+        
+        <!-- ── Configuration Panel ── -->
+        <div class="sync-config-panel">
+            <div class="sync-input-group">
+                <label for="sync-source-url">Source Feature Service REST URL <span style="color:var(--red);">*</span></label>
+                <input type="text" id="sync-source-url" placeholder="e.g. https://revelstokeportal.ca/server/rest/services/Hosted/Addresses/FeatureServer/0" class="cms-input">
+                <small>Past the REST endpoint of the layer containing the municipal address points.</small>
+            </div>
+
+            <div class="sync-input-group" style="margin-top: 20px;">
+                <label>Target CSRD Layer</label>
+                <div id="sync-target-info" class="sync-target-badge">
+                    <i class="fas fa-database"></i> <span id="sync-target-name">Determining from user role...</span>
+                </div>
+            </div>
+
+            <div class="sync-actions" style="margin-top: 30px; display: flex; gap: 15px;">
+                <button id="btn-sync-analyze" class="btn-primary" style="flex: 1; justify-content: center;">
+                    <i class="fas fa-magnifying-glass-chart"></i> Analyze & Compare
+                </button>
+                <button id="btn-sync-execute" class="btn-secondary" style="flex: 1; justify-content: center;" disabled>
+                    <i class="fas fa-play"></i> Execute Sync
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Analysis Results Panel (Hidden initially) ── -->
+        <div id="sync-results-panel" class="sync-results-panel" style="display: none;">
+            <h3><i class="fas fa-clipboard-list"></i> Diff Results</h3>
+            <div class="sync-stats">
+                <div class="stat-box insert">
+                    <span class="stat-value" id="stat-inserts">0</span>
+                    <span class="stat-label">New Records (Adds)</span>
+                </div>
+                <div class="stat-box update">
+                    <span class="stat-value" id="stat-updates">0</span>
+                    <span class="stat-label">Modified (Updates)</span>
+                </div>
+                <div class="stat-box unchanged">
+                    <span class="stat-value" id="stat-unchanged">0</span>
+                    <span class="stat-label">Unchanged</span>
+                </div>
+            </div>
+            
+            <div id="sync-progress-log" class="sync-log">
+                <!-- Log messages will appear here -->
+            </div>
+        </div>
+
+        <!-- ── Interactive Map View (`require` from arcgis JS) ── -->
+        <div class="sync-map-container">
+            <div id="sync-map-view" style="width: 100%; height: 500px; background: #e0e0e0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);"></div>
+            <div id="sync-map-overlay" class="sync-map-overlay">
+                <i class="fas fa-map-location-dot" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px;"></i>
+                <p>Enter a Source URL and click Analyze to preview the points.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .sync-app-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    .sync-config-panel {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .sync-input-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--navy);
+    }
+
+    .sync-input-group small {
+        display: block;
+        margin-top: 6px;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    .sync-target-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        background: rgba(4, 110, 118, 0.08); /* Light Teal */
+        color: var(--teal);
+        border-radius: 8px;
+        font-weight: 600;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.9rem;
+    }
+
+    .sync-map-container {
+        position: relative;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .sync-map-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255, 255, 255, 0.85);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        z-index: 10;
+        backdrop-filter: blur(4px);
+        transition: opacity 0.3s;
+    }
+
+    .sync-results-panel {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+    }
+
+    .sync-results-panel h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sync-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .stat-box {
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .stat-box.insert { background: rgba(39, 174, 96, 0.1); color: #27ae60; border-color: rgba(39, 174, 96, 0.2); }
+    .stat-box.update { background: rgba(242, 153, 74, 0.1); color: #e67e22; border-color: rgba(242, 153, 74, 0.2); }
+    .stat-box.unchanged { background: #f8f9fa; color: var(--text-secondary); }
+
+    .stat-value {
+        display: block;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        font-family: 'Fira Code', monospace;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .sync-log {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-family: 'Fira Code', monospace;
+        padding: 15px;
+        border-radius: 8px;
+        height: 150px;
+        overflow-y: auto;
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+    .sync-log .log-info { color: #569cd6; }
+    .sync-log .log-success { color: #4ec9b0; }
+    .sync-log .log-error { color: #f44747; }
+</style>
+
+<!-- Load logic -->
+<script src="docs/sync-app.js?v=1"></script>

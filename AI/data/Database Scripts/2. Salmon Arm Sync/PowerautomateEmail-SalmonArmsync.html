@@ -1,0 +1,119 @@
+<div style="font-family:Segoe UI,Arial,sans-serif;color:#1f2937;max-width:900px;">
+    <h2 style="margin:0 0 12px 0;">Salmon Arm Data Sync Report</h2>
+  
+    <div style="margin:0 0 14px 0;">
+      <span style="display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;
+        background:@{if(equals(triggerBody()?['status'],'success'),'#dcfce7','#fee2e2')};
+        color:@{if(equals(triggerBody()?['status'],'success'),'#166534','#991b1b')};">
+        @{if(equals(triggerBody()?['status'],'success'),'SUCCESS','FAILED')}
+      </span>
+    </div>
+  
+    <table style="border-collapse:collapse;width:100%;margin-bottom:14px;font-size:14px;">
+      <tr><td style="padding:7px 10px;background:#f8fafc;width:220px;"><b>Run ID</b></td><td style="padding:7px 10px;">@{triggerBody()?['run_id']}</td></tr>
+      <tr><td style="padding:7px 10px;background:#f8fafc;"><b>Started</b></td><td style="padding:7px 10px;">@{formatDateTime(triggerBody()?['started'],'dddd, MMMM d, yyyy  h:mm tt')}</td></tr>
+      <tr><td style="padding:7px 10px;background:#f8fafc;"><b>Finished</b></td><td style="padding:7px 10px;">@{formatDateTime(triggerBody()?['finished'],'dddd, MMMM d, yyyy  h:mm tt')}</td></tr>
+    </table>
+  
+    <h3 style="margin:16px 0 8px 0;">Data Source and Target</h3>
+    <table style="border-collapse:collapse;width:100%;margin-bottom:14px;font-size:14px;">
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;width:220px;"><b>Source Layer</b></td>
+        <td style="padding:7px 10px;word-break:break-all;">@{triggerBody()?['source_layer']}</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;"><b>Source Last Edited (UTC)</b></td>
+        <td style="padding:7px 10px;">
+          @{coalesce(triggerBody()?['source_last_edited']?['last_edited_utc'], 'Unknown')}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;"><b>Target Layer</b></td>
+        <td style="padding:7px 10px;word-break:break-all;">@{triggerBody()?['target_layer']}</td>
+      </tr>
+    </table>
+  
+    <h3 style="margin:16px 0 8px 0;">Record Matching</h3>
+    <table style="border-collapse:collapse;width:100%;margin-bottom:14px;font-size:14px;">
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;width:240px;"><b>Main Matching Field</b></td>
+        <td style="padding:7px 10px;">@{triggerBody()?['matching_key']?['primary_key_field']}</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;"><b>Source Field Name</b></td>
+        <td style="padding:7px 10px;">@{triggerBody()?['matching_key']?['source_primary_key_actual']}</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;"><b>Target Field Name</b></td>
+        <td style="padding:7px 10px;">@{triggerBody()?['matching_key']?['target_primary_key_actual']}</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;"><b>Fallback Fields</b></td>
+        <td style="padding:7px 10px;">@{string(triggerBody()?['matching_key']?['fallback_key_fields'])}</td>
+      </tr>
+    </table>
+  
+    <h3 style="margin:16px 0 8px 0;">Operations</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;margin-bottom:14px;">
+      <thead>
+        <tr style="background:#111827;color:#ffffff;">
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Action</th>
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Planned</th>
+          <th style="text-align:left;padding:8px;border:1px solid #374151;">Applied</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Insert</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">@{coalesce(triggerBody()?['operations']?['planned']?['inserts'],0)}</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">@{coalesce(triggerBody()?['operations']?['applied']?['adds'],0)}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Update</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">@{coalesce(triggerBody()?['operations']?['planned']?['updates'],0)}</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">@{coalesce(triggerBody()?['operations']?['applied']?['updates'],0)}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;border:1px solid #e5e7eb;">Delete</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">@{coalesce(triggerBody()?['operations']?['planned']?['deletes'],0)}</td>
+          <td style="padding:8px;border:1px solid #e5e7eb;">@{coalesce(triggerBody()?['operations']?['applied']?['deletes'],0)}</td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <h3 style="margin:16px 0 8px 0;">Issues</h3>
+    <table style="border-collapse:collapse;width:100%;margin-bottom:14px;font-size:14px;">
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;width:220px;"><b>Failure Count</b></td>
+        <td style="padding:7px 10px;color:@{if(greater(coalesce(triggerBody()?['operations']?['failure_count'],0),0),'#dc2626','#15803d')};font-weight:700;">
+          @{coalesce(triggerBody()?['operations']?['failure_count'],0)}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:7px 10px;background:#f8fafc;"><b>Reverse ID Sync</b></td>
+        <td style="padding:7px 10px;">
+          @{if(
+            equals(triggerBody()?['operations']?['reverse_id_sync']?['skipped'], true),
+            concat('Skipped - ', coalesce(triggerBody()?['operations']?['reverse_id_sync']?['reason'], '')),
+            concat(
+              'Applied ',
+              string(coalesce(triggerBody()?['operations']?['reverse_id_sync']?['applied_updates'],0)),
+              ' of ',
+              string(coalesce(triggerBody()?['operations']?['reverse_id_sync']?['planned_updates'],0)),
+              ' planned'
+            )
+          )}
+        </td>
+      </tr>
+    </table>
+  
+    <h3 style="margin:16px 0 8px 0;">Quick Summary</h3>
+    <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;line-height:1.5;">
+      @{replace(triggerBody()?['email_summary_text'],'\n','<br/>')}
+    </div>
+  
+    <h3 style="margin:16px 0 8px 0;">Run Summary File</h3>
+    <div style="font-size:13px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;">
+      @{triggerBody()?['run_summary_path']}
+    </div>
+  </div>
