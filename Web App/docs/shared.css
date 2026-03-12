@@ -398,7 +398,7 @@ body {
 
 @keyframes heroIn {
   from {
-    opacity: 0;
+    opacity: 1; outline: 5px solid red;
     transform: translateY(14px);
   }
 
@@ -3289,7 +3289,7 @@ input:checked+.slider:before {
    AI ASSISTANT WIDGET
    -------------------------------------- */
 .ai-widget-container {
-  position: fixed !important;
+  position: absolute !important;
   bottom: 0px !important;
   right: 0px !important;
   padding: 30px !important;
