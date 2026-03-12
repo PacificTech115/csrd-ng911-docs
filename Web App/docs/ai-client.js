@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-
+    const aiWidgetContainer = document.getElementById('ai-widget-container');
     const fab = document.getElementById('ai-fab');
     const modal = document.getElementById('ai-chat-modal');
     const btnClose = document.getElementById('ai-btn-close');
