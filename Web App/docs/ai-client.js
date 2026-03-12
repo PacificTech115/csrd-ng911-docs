@@ -1,13 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Authentication Check ---
-    const token = localStorage.getItem('csrd_arcgis_token');
-    const aiWidgetContainer = document.getElementById('ai-widget-container');
-    
-    // Auto-hide the entire widget if the user is not authenticated with the CSRD Portal
-    if (!token) {
-        if (aiWidgetContainer) aiWidgetContainer.style.display = 'none';
-        return; // Stop initialization
-    }
 
     const fab = document.getElementById('ai-fab');
     const modal = document.getElementById('ai-chat-modal');
@@ -93,8 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     message: text, 
-                    thread_id: sessionId,
-                    token: token 
+                    thread_id: sessionId
                 })
             });
 
