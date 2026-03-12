@@ -1,9 +1,9 @@
-/* -
-   CSRD NG911 Documentation - Shared Design System
+/* ----------------------------------------------------------
+   CSRD NG911 Documentation — Shared Design System
    Clean, minimal, documentation-first design
-   - */
+   ---------------------------------------------------------- */
 :root {
-  /* - Brand - */
+  /* ── Brand ── */
   --navy: #1a1a2e;
   --navy-light: #2d2d44;
   --navy-mid: #23233a;
@@ -13,7 +13,7 @@
   --teal-soft: #f0fdfa;
   --teal-border: rgba(13, 148, 136, .18);
 
-  /* - Neutrals - */
+  /* ── Neutrals ── */
   --gray: #64748b;
   --gray-light: #94a3b8;
   --gray-dark: #475569;
@@ -21,14 +21,14 @@
   --text-secondary: #475569;
   --text-muted: #94a3b8;
 
-  /* - Surfaces - */
+  /* ── Surfaces ── */
   --bg-page: #fafbfc;
   --bg-card: #ffffff;
   --bg-sidebar: #f4f6f8;
   --bg-hero: #f0f7fa;
   --white: #ffffff;
 
-  /* - Accents (reduced palette for readability) - */
+  /* ── Accents (reduced palette for readability) ── */
   --accent: #4b7a8c;
   --accent-glow: rgba(75, 122, 140, .06);
   --border: #e5e9ef;
@@ -40,15 +40,15 @@
   --pink: #a8708e;
   --indigo: #717499;
 
-  /* - Layout - */
+  /* ── Layout ── */
   --sidebar-w: 250px;
   --content-max: 920px;
 
-  /* - Code - */
+  /* ── Code ── */
   --code-bg: #0f172a;
   --code-border: #1e293b;
 
-  /* - Elevation - */
+  /* ── Elevation ── */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, .03);
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, .05);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, .06);
@@ -58,7 +58,7 @@
   --radius-lg: 18px;
 }
 
-/* - RESET - */
+/* ── RESET ── */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -80,7 +80,7 @@ body {
   -moz-osx-font-smoothing: grayscale
 }
 
-/* - PROGRESS BAR - */
+/* ── PROGRESS BAR ── */
 #progress {
   position: fixed;
   top: 0;
@@ -92,9 +92,9 @@ body {
   transition: width .15s linear
 }
 
-/* -
-   SIDEBAR - Simple, text-focused
-   - */
+/* --------------------------------------
+   SIDEBAR — Simple, text-focused
+   -------------------------------------- */
 .sidebar {
   position: fixed;
   top: 0;
@@ -230,15 +230,15 @@ body {
   text-align: center
 }
 
-/* -
+/* --------------------------------------
    MAIN CONTENT
-   - */
+   -------------------------------------- */
 .main {
   margin-left: var(--sidebar-w);
   min-height: 100vh
 }
 
-/* - HERO (Hub page - contained card) - */
+/* ── HERO (Hub page — contained card) ── */
 .hero-wrapper {
   padding: 32px 40px 8px;
   position: relative;
@@ -298,7 +298,7 @@ body {
   margin-bottom: 18px;
 }
 
-/* - SEARCH BAR - */
+/* ── SEARCH BAR ── */
 .hero-search {
   display: flex;
   align-items: center;
@@ -481,9 +481,9 @@ body {
   opacity: .6
 }
 
-/* -
-   NAV CARDS (Hub page - 2-col grid)
-   - */
+/* --------------------------------------
+   NAV CARDS (Hub page — 2-col grid)
+   -------------------------------------- */
 .nav-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -559,7 +559,7 @@ body {
   color: var(--teal);
 }
 
-/* - PAGE HEADER (sub-pages) - */
+/* ── PAGE HEADER (sub-pages) ── */
 .page-header {
   background: linear-gradient(160deg, #eef6f9 0%, #f2f7fb 50%, var(--bg-page) 100%);
   color: var(--text-primary);
@@ -606,7 +606,7 @@ body {
   animation: heroIn .5s .06s cubic-bezier(.22, 1, .36, 1) both
 }
 
-/* - BREADCRUMB - */
+/* ── BREADCRUMB ── */
 .breadcrumb {
   display: flex;
   align-items: center;
@@ -638,7 +638,7 @@ body {
   font-weight: 600
 }
 
-/* - DETAIL HEADER BANNER - */
+/* ── DETAIL HEADER BANNER ── */
 .detail-banner {
   display: flex;
   align-items: center;
@@ -682,9 +682,9 @@ body {
   border: 1px solid var(--teal-border)
 }
 
-/* -
-   CONTENT - Generous whitespace
-   - */
+/* --------------------------------------
+   CONTENT — Generous whitespace
+   -------------------------------------- */
 .content-wrap {
   max-width: var(--content-max);
   margin: 0 auto;
@@ -741,7 +741,7 @@ section li {
   margin-bottom: 4px
 }
 
-/* - REVEAL - */
+/* ── REVEAL ── */
 .reveal {
   opacity: 0;
   transform: translateY(16px);
@@ -769,9 +769,9 @@ section li {
   transition-delay: .28s
 }
 
-/* -
-   CARDS - Large, spacious, clickable
-   - */
+/* --------------------------------------
+   CARDS — Large, spacious, clickable
+   -------------------------------------- */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -885,7 +885,7 @@ section li {
   white-space: nowrap
 }
 
-/* - LINK CARDS - */
+/* ── LINK CARDS ── */
 a.link-card {
   display: block;
   text-decoration: none;
@@ -914,7 +914,7 @@ a.link-card .card-sub {
   margin-top: 2px
 }
 
-/* - BREAKDOWN CARDS (collapsible) - */
+/* ── BREAKDOWN CARDS (collapsible) ── */
 .breakdown-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -1024,7 +1024,7 @@ a.link-card .card-sub {
   margin-bottom: 3px
 }
 
-/* - Code Section Highlight - */
+/* ── Code Section Highlight ── */
 .code-section.highlighted {
   background: rgba(13, 148, 136, 0.08);
   border-left: 3px solid var(--teal);
@@ -1034,9 +1034,9 @@ a.link-card .card-sub {
   transition: background .3s ease
 }
 
-/* -
+/* --------------------------------------
    SYSTEM RESOURCES PAGE
-   - */
+   -------------------------------------- */
 .resource-section {
   padding-top: 32px
 }
@@ -1543,9 +1543,9 @@ a.link-card .card-sub {
   opacity: 1;
 }
 
-/* -
+/* --------------------------------------
    GRIDS
-   - */
+   -------------------------------------- */
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1564,9 +1564,9 @@ a.link-card .card-sub {
   gap: 12px
 }
 
-/* -
-   TABLES - Clean, soft, scannable
-   - */
+/* --------------------------------------
+   TABLES — Clean, soft, scannable
+   -------------------------------------- */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -1617,7 +1617,7 @@ tbody tr:nth-child(even):hover {
   background: var(--teal-glow)
 }
 
-/* - Schema Guide - Collapsible Field Groups - */
+/* --- Schema Guide – Collapsible Field Groups --- */
 .field-group-header {
   display: flex;
   align-items: center;
@@ -1715,9 +1715,9 @@ li code {
   color: var(--navy)
 }
 
-/* -
+/* --------------------------------------
    CODE BLOCKS
-   - */
+   -------------------------------------- */
 .code-block {
   position: relative;
   margin: 12px 0 18px;
@@ -1811,7 +1811,7 @@ li code {
   color: #79c0ff
 }
 
-/* - COLLAPSIBLE - */
+/* ── COLLAPSIBLE ── */
 details {
   margin: 6px 0
 }
@@ -1853,9 +1853,9 @@ details .detail-content {
   padding: 2px 0 10px 22px
 }
 
-/* -
+/* --------------------------------------
    ARCHITECTURE DIAGRAM
-   - */
+   -------------------------------------- */
 .arch-diagram {
   display: flex;
   flex-direction: column;
@@ -1954,9 +1954,9 @@ details .detail-content {
   font-size: .74rem
 }
 
-/* -
+/* --------------------------------------
    PIPELINE
-   - */
+   -------------------------------------- */
 .pipeline {
   display: flex;
   align-items: center;
@@ -2075,9 +2075,9 @@ details .detail-content {
   }
 }
 
-/* -
+/* --------------------------------------
    TABS
-   - */
+   -------------------------------------- */
 .tab-bar {
   display: flex;
   gap: 2px;
@@ -2135,9 +2135,9 @@ details .detail-content {
   }
 }
 
-/* -
+/* --------------------------------------
    ALERTS
-   - */
+   -------------------------------------- */
 .alert {
   padding: 14px 18px;
   border-radius: var(--radius-sm);
@@ -2179,7 +2179,7 @@ details .detail-content {
   color: #991b1b
 }
 
-/* - SEPARATORS - */
+/* ── SEPARATORS ── */
 .rule-separator {
   border: none;
   height: 1px;
@@ -2197,9 +2197,9 @@ details .detail-content {
   opacity: .7
 }
 
-/* -
+/* --------------------------------------
    BACK TO TOP
-   - */
+   -------------------------------------- */
 .back-to-top {
   position: fixed;
   bottom: 24px;
@@ -2234,9 +2234,9 @@ details .detail-content {
   box-shadow: var(--shadow-md)
 }
 
-/* -
+/* --------------------------------------
    FOOTER
-   - */
+   -------------------------------------- */
 .site-footer {
   background: var(--white);
   color: var(--text-muted);
@@ -2262,9 +2262,9 @@ details .detail-content {
   color: var(--text-muted)
 }
 
-/* -
+/* --------------------------------------
    INTERACTIVE CODE SECTIONS
-   - */
+   -------------------------------------- */
 .code-section {
   position: relative;
   transition: background .2s;
@@ -2451,7 +2451,7 @@ details .detail-content {
   transform: translateY(-2px)
 }
 
-/* - DOC SECTIONS - */
+/* ── DOC SECTIONS ── */
 .doc-section {
   margin-top: 8px
 }
@@ -2506,7 +2506,7 @@ details .detail-content {
   display: none
 }
 
-/* - DEPENDENCY CHIPS - */
+/* ── DEPENDENCY CHIPS ── */
 .dependency-chips {
   display: flex;
   flex-wrap: wrap;
@@ -2541,9 +2541,9 @@ details .detail-content {
   color: var(--teal)
 }
 
-/* -
+/* --------------------------------------
    MOBILE
-   - */
+   -------------------------------------- */
 .mobile-toggle {
   display: none;
   position: fixed;
@@ -3145,7 +3145,7 @@ input:checked+.slider:before {
 }
 
 .editor-mode-active a[data-cms-href]:hover::after {
-  content: "- Edit Link";
+  content: "✏️ Edit Link";
   position: absolute;
   bottom: 100%;
   left: 50%;
