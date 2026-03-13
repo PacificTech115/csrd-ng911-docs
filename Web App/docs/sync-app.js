@@ -48,6 +48,27 @@ window.initSyncAppModule = function() {
 
         initUI();
 
+        // Register the existing auth.js token into the esri IdentityManager natively
+        // This ensures esriRequest doesn't fail or prompt unnecessarily if the user pastes a CSRD URL.
+        const csrdToken = window.csrdAuth.getToken();
+        const expiresStr = localStorage.getItem('csrd_arcgis_expires');
+        const userStr = localStorage.getItem('csrd_arcgis_user');
+
+        if (csrdToken && expiresStr) {
+            // Register for both standard root and REST root to be safe
+            const expireTime = parseInt(expiresStr);
+            esriId.registerToken({
+                server: "https://apps.csrd.bc.ca/arcgis/rest/services",
+                token: csrdToken,
+                expires: expireTime
+            });
+            esriId.registerToken({
+                server: "https://apps.csrd.bc.ca",
+                token: csrdToken,
+                expires: expireTime
+            });
+        }
+
         // 1. Initialize Map
         const map = new Map({
             basemap: "streets-vector"
@@ -133,15 +154,28 @@ window.initSyncAppModule = function() {
                 // Fetch Source Data using esriRequest to trigger IdentityManager for cross-origin auth
                 appendLog(`Fetching Source records via IdentityManager...`, "info");
                 const sourceQueryUrl = `${sourceUrl}/query`;
-                const sQueryData = await esriRequest(sourceQueryUrl, {
-                    query: {
-                        where: "1=1",
-                        outFields: "*",
-                        returnGeometry: "true",
-                        f: "json"
-                    },
-                    responseType: "json"
-                });
+                let sQueryData;
+                
+                try {
+                    sQueryData = await esriRequest(sourceQueryUrl, {
+                        query: {
+                            where: "1=1",
+                            outFields: "*",
+                            returnGeometry: "true",
+                            f: "json"
+                        },
+                        responseType: "json"
+                    });
+                } catch (reqErr) {
+                    // IdentityManager throws specific errors, but "Failed to fetch" is a raw network error, usually CORS.
+                    if (reqErr.message === "Failed to fetch") {
+                        throw new Error("Network Error blocking the request. The municipal server is actively blocking apps.csrd.bc.ca via CORS (Cross-Origin Resource Sharing) or the URL is unreachable.");
+                    } else if (reqErr.name === "identity-manager:not-authorized") {
+                        throw new Error("Authentication failed or was canceled for the municipal server.");
+                    } else {
+                        throw reqErr;
+                    }
+                }
 
                 sourceFeatures = sQueryData.data.features || [];
                 appendLog(`Loaded ${sourceFeatures.length} Source records.`, "success");
