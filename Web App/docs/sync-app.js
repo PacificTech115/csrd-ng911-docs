@@ -320,7 +320,17 @@ window.initSyncAppModule = function() {
 
                     let isDifferent = false;
                     let changeLog = [];
+
+                    // Exclude auto-calculated/system fields from triggering an update
+                    const ignoredFields = [
+                        'dateupdate', 'nguid', 'longitude', 'latitude', 
+                        'created_date', 'last_edited_date', 'created_user', 'last_edited_user',
+                        'objectid', 'globalid'
+                    ];
+
                     for (const k in preparedFeature.attributes) {
+                        if (ignoredFields.includes(k.toLowerCase())) continue;
+
                         const oldVal = tf.attributes[k];
                         const newVal = preparedFeature.attributes[k];
                         
