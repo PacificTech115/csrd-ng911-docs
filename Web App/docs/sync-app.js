@@ -319,18 +319,36 @@ window.initSyncAppModule = function() {
                     if (tGlobId && tf.attributes[tGlobId]) preparedFeature.attributes[tGlobId] = tf.attributes[tGlobId];
 
                     let isDifferent = false;
+                    let changeLog = [];
                     for (const k in preparedFeature.attributes) {
-                        if (preparedFeature.attributes[k] !== tf.attributes[k]) {
-                            isDifferent = true; break;
+                        const oldVal = tf.attributes[k];
+                        const newVal = preparedFeature.attributes[k];
+                        
+                        // We only care if values are strictly different. Nulls and spaces require careful handling.
+                        const oldStr = (oldVal === null || oldVal === undefined) ? "" : String(oldVal).trim();
+                        const newStr = (newVal === null || newVal === undefined) ? "" : String(newVal).trim();
+
+                        if (oldStr !== newStr) {
+                            isDifferent = true;
+                            // Prettify empty values
+                            const displayOld = oldStr === "" ? "<i>(empty)</i>" : oldStr;
+                            const displayNew = newStr === "" ? "<i>(empty)</i>" : newStr;
+                            changeLog.push(`Change <b>${k}</b> from '${displayOld}' to '${displayNew}'`);
                         }
                     }
                     if (!isDifferent && preparedFeature.geometry && tf.geometry) {
                        if (preparedFeature.geometry.x !== tf.geometry.x || preparedFeature.geometry.y !== tf.geometry.y) {
                            isDifferent = true;
+                           changeLog.push(`Update Location (Point Geometry)`);
                        }
                     }
 
-                    if (isDifferent) { updates.push(preparedFeature); isUpdate = true; changeStatus = "Update applied"; }
+                    if (isDifferent) { 
+                        preparedFeature._changeLogHtml = `<ul style="margin-top:5px; padding-left:15px; font-weight:normal; font-size:0.75rem; color:var(--text-secondary); white-space:normal; list-style-type:circle;">${changeLog.map(l => `<li style="margin-bottom:3px;">${l}</li>`).join('')}</ul>`;
+                        updates.push(preparedFeature); 
+                        isUpdate = true; 
+                        changeStatus = "Update applied"; 
+                    }
                     else { unchanged++; }
                 } else {
                     adds.push(preparedFeature);
@@ -349,12 +367,20 @@ window.initSyncAppModule = function() {
                         tgtAddVal = targetFeatureCache.attributes[Object.keys(targetFeatureCache.attributes).find(k => k.toLowerCase().includes('full') || k.toLowerCase().includes('address'))] || 'Missing Address Field';
                     }
 
+                    let actionHtml = `<td style="color:#27ae60; font-weight:bold; vertical-align:top;"><i class="fas fa-plus-circle"></i> Inserted</td>`;
+                    if (isUpdate) {
+                        actionHtml = `<td style="vertical-align:top;">
+                            <div style="color:#e67e22; font-weight:bold;"><i class="fas fa-pen"></i> Updated</div>
+                            ${preparedFeature._changeLogHtml || ''}
+                        </td>`;
+                    }
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${nguidVal}</td>
-                        <td>${srcAddVal}</td>
-                        <td>${tgtAddVal}</td>
-                        <td style="color:${isAdd ? '#27ae60' : '#e67e22'}; font-weight:bold;">${isAdd ? '<i class="fas fa-plus-circle"></i> Inserted' : '<i class="fas fa-pen"></i> Updated'}</td>
+                        <td style="vertical-align:top; font-family:var(--font-mono); font-size:0.8rem; color:var(--teal);">${nguidVal}</td>
+                        <td style="vertical-align:top;">${srcAddVal}</td>
+                        <td style="vertical-align:top;">${tgtAddVal}</td>
+                        ${actionHtml}
                     `;
                     tbody.appendChild(tr);
                 }
