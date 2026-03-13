@@ -347,14 +347,19 @@ window.initSyncAppModule = function() {
                         }
                     }
                     if (!isDifferent && preparedFeature.geometry && tf.geometry) {
-                        const srcX = parseFloat(preparedFeature.geometry.x).toFixed(5);
-                        const srcY = parseFloat(preparedFeature.geometry.y).toFixed(5);
-                        const tgtX = parseFloat(tf.geometry.x).toFixed(5);
-                        const tgtY = parseFloat(tf.geometry.y).toFixed(5);
+                        const srcX = parseFloat(preparedFeature.geometry.x);
+                        const srcY = parseFloat(preparedFeature.geometry.y);
+                        const tgtX = parseFloat(tf.geometry.x);
+                        const tgtY = parseFloat(tf.geometry.y);
 
-                        if (srcX !== tgtX || srcY !== tgtY) {
+                        // Auto-detect if coords are Geographic (Lat/Long) or Projected (Meters)
+                        const isDegrees = Math.abs(srcX) <= 180 && Math.abs(srcY) <= 90;
+                        const tolerance = isDegrees ? 0.00001 : 0.1; // ~1 meter tolerance
+
+                        if (Math.abs(srcX - tgtX) > tolerance || Math.abs(srcY - tgtY) > tolerance) {
                             isDifferent = true;
-                            changeLog.push(`Update Location (Point Geometry) X: ${tgtX}->${srcX}, Y: ${tgtY}->${srcY}`);
+                            const dec = isDegrees ? 5 : 2;
+                            changeLog.push(`Update Location (Point Geometry) X: ${tgtX.toFixed(dec)}->${srcX.toFixed(dec)}, Y: ${tgtY.toFixed(dec)}->${srcY.toFixed(dec)}`);
                         }
                     }
 
