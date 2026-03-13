@@ -142,7 +142,7 @@ class SPA_Router {
                 }
 
                 this.enforcePageRBAC(hash);
-                this.initializePageScripts();
+                this.initializePageScripts(hash);
 
                 // Highlight active nav link
                 document.querySelectorAll('.sidebar-nav a').forEach(a => {
@@ -163,7 +163,7 @@ class SPA_Router {
         }
     }
 
-    initializePageScripts() {
+    initializePageScripts(hash = '') {
         // Re-run scroll reveals since the DOM changed
         const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(e => {
@@ -317,6 +317,17 @@ class SPA_Router {
                 });
             }
         });
+
+        // --- Dynamic Script Loading for specific routes ---
+        if (hash === 'sync-app') {
+            if (typeof window.initSyncAppModule === 'function') {
+                window.initSyncAppModule();
+            } else {
+                const script = document.createElement('script');
+                script.src = `docs/sync-app.js?v=${Date.now()}`;
+                document.body.appendChild(script);
+            }
+        }
     }
 
     enforcePageRBAC(hash) {

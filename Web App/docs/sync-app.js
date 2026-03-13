@@ -1,6 +1,6 @@
 // docs/sync-app.js
 
-(function() {
+window.initSyncAppModule = function() {
     console.log("Sync App initializing...");
 
     let targetLayerUrl = "";
@@ -358,4 +358,9 @@
 
     });
 
-})();
+};
+
+// Auto-execute if loaded directly
+if (document.getElementById('sync-map-view')) {
+    window.initSyncAppModule();
+}
