@@ -91,6 +91,7 @@ window.initSyncAppModule = function() {
         });
 
         // UI Elements
+        const confirmBtn = document.getElementById('btn-sync-confirm');
         const analyzeBtn = document.getElementById('btn-sync-analyze');
         const executeBtn = document.getElementById('btn-sync-execute');
         const sourceInput = document.getElementById('sync-source-url');
@@ -171,17 +172,15 @@ window.initSyncAppModule = function() {
         srcSelect.addEventListener('change', () => { if(sourceFeatures.length) runDiffEngine(); });
         tgtSelect.addEventListener('change', () => { if(targetFeatures.length) runDiffEngine(); });
 
-        // 2. Analyze & Compare (Fetch Data & Schemas)
-        analyzeBtn.addEventListener('click', async () => {
+        // Step 1: Verify URL & Fetch Schemas
+        confirmBtn.addEventListener('click', async () => {
             let sourceUrl = sourceInput.value.trim();
             if (!sourceUrl) { alert("Please enter a valid Source Feature Service REST URL."); return; }
             if (sourceUrl.endsWith('/')) sourceUrl = sourceUrl.slice(0, -1);
             if (!targetLayerUrl) { alert("Target CSRD layer is unknown. Cannot proceed."); return; }
 
-            analyzeBtn.disabled = true;
-            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading Data...';
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.style.display = 'none', 300);
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
             
             logPanel.innerHTML = '';
             resultsPanel.style.display = 'block';
@@ -213,6 +212,31 @@ window.initSyncAppModule = function() {
 
                 srcSelect.disabled = false;
                 tgtSelect.disabled = false;
+
+                appendLog(`Schemas successfully linked. Ready to Extract Data.`, "success");
+                analyzeBtn.disabled = false;
+
+            } catch (err) {
+                appendLog(`Verification Error: ${err.message}`, "error");
+                console.error("Verification Error:", err);
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify URL';
+            }
+        });
+
+        // Step 2: Analyze & Compare (Fetch Data)
+        analyzeBtn.addEventListener('click', async () => {
+            let sourceUrl = sourceInput.value.trim();
+            if (sourceUrl.endsWith('/')) sourceUrl = sourceUrl.slice(0, -1);
+            const csrdToken = window.csrdAuth.getToken();
+
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading Data...';
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 300);
+            
+            try {
 
                 // Paginated Fetch Target Data
                 appendLog(`Fetching Target records (Paginated)...`, "info");

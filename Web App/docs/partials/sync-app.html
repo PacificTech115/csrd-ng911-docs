@@ -12,7 +12,12 @@
         <div class="sync-config-panel">
             <div class="sync-input-group">
                 <label for="sync-source-url">Source Feature Service REST URL <span style="color:var(--red);">*</span></label>
-                <input type="text" id="sync-source-url" placeholder="e.g. https://revelstokeportal.ca/server/rest/services/Hosted/Addresses/FeatureServer/0" class="cms-input">
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="sync-source-url" placeholder="e.g. https://revelstokeportal.ca/server/rest/services/Hosted/Addresses/FeatureServer/0" class="cms-input" style="flex: 1;">
+                    <button id="btn-sync-confirm" class="btn-primary" style="white-space: nowrap;">
+                        <i class="fas fa-check-circle"></i> Verify URL
+                    </button>
+                </div>
                 <small>Past the REST endpoint of the layer containing the municipal address points.</small>
             </div>
 
@@ -40,11 +45,11 @@
             </div>
 
             <div class="sync-actions" style="margin-top: 30px; display: flex; gap: 15px;">
-                <button id="btn-sync-analyze" class="btn-primary" style="flex: 1; justify-content: center;">
-                    <i class="fas fa-magnifying-glass-chart"></i> Analyze & Compare
+                <button id="btn-sync-analyze" class="btn-primary" style="flex: 1; justify-content: center;" disabled>
+                    <i class="fas fa-magnifying-glass-chart"></i> Step 2: Extract & Compare
                 </button>
                 <button id="btn-sync-execute" class="btn-secondary" style="flex: 1; justify-content: center;" disabled>
-                    <i class="fas fa-play"></i> Execute Sync
+                    <i class="fas fa-play"></i> Step 3: Execute Sync
                 </button>
             </div>
         </div>
