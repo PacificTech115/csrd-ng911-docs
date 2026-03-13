@@ -23,6 +23,22 @@
                 </div>
             </div>
 
+            <!-- Field Mapping Configuration -->
+            <div class="sync-mapping-group" style="margin-top: 20px; display: flex; gap: 20px;">
+                <div class="sync-input-group" style="flex: 1;">
+                    <label for="sync-source-field">Source Match Field</label>
+                    <select id="sync-source-field" class="cms-input" disabled>
+                        <option value="">(Auto-detecting...)</option>
+                    </select>
+                </div>
+                <div class="sync-input-group" style="flex: 1;">
+                    <label for="sync-target-field">Target Match Field</label>
+                    <select id="sync-target-field" class="cms-input" disabled>
+                        <option value="">(Auto-detecting...)</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="sync-actions" style="margin-top: 30px; display: flex; gap: 15px;">
                 <button id="btn-sync-analyze" class="btn-primary" style="flex: 1; justify-content: center;">
                     <i class="fas fa-magnifying-glass-chart"></i> Analyze & Compare
@@ -53,6 +69,22 @@
             
             <div id="sync-progress-log" class="sync-log">
                 <!-- Log messages will appear here -->
+            </div>
+
+            <div id="sync-diff-table-container" style="margin-top: 30px; display: none; overflow-x: auto; max-height: 400px; border: 1px solid var(--border-color); border-radius: 8px;">
+                <table class="cms-table" id="sync-diff-table" style="width: 100%; white-space: nowrap; font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>NGUID</th>
+                            <th>Municipal Full Address</th>
+                            <th>Central DB Full Address</th>
+                            <th>Changes to be applied</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows dynamically generated -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
