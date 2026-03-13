@@ -347,10 +347,15 @@ window.initSyncAppModule = function() {
                         }
                     }
                     if (!isDifferent && preparedFeature.geometry && tf.geometry) {
-                       if (preparedFeature.geometry.x !== tf.geometry.x || preparedFeature.geometry.y !== tf.geometry.y) {
-                           isDifferent = true;
-                           changeLog.push(`Update Location (Point Geometry)`);
-                       }
+                        const srcX = parseFloat(preparedFeature.geometry.x).toFixed(5);
+                        const srcY = parseFloat(preparedFeature.geometry.y).toFixed(5);
+                        const tgtX = parseFloat(tf.geometry.x).toFixed(5);
+                        const tgtY = parseFloat(tf.geometry.y).toFixed(5);
+
+                        if (srcX !== tgtX || srcY !== tgtY) {
+                            isDifferent = true;
+                            changeLog.push(`Update Location (Point Geometry) X: ${tgtX}->${srcX}, Y: ${tgtY}->${srcY}`);
+                        }
                     }
 
                     if (isDifferent) { 
