@@ -325,7 +325,7 @@ window.initSyncAppModule = function() {
                     const ignoredFields = [
                         'dateupdate', 'nguid', 'longitude', 'latitude', 
                         'created_date', 'last_edited_date', 'created_user', 'last_edited_user',
-                        'objectid', 'globalid'
+                        'objectid'
                     ];
 
                     for (const k in preparedFeature.attributes) {
@@ -371,6 +371,12 @@ window.initSyncAppModule = function() {
                     }
                     else { unchanged++; }
                 } else {
+                    // Does not exist -> Add
+                    // Explicitly preserve the Source GlobalID so it syncs cleanly across DBs
+                    const tGlobId = targetSchemaFields.find(t => t.toLowerCase() === 'globalid');
+                    if (tGlobId && srcGlobalId) {
+                         preparedFeature.attributes[tGlobId] = srcGlobalId;
+                    }
                     adds.push(preparedFeature);
                     isAdd = true;
                     changeStatus = "Inserted";
@@ -450,7 +456,7 @@ window.initSyncAppModule = function() {
                 token: csrdToken,
                 adds: JSON.stringify(adds),
                 updates: JSON.stringify(updates),
-                useGlobalIds: false
+                useGlobalIds: true // Tell ArcGIS to respect the client-provided GlobalIDs
             };
 
             const formData = new URLSearchParams();
