@@ -301,6 +301,13 @@ window.initSyncAppModule = function() {
 
                 // Inject mapped ID
                 const targetFidField = targetSchemaFields.find(t => t.toLowerCase() === targetMatchField.toLowerCase());
+                
+                // CRITICAL FAIL-SAFE: If the source record does NOT have a valid Match ID (GlobalID), reject it.
+                if (!srcGlobalId || String(srcGlobalId).trim() === '') {
+                    appendLog(`Warning: Skipped source ObjectID ${sf.attributes.OBJECTID || sf.attributes.objectid} - Missing required GlobalID.`, "error");
+                    return; // Skip processing this record entirely
+                }
+
                 if (targetFidField && srcGlobalId) {
                      filteredAtts[targetFidField] = srcGlobalId;
                 }
@@ -327,7 +334,8 @@ window.initSyncAppModule = function() {
                     const ignoredFields = [
                         'dateupdate', 'nguid', 'longitude', 'latitude', 
                         'created_date', 'last_edited_date', 'created_user', 'last_edited_user',
-                        'objectid', 'globalid'
+                        'objectid', 'globalid', 'qastatus', 'landmkname', 'errordetails', 'qc_notes',
+                        'eff_date', 'ret_date'
                     ];
 
                     for (const k in preparedFeature.attributes) {
