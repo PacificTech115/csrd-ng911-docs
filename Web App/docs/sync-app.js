@@ -290,9 +290,11 @@ window.initSyncAppModule = function() {
                 const srcGlobalId = globalIdKey ? sf.attributes[globalIdKey] : null;
                 
                 const filteredAtts = {};
+                const systemFieldsToStrip = ['objectid', 'globalid', 'created_user', 'created_date', 'last_edited_user', 'last_edited_date', 'shape__area', 'shape__length', 'starea', 'stlength'];
+                
                 for (const [key, val] of Object.entries(sf.attributes)) {
                     const matchedTargetField = targetSchemaFields.find(t => t.toLowerCase() === key.toLowerCase());
-                    if (matchedTargetField && matchedTargetField.toLowerCase() !== 'objectid') {
+                    if (matchedTargetField && !systemFieldsToStrip.includes(matchedTargetField.toLowerCase())) {
                         filteredAtts[matchedTargetField] = val;
                     }
                 }
@@ -472,7 +474,10 @@ window.initSyncAppModule = function() {
                 });
 
                 const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
+                if (data.error) {
+                    const errorMsg = data.error.details ? `${data.error.message} | Details: ${data.error.details.join('; ')}` : data.error.message;
+                    throw new Error(errorMsg);
+                }
 
                 let addSuccess = 0;
                 let addFail = 0;
