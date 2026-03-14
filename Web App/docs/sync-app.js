@@ -264,6 +264,8 @@ window.initSyncAppModule = function() {
             appendLog(`Running Cascading Match Engine...`, "info");
             adds = [];
             updates = [];
+            let skipped = 0;
+            let skippedRecords = [];
             let unchanged = 0;
 
             const targetMatchField = tgtSelect.value;
