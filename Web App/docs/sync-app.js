@@ -273,7 +273,6 @@ window.initSyncAppModule = function() {
                 appendLog("Error: Match fields not selected.", "error");
                 return;
             }
-
             const targetDict = {};
             targetFeatures.forEach(tf => {
                 const fidKey = Object.keys(tf.attributes).find(k => k.toLowerCase() === targetMatchField.toLowerCase());
@@ -283,7 +282,7 @@ window.initSyncAppModule = function() {
             });
 
             const tbody = document.querySelector('#sync-diff-table tbody');
-            tbody.innerHTML = '';
+            tbody.innerHTML = ''; // clear existing rows
 
             sourceFeatures.forEach(sf => {
                 const globalIdKey = Object.keys(sf.attributes).find(k => k.toLowerCase() === sourceMatchField.toLowerCase());
@@ -305,6 +304,8 @@ window.initSyncAppModule = function() {
                 // CRITICAL FAIL-SAFE: If the source record does NOT have a valid Match ID (GlobalID), reject it.
                 if (!srcGlobalId || String(srcGlobalId).trim() === '') {
                     appendLog(`Warning: Skipped source ObjectID ${sf.attributes.OBJECTID || sf.attributes.objectid} - Missing required GlobalID.`, "error");
+                    skipped++;
+                    skippedRecords.push(sf);
                     return; // Skip processing this record entirely
                 }
 
@@ -398,7 +399,9 @@ window.initSyncAppModule = function() {
                     }
 
                     let actionHtml = `<td style="color:#27ae60; font-weight:bold; vertical-align:top;"><i class="fas fa-plus-circle"></i> Inserted</td>`;
+                    let category = "insert";
                     if (isUpdate) {
+                        category = "update";
                         actionHtml = `<td style="vertical-align:top;">
                             <div style="color:#e67e22; font-weight:bold;"><i class="fas fa-pen"></i> Updated</div>
                             ${preparedFeature._changeLogHtml || ''}
@@ -406,6 +409,8 @@ window.initSyncAppModule = function() {
                     }
 
                     const tr = document.createElement('tr');
+                    tr.className = 'diff-row';
+                    tr.setAttribute('data-category', category);
                     tr.innerHTML = `
                         <td style="vertical-align:top; font-family:var(--font-mono); font-size:0.8rem; color:var(--teal);">${nguidVal}</td>
                         <td style="vertical-align:top;">${srcAddVal}</td>
@@ -416,10 +421,27 @@ window.initSyncAppModule = function() {
                 }
             });
 
+            // Append Skipped Features to the table
+            skippedRecords.forEach(sf => {
+                const nguidVal = 'MISSING GLOBALID';
+                const srcAddVal = sf.attributes[Object.keys(sf.attributes).find(k => k.toLowerCase().includes('full') || k.toLowerCase().includes('address'))] || 'Missing Address Field';
+                const tr = document.createElement('tr');
+                tr.className = 'diff-row';
+                tr.setAttribute('data-category', 'skipped');
+                tr.innerHTML = `
+                    <td style="vertical-align:top; font-family:var(--font-mono); font-size:0.8rem; color:var(--red); font-weight:bold;">${nguidVal}</td>
+                    <td style="vertical-align:top;">${srcAddVal}</td>
+                    <td style="vertical-align:top;">N/A</td>
+                    <td style="vertical-align:top; color:var(--red); font-weight:bold;"><i class="fas fa-ban"></i> Skipped</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
             document.getElementById('stat-inserts').textContent = adds.length;
             document.getElementById('stat-updates').textContent = updates.length;
             document.getElementById('stat-unchanged').textContent = unchanged;
-            appendLog(`Diff Complete: ${adds.length} Adds, ${updates.length} Updates, ${unchanged} Unchanged.`, "success");
+            document.getElementById('stat-skipped').textContent = skipped;
+            appendLog(`Diff Complete: ${adds.length} Adds, ${updates.length} Updates, ${unchanged} Unchanged, ${skipped} Skipped.`, "success");
 
             // Render Map
             graphicsLayer.removeAll();
@@ -437,8 +459,50 @@ window.initSyncAppModule = function() {
             graphicsLayer.addMany(graphics);
             if (graphics.length > 0) view.goTo(graphics);
 
+            // Execute Stat Box Click Filtering
+            setupStatBoxFilters();
+
             if (adds.length > 0 || updates.length > 0) executeBtn.disabled = false;
             else executeBtn.disabled = true;
+        }
+
+        function setupStatBoxFilters() {
+            const statBoxes = document.querySelectorAll('.stat-box');
+            statBoxes.forEach(box => {
+                // Remove old listeners to prevent bubbling duplicates if runDiff runs twice
+                const newBox = box.cloneNode(true);
+                box.parentNode.replaceChild(newBox, box);
+                
+                newBox.addEventListener('click', () => {
+                    const filter = newBox.getAttribute('data-filter');
+                    const rows = document.querySelectorAll('.diff-row');
+                    
+                    if (activeFilter === filter) {
+                        // Toggle off
+                        activeFilter = null;
+                        document.querySelectorAll('.stat-box').forEach(b => {
+                            b.classList.remove('active-filter', 'inactive-filter');
+                        });
+                        rows.forEach(r => r.style.display = '');
+                    } else {
+                        // Toggle on
+                        activeFilter = filter;
+                        document.querySelectorAll('.stat-box').forEach(b => {
+                            if (b.getAttribute('data-filter') === filter) {
+                                b.classList.add('active-filter');
+                                b.classList.remove('inactive-filter');
+                            } else {
+                                b.classList.remove('active-filter');
+                                b.classList.add('inactive-filter');
+                            }
+                        });
+                        rows.forEach(r => {
+                            if (r.getAttribute('data-category') === filter) r.style.display = '';
+                            else r.style.display = 'none';
+                        });
+                    }
+                });
+            });
         }
 
         // 3. Execute Sync

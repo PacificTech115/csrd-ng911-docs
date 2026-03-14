@@ -58,17 +58,21 @@
         <div id="sync-results-panel" class="sync-results-panel" style="display: none;">
             <h3><i class="fas fa-clipboard-list"></i> Diff Results</h3>
             <div class="sync-stats">
-                <div class="stat-box insert">
+                <div class="stat-box insert" data-filter="insert">
                     <span class="stat-value" id="stat-inserts">0</span>
-                    <span class="stat-label">New Records (Adds)</span>
+                    <span class="stat-label">New Records</span>
                 </div>
-                <div class="stat-box update">
+                <div class="stat-box update" data-filter="update">
                     <span class="stat-value" id="stat-updates">0</span>
-                    <span class="stat-label">Modified (Updates)</span>
+                    <span class="stat-label">Modified</span>
                 </div>
-                <div class="stat-box unchanged">
+                <div class="stat-box unchanged" data-filter="unchanged">
                     <span class="stat-value" id="stat-unchanged">0</span>
                     <span class="stat-label">Unchanged</span>
+                </div>
+                <div class="stat-box skipped" data-filter="skipped">
+                    <span class="stat-value" id="stat-skipped">0</span>
+                    <span class="stat-label">Skipped</span>
                 </div>
             </div>
             
@@ -257,16 +261,20 @@
     }
 
     .stat-box {
-        padding: 25px;
+        padding: 25px 15px;
         border-radius: 20px;
         text-align: center;
         color: white;
         position: relative;
         overflow: hidden;
         box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        transition: transform 0.3s ease;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 3px solid transparent;
     }
-    .stat-box:hover { transform: translateY(-5px); }
+    .stat-box:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.12); }
+    .stat-box.active-filter { border-color: rgba(255, 255, 255, 0.8); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); filter: brightness(1.1); }
+    .stat-box.inactive-filter { opacity: 0.5; filter: grayscale(50%); }
     
     /* Decorative shine effect */
     .stat-box::after {
@@ -287,6 +295,7 @@
     .stat-box.insert { background: linear-gradient(135deg, #10b981, #059669); }
     .stat-box.update { background: linear-gradient(135deg, #f59e0b, #d97706); }
     .stat-box.unchanged { background: linear-gradient(135deg, #64748b, #475569); }
+    .stat-box.skipped { background: linear-gradient(135deg, #ef4444, #b91c1c); }
 
     .stat-value {
         display: block;
