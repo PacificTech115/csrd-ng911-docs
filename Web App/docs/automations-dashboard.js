@@ -75,7 +75,7 @@ export const initAutomationsDashboard = () => {
         const runBtnContainer = document.getElementById('nightlyRunBtnContainer');
         if (runBtnContainer) {
           runBtnContainer.innerHTML = `
-            <button id="runNightlyBtn" onclick="window.triggerNotebookRun('nightly', '${config.notebooks.nightlyOrchestratorId}', 'runNightlyBtn')" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button id="runNightlyBtn" data-action="run-notebook" data-pipeline="nightly" data-itemid="${config.notebooks.nightlyOrchestratorId}" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Pipeline
             </button>
           `;
@@ -134,7 +134,7 @@ export const initAutomationsDashboard = () => {
         const runBtnContainer = document.getElementById('etlRunBtnContainer');
         if (runBtnContainer) {
           runBtnContainer.innerHTML = `
-            <button id="runEtlBtn" onclick="window.triggerNotebookRun('etl', '${config.notebooks.salmonArmETLId}', 'runEtlBtn')" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button id="runEtlBtn" data-action="run-notebook" data-pipeline="etl" data-itemid="${config.notebooks.salmonArmETLId}" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Sync
             </button>
           `;
@@ -172,8 +172,7 @@ export const initAutomationsDashboard = () => {
   }
 
   // --- Notebook Execution Logic ---
-  window.triggerNotebookRun = async (pipelineName, itemId, btnId) => {
-    alert(`Trigger captured for ${pipelineName} (Item: ${itemId})`);
+  const triggerNotebookRun = async (pipelineName, itemId, btnId) => {
     const btn = document.getElementById(btnId);
     if (!btn) {
         alert("Failed to find button element!");
@@ -271,6 +270,27 @@ export const initAutomationsDashboard = () => {
       btn.style.cursor = 'pointer';
       btn.style.background = 'var(--navy)';
   };
+
+  // Event Delegation for dynamic buttons
+  if (!window.dashboardClickListenerAdded) {
+    document.body.addEventListener('click', (e) => {
+        const targetBtn = e.target.closest('[data-action="run-notebook"]');
+        if (targetBtn) {
+            e.preventDefault();
+            const pipeline = targetBtn.getAttribute('data-pipeline');
+            const item = targetBtn.getAttribute('data-itemid');
+            const btnId = targetBtn.id;
+            
+            try {
+                triggerNotebookRun(pipeline, item, btnId);
+            } catch (err) {
+                alert("UI Error clicking button: " + err.message);
+                console.error(err);
+            }
+        }
+    });
+    window.dashboardClickListenerAdded = true;
+  }
 
   // Initial load
   loadAll();
