@@ -41,10 +41,16 @@ export const initAutomationsDashboard = () => {
 
   const fetchNightly = async () => {
     try {
-      // Must bust cache just in case. The backend overwrites the static file.
-      const res = await fetch(`${basePath}run_summaries/nightly_orchestrator_latest.json?t=${Date.now()}`);
-      if (!res.ok) throw new Error("File not found");
-      const data = await res.json();
+      // Pull from the Base64 CMS Cache instead of static files
+      const cmsKey = 'dashboard.orchestrator.latest_run';
+      const row = window.cms?.cache?.[cmsKey];
+      if (!row || !row[window.cms.fieldMap.content]) throw new Error(`Missing CMS data: ${cmsKey}`);
+      
+      let rawData = row[window.cms.fieldMap.content];
+      if (rawData && rawData.match(/^[A-Za-z0-9+/=]+$/)) {
+         rawData = decodeURIComponent(escape(atob(rawData)));
+      }
+      const data = JSON.parse(rawData);
       
       document.getElementById('nightly-start').textContent = formatTime(data.started);
       document.getElementById('nightly-finish').textContent = formatTime(data.finished);
@@ -91,9 +97,15 @@ export const initAutomationsDashboard = () => {
 
   const fetchETL = async () => {
     try {
-      const res = await fetch(`${basePath}run_summaries/hosted_to_enterprise_sync_latest.json?t=${Date.now()}`);
-      if (!res.ok) throw new Error("File not found");
-      const data = await res.json();
+      const cmsKey = 'dashboard.etl.latest_run';
+      const row = window.cms?.cache?.[cmsKey];
+      if (!row || !row[window.cms.fieldMap.content]) throw new Error(`Missing CMS data: ${cmsKey}`);
+      
+      let rawData = row[window.cms.fieldMap.content];
+      if (rawData && rawData.match(/^[A-Za-z0-9+/=]+$/)) {
+         rawData = decodeURIComponent(escape(atob(rawData)));
+      }
+      const data = JSON.parse(rawData);
       
       document.getElementById('etl-start').textContent = formatTime(data.timestamp);
       // ETL doesn't write 'finished' explicitly in the root in ETL right now, but writes to timestamp.
