@@ -22,6 +22,11 @@ class SPA_Router {
             'automations-dashboard': 'automations-dashboard.html',
             'gp-tools': 'gp-tools.html',
             'power-automate': 'power-automate.html',
+            'script-orchestrator': 'script-orchestrator.html',
+            'script-etl': 'script-etl.html',
+            'script-qa': 'script-qa.html',
+            'script-reconcile': 'script-reconcile.html',
+            'script-export': 'script-export.html',
             'maintenance': 'maintenance.html',
             'system-resources': 'system-resources.html',
             'version-edits': 'version-edits.html',
@@ -461,7 +466,8 @@ class SPA_Router {
         const baseMuniPages = ['home.html', 'architecture.html', 'schema-guide.html', 'attribute-rules.html',
             'rule-full-address.html', 'rule-nguid.html', 'rule-longitude.html', 'rule-latitude.html',
             'rule-addcode.html', 'rule-dateupdate.html', 'rule-qastatus.html', 'rule-defaultagency.html',
-            'rule-mandatory.html', 'domains.html'];
+            'rule-mandatory.html', 'domains.html', 'script-orchestrator.html', 'script-etl.html',
+            'script-qa.html', 'script-reconcile.html', 'script-export.html'];
 
         if (isAdmin) {
             window.CSRD_ALLOWED_PAGES = null; // null = all pages allowed
