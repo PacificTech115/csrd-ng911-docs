@@ -69,24 +69,23 @@ export const initAutomationsDashboard = () => {
       } else {
         stagesContainer.innerHTML = '<div style="color:var(--text-secondary);font-size:0.9rem;">No stage data available.</div>';
       }
-      
-      // Inject Run Button for Admins
-      if (auth.isAdmin()) {
-        const runBtnContainer = document.getElementById('nightlyRunBtnContainer');
-        if (runBtnContainer) {
-          const nightlyGpUrl = "https://apps.csrd.bc.ca/arcgis/rest/services/Regional/Orchestrator/GPServer/Orchestrator";
-          runBtnContainer.innerHTML = `
-            <button id="runNightlyBtn" data-action="run-notebook" data-pipeline="nightly" data-itemid="${nightlyGpUrl}" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-              <i class="fas fa-play"></i> Force Run Pipeline
-            </button>
-          `;
-        }
-      }
-
     } catch (e) {
       document.getElementById('nightly-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
       document.getElementById('nightly-status-chip').style.color = 'var(--red)';
       console.error(e);
+    }
+
+    // Inject Run Button for Admins (Render regardless of JSON status)
+    if (auth.isAdmin()) {
+      const runBtnContainer = document.getElementById('nightlyRunBtnContainer');
+      if (runBtnContainer) {
+        const nightlyGpUrl = "https://apps.csrd.bc.ca/arcgis/rest/services/Regional/Orchestrator/GPServer/Orchestrator";
+        runBtnContainer.innerHTML = `
+          <button id="runNightlyBtn" data-action="run-notebook" data-pipeline="nightly" data-itemid="${nightlyGpUrl}" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-play"></i> Force Run Pipeline
+          </button>
+        `;
+      }
     }
   };
 
@@ -129,23 +128,22 @@ export const initAutomationsDashboard = () => {
           </div>
         `;
       }
-
-      // Inject Run Button for Admins
-      if (auth.isAdmin()) {
-        const runBtnContainer = document.getElementById('etlRunBtnContainer');
-        if (runBtnContainer) {
-          runBtnContainer.innerHTML = `
-            <button id="runEtlBtn" data-action="run-notebook" data-pipeline="etl" data-itemid="${config.notebooks.salmonArmETLId}" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-              <i class="fas fa-play"></i> Force Run Sync
-            </button>
-          `;
-        }
-      }
-
     } catch (e) {
       document.getElementById('etl-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
       document.getElementById('etl-status-chip').style.color = 'var(--red)';
       console.error(e);
+    }
+
+    // Inject Run Button for Admins (Render regardless of JSON status)
+    if (auth.isAdmin()) {
+      const runBtnContainer = document.getElementById('etlRunBtnContainer');
+      if (runBtnContainer) {
+        runBtnContainer.innerHTML = `
+          <button id="runEtlBtn" data-action="run-notebook" data-pipeline="etl" data-itemid="${config.notebooks.salmonArmETLId}" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-play"></i> Force Run Sync
+          </button>
+        `;
+      }
     }
   };
 
