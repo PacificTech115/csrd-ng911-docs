@@ -78,7 +78,7 @@ export async function initGPRunner(hash) {
         const defaultOverrides = {
             'QAAutomationScriptTool': {
                 'target_layer': 'SDE.NG911\\SDE.NG911_SiteAddress',
-                'schema_json': '{"url": "\\\\\\\\GIS\\\\Scripts\\\\NG911\\\\NG911_Automation\\\\SSAP_Schema.json"}',
+                'schema_json': '\\\\GIS\\Scripts\\NG911\\NG911_Automation\\SSAP_Schema.json',
                 'mode': 'all',
                 'check_types': true,
                 'check_lengths': true,
@@ -92,7 +92,7 @@ export async function initGPRunner(hash) {
                 'out_log_folder': '/arcgis/home/run_summaries'
             },
             'ReconcilePostTraditional': {
-                'sde_conn': '{"url": "\\\\\\\\GIS\\\\Scripts\\\\NG911\\\\NG911_Automation\\\\connections\\\\sde@regional.sde"}',
+                'sde_conn': '\\\\GIS\\Scripts\\NG911\\NG911_Automation\\connections\\sde@regional.sde',
                 'qa_version': 'SDE.QA',
                 'default_version': 'sde.DEFAULT',
                 'editor_versions': 'SDE.CSRD;SDE.Revelstoke;SDE.Golden;SDE.Salmon Arm;SDE.Sicamous',
@@ -101,7 +101,7 @@ export async function initGPRunner(hash) {
                 'acquire_locks': 'LOCK_ACQUIRED'
             },
             'ExportEnterpriseToFileGDB': {
-                'sde_conn': '{"url": "\\\\\\\\GIS\\\\Scripts\\\\NG911\\\\NG911_Automation\\\\connections\\\\sde@regional.sde"}',
+                'sde_conn': '\\\\GIS\\Scripts\\NG911\\NG911_Automation\\connections\\sde@regional.sde',
                 'target_fc': 'SDE.NG911\\SDE.NG911_SiteAddress',
                 'name_prefix': 'SSAP_Default'
             }
@@ -163,16 +163,27 @@ export async function initGPRunner(hash) {
             resDiv.style.display = 'block';
             resDiv.innerHTML = 'Submitting job via REST API...\n';
 
-            const formData = new FormData(e.target);
-            formData.append('f', 'json');
-            formData.append('token', token);
+            // Build structured payload, intercepting File parameters and Checkboxes
+            const payload = new FormData();
+            payload.append('f', 'json');
+            payload.append('token', token);
             
-            // Checkboxes omit value if unchecked; safely append 'false'
             inputParams.forEach(p => {
+                const el = e.target.elements[p.name];
+                if (!el) return;
+
                 if (p.dataType === 'GPBoolean') {
-                    if (!formData.has(p.name)) {
-                        formData.append(p.name, 'false');
+                    payload.append(p.name, el.checked ? 'true' : 'false');
+                } else if (['GPDataFile', 'DEFile'].includes(p.dataType) || p.name === 'sde_conn' || p.name === 'schema_json') {
+                    // ArcGIS REST requires {"url": "\\path"} JSON structuring for network paths instead of raw strings
+                    const val = el.value.trim();
+                    if (val.startsWith('\\\\')) {
+                        payload.append(p.name, JSON.stringify({ url: val }));
+                    } else {
+                        payload.append(p.name, val); // Fallback if it's somehow not a UNC path
                     }
+                } else {
+                    payload.append(p.name, el.value);
                 }
             });
 
@@ -180,7 +191,7 @@ export async function initGPRunner(hash) {
                 // Submit Asynchronous Job
                 const submitReq = await fetch(`${gpTaskUrl}/submitJob`, {
                     method: 'POST',
-                    body: formData
+                    body: payload
                 });
                 const submitRes = await submitReq.json();
 
