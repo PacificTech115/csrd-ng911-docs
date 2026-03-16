@@ -78,8 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let accumulatedText = "";
 
         try {
-            // Using Fetch POST to read SSE stream via local backend
-            const response = await fetch('http://localhost:8000/api/chat', {
+            // Dynamically resolve backend IP (fallback to localhost if executed via local file protocol)
+            const aiHost = window.location.hostname || 'localhost';
+            
+            // Using Fetch POST to read SSE stream via dynamic backend IP 
+            const response = await fetch(`http://${aiHost}:8000/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
