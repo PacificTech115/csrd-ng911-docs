@@ -74,8 +74,9 @@ export const initAutomationsDashboard = () => {
       if (auth.isAdmin()) {
         const runBtnContainer = document.getElementById('nightlyRunBtnContainer');
         if (runBtnContainer) {
+          const nightlyGpUrl = "https://apps.csrd.bc.ca/arcgis/rest/services/Regional/Orchestrator/GPServer/Orchestrator";
           runBtnContainer.innerHTML = `
-            <button id="runNightlyBtn" data-action="run-notebook" data-pipeline="nightly" data-itemid="${config.notebooks.nightlyOrchestratorId}" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button id="runNightlyBtn" data-action="run-notebook" data-pipeline="nightly" data-itemid="${nightlyGpUrl}" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Pipeline
             </button>
           `;
@@ -171,8 +172,8 @@ export const initAutomationsDashboard = () => {
       newBtn.addEventListener('click', loadAll);
   }
 
-  // --- Notebook Execution Logic ---
-  const triggerNotebookRun = async (pipelineName, itemId, btnId) => {
+  // --- Geoprocessing Execution Logic ---
+  const triggerNotebookRun = async (pipelineName, gpUrl, btnId) => {
     const btn = document.getElementById(btnId);
     if (!btn) {
         alert("Failed to find button element!");
@@ -198,12 +199,10 @@ export const initAutomationsDashboard = () => {
         btn.style.cursor = 'not-allowed';
 
         // 1. Submit the Job
-        const submitUrl = `${config.portalUrl}/sharing/rest/content/items/${itemId}/executeNotebook`;
+        const submitUrl = `${gpUrl}/submitJob`;
         const params = new URLSearchParams();
         params.append('f', 'json');
         params.append('token', token);
-        // Note: Notebook Server API requires passing valid JSON for parameters, even if empty
-        params.append('parameters', '{}'); 
         
         const submitRes = await fetch(submitUrl, {
             method: 'POST',
@@ -213,23 +212,23 @@ export const initAutomationsDashboard = () => {
         const submitData = await submitRes.json();
         
         if (submitData.error) throw new Error(submitData.error.message);
-        if (!submitData.jobId) throw new Error("No Job ID returned from Notebook Server.");
+        if (!submitData.jobId) throw new Error("No Job ID returned from GP Server.");
         
         const jobId = submitData.jobId;
-        console.log(`Submitted notebook execution. JobId: ${jobId}`);
+        console.log(`Submitted Geoprocessing Job. JobId: ${jobId}`);
         
         // 2. Poll the Job Status
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
         
         const pollInterval = setInterval(async () => {
             try {
-                const statusUrl = `${config.portalUrl}/sharing/rest/content/items/${itemId}/jobs/${jobId}?f=json&token=${token}`;
+                const statusUrl = `${gpUrl}/jobs/${jobId}?f=json&token=${token}`;
                 const statusRes = await fetch(statusUrl);
                 const statusData = await statusRes.json();
                 
-                console.log(`Job status: ${statusData.status}`);
+                console.log(`Job status: ${statusData.jobStatus}`);
                 
-                if (statusData.status === 'esriJobSucceeded') {
+                if (statusData.jobStatus === 'esriJobSucceeded') {
                     clearInterval(pollInterval);
                     btn.innerHTML = '<i class="fas fa-check"></i> Complete';
                     btn.style.background = 'var(--green)';
@@ -241,12 +240,12 @@ export const initAutomationsDashboard = () => {
                         resetButton(btn, originalText);
                     }, 3000);
                     
-                } else if (statusData.status === 'esriJobFailed') {
+                } else if (statusData.jobStatus === 'esriJobFailed') {
                     clearInterval(pollInterval);
                     btn.innerHTML = '<i class="fas fa-times"></i> Failed';
                     btn.style.background = 'var(--red)';
-                    console.error("Notebook execution failed:", statusData);
-                    alert(`The pipeline execution failed. Please check the ArcGIS Notebook Server logs for Job ID: ${jobId}`);
+                    console.error("Geoprocessing execution failed:", statusData);
+                    alert(`The pipeline execution failed. Please check the ArcGIS Server logs for Job ID: ${jobId}`);
                     setTimeout(() => resetButton(btn, originalText), 5000);
                 } 
                 // esriJobSubmitted, esriJobExecuting -> keep polling
