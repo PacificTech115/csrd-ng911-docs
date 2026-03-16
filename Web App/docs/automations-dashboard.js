@@ -60,9 +60,24 @@ export const initAutomationsDashboard = () => {
       stagesContainer.innerHTML = '';
       
       if (data.stage_summaries && data.stage_summaries.length > 0) {
+        let detailsHtml = `
+          <details style="cursor:pointer; outline: none;">
+            <summary style="font-weight:600; color:var(--navy); padding:8px 0; user-select:none; font-size:0.95rem;">
+              <i class="fas fa-chevron-circle-down" style="margin-right:6px; color:var(--teal);"></i> View Detailed Run Info
+            </summary>
+            <div style="margin-top:12px; display:flex; flex-direction:column; gap:12px;">
+              
+              <!-- Raw Payload Metadata -->
+              <div style="font-family: monospace; font-size: 0.8rem; background:rgba(0,0,0,0.03); padding:10px; border-radius:6px; overflow-x:auto; line-height: 1.5;">
+                <strong style="color:var(--navy)">Run ID:</strong> ${data.run_id || '--'} <br>
+                <strong style="color:var(--navy)">Invoked By:</strong> ${data.user || '--'} <br>
+                <strong style="color:var(--navy)">Output Artifacts:</strong> ${data.output_files && data.output_files.length > 0 ? data.output_files.map(f => f.split('\\').pop() || f.split('/').pop()).join(', ') : 'None'}
+              </div>
+        `;
+        
         data.stage_summaries.forEach(stage => {
           const icon = stage.success ? '<i class="fas fa-check" style="color:var(--green)"></i>' : '<i class="fas fa-times" style="color:var(--red)"></i>';
-          stagesContainer.innerHTML += `
+          detailsHtml += `
             <div style="display: flex; gap: 12px; align-items:flex-start; font-size: 0.9rem; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 6px;">
               <div style="margin-top:2px;">${icon}</div>
               <div style="flex: 1;">
@@ -72,6 +87,9 @@ export const initAutomationsDashboard = () => {
             </div>
           `;
         });
+        
+        detailsHtml += `</div></details>`;
+        stagesContainer.innerHTML = detailsHtml;
       } else {
         stagesContainer.innerHTML = '<div style="color:var(--text-secondary);font-size:0.9rem;">No stage data available.</div>';
       }
@@ -134,20 +152,37 @@ export const initAutomationsDashboard = () => {
         </div>
       `;
 
-      statsContainer.innerHTML += `
-        <div style="font-weight: 600; color: var(--navy); margin-bottom: 8px; font-size: 0.95rem;">Operations (Applied / Planned)</div>
-        ${statRow('Inserts', planned.inserts, applied.adds)}
-        ${statRow('Updates', planned.updates, applied.updates)}
-        ${statRow('Deletes', planned.deletes, applied.deletes)}
+      let detailsHtml = `
+        <details style="cursor:pointer; outline: none;">
+          <summary style="font-weight:600; color:var(--navy); padding:8px 0; user-select:none; font-size:0.95rem;">
+            <i class="fas fa-chevron-circle-down" style="margin-right:6px; color:var(--teal);"></i> View Detailed Sync Info
+          </summary>
+          <div style="margin-top:12px; display:flex; flex-direction:column; gap:12px;">
+            
+            <div style="font-family: monospace; font-size: 0.8rem; background:rgba(0,0,0,0.03); padding:10px; border-radius:6px; overflow-x:auto; line-height: 1.5;">
+              <strong style="color:var(--navy)">Feature Class:</strong> ${data.feature_class || '--'} <br>
+              <strong style="color:var(--navy)">Run Time:</strong> ${data.run_time_seconds ? `${data.run_time_seconds.toFixed(2)}s` : '--'} <br>
+              <strong style="color:var(--navy)">Power Automate URL Key:</strong> ${data.power_automate_url ? data.power_automate_url.substring(0, 30) + '...' : 'None'}
+            </div>
+
+            <div style="padding: 12px; background: rgba(0,0,0,0.02); border-radius: 6px;">
+              <div style="font-weight: 600; color: var(--navy); margin-bottom: 8px; font-size: 0.95rem;">Operations (Applied / Planned)</div>
+              ${statRow('Inserts', planned.inserts, applied.adds)}
+              ${statRow('Updates', planned.updates, applied.updates)}
+              ${statRow('Deletes', planned.deletes, applied.deletes)}
+            </div>
       `;
       
       if (data.failure_count > 0) {
-        statsContainer.innerHTML += `
-          <div style="color: var(--red); font-size: 0.85rem; margin-top: 12px; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 4px;">
+        detailsHtml += `
+          <div style="color: var(--red); font-size: 0.85rem; margin-top: 4px; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px;">
             <i class="fas fa-exclamation-triangle"></i> Encountered ${data.failure_count} failures during sync.
           </div>
         `;
       }
+      
+      detailsHtml += `</div></details>`;
+      statsContainer.innerHTML = detailsHtml;
     } catch (e) {
       if (e.message && e.message.includes('MISSING_CMS')) {
         document.getElementById('etl-status-chip').innerHTML = '<i class="fas fa-hourglass-start"></i> Awaiting First Run';
