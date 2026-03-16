@@ -382,6 +382,7 @@ def finalize_run(summary: dict, run_id: str, status: str):
 
     # --- PUSH BASE64 LOG TO CMS HOSTED TABLE FOR DASHBOARD ---
     try:
+        import arcpy
         from arcgis.features import FeatureLayer
         import base64
         
@@ -399,7 +400,7 @@ def finalize_run(summary: dict, run_id: str, status: str):
             feat.attributes["ContentValue"] = encoded_b64
             feat.attributes["ContentType"] = "json"
             fl.edit_features(updates=[feat])
-            print("Successfully updated CMS Dashboard row.")
+            arcpy.AddMessage("Successfully updated CMS Dashboard row.")
         else:
             new_feat = {
                 "attributes": {
@@ -409,9 +410,10 @@ def finalize_run(summary: dict, run_id: str, status: str):
                 }
             }
             fl.edit_features(adds=[new_feat])
-            print("Successfully created new CMS Dashboard row.")
+            arcpy.AddMessage("Successfully created new CMS Dashboard row.")
     except Exception as e:
-        print(f"Warning: Failed to update CMS Dashboard Table: {e}")
+        import arcpy
+        arcpy.AddWarning(f"FAILED to update CMS Dashboard Table: {e}")
     # ---------------------------------------------------------
 
     payload = build_email_payload(summary)
