@@ -328,6 +328,10 @@ class SPA_Router {
                 script.src = `docs/sync-app.js?v=${Date.now()}`;
                 document.body.appendChild(script);
             }
+        } else if (hash === 'automations-dashboard') {
+            import(`./automations-dashboard.js?v=${Date.now()}`).then(module => {
+                module.initAutomationsDashboard();
+            }).catch(e => console.error("Failed to load automations dashboard module", e));
         }
     }
 
