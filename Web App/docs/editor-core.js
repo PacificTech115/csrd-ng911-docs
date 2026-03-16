@@ -53,7 +53,8 @@ function blockNavigation() {
         // Allow Add Resource and specific custom card actions
         if (e.target.closest('.add-resource-btn') ||
             e.target.closest('.resource-add-form') ||
-            e.target.closest('.custom-card-delete')) {
+            e.target.closest('.custom-card-delete') ||
+            e.target.closest('[data-editor-bypass="true"]')) {
             return;
         }
 

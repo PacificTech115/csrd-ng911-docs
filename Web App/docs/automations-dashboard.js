@@ -75,7 +75,7 @@ export const initAutomationsDashboard = () => {
         const runBtnContainer = document.getElementById('nightlyRunBtnContainer');
         if (runBtnContainer) {
           runBtnContainer.innerHTML = `
-            <button id="runNightlyBtn" class="btn primary" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button id="runNightlyBtn" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Pipeline
             </button>
           `;
@@ -143,7 +143,7 @@ export const initAutomationsDashboard = () => {
         const runBtnContainer = document.getElementById('etlRunBtnContainer');
         if (runBtnContainer) {
           runBtnContainer.innerHTML = `
-            <button id="runEtlBtn" class="btn primary" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button id="runEtlBtn" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Sync
             </button>
           `;
