@@ -1,5 +1,5 @@
-import { auth } from './auth.js?v=2';
-import { config } from './config.js?v=2';
+import { auth } from './auth.js?v=3';
+import { config } from './config.js?v=3';
 
 export const initAutomationsDashboard = () => {
   const formatTime = (isoString) => {
@@ -79,8 +79,14 @@ export const initAutomationsDashboard = () => {
               <i class="fas fa-play"></i> Force Run Pipeline
             </button>
           `;
-          document.getElementById('runNightlyBtn').addEventListener('click', () => {
-             triggerNotebookRun('nightly', config.notebooks.nightlyOrchestratorId, 'runNightlyBtn');
+          document.getElementById('runNightlyBtn').addEventListener('click', (e) => {
+             e.preventDefault();
+             try {
+                 triggerNotebookRun('nightly', config.notebooks.nightlyOrchestratorId, 'runNightlyBtn');
+             } catch (err) {
+                 alert("UI Error clicking nightly: " + err.message);
+                 console.error(err);
+             }
           });
         }
       }
@@ -141,8 +147,14 @@ export const initAutomationsDashboard = () => {
               <i class="fas fa-play"></i> Force Run Sync
             </button>
           `;
-          document.getElementById('runEtlBtn').addEventListener('click', () => {
-             triggerNotebookRun('etl', config.notebooks.salmonArmETLId, 'runEtlBtn');
+          document.getElementById('runEtlBtn').addEventListener('click', (e) => {
+             e.preventDefault();
+             try {
+                 triggerNotebookRun('etl', config.notebooks.salmonArmETLId, 'runEtlBtn');
+             } catch (err) {
+                 alert("UI Error clicking ETL: " + err.message);
+                 console.error(err);
+             }
           });
         }
       }
