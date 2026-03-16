@@ -379,15 +379,41 @@ def finalize_run(summary: dict, run_id: str, status: str):
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
     print("Run summary saved:", out_path)
-    
-    # Write static latest file for Web App Dashboard
-    latest_path = r"c:\Users\solim\Arcgis Notebooks\Web App\run_summaries\nightly_orchestrator_latest.json"
+
+    # --- PUSH BASE64 LOG TO CMS HOSTED TABLE FOR DASHBOARD ---
     try:
-        with open(latest_path, "w", encoding="utf-8") as f:
-            json.dump(summary, f, indent=2)
-        print("Latest run summary updated:", latest_path)
+        from arcgis.features import FeatureLayer
+        import base64
+        
+        # Grab the GIS object implicitly from the active logged-in portal
+        gis_conn = GIS("home")
+        CMS_URL = "https://apps.csrd.bc.ca/arcgis/rest/services/Hosted/NG911_Docs_CMS/FeatureServer/0"
+        fl = FeatureLayer(CMS_URL, gis_conn)
+        
+        json_str = json.dumps(summary)
+        encoded_b64 = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+        
+        q = fl.query(where="KeyName = 'dashboard.orchestrator.latest_run'")
+        if len(q.features) > 0:
+            feat = q.features[0]
+            feat.attributes["ContentValue"] = encoded_b64
+            feat.attributes["ContentType"] = "json"
+            fl.edit_features(updates=[feat])
+            print("Successfully updated CMS Dashboard row.")
+        else:
+            new_feat = {
+                "attributes": {
+                    "KeyName": "dashboard.orchestrator.latest_run",
+                    "ContentValue": encoded_b64,
+                    "ContentType": "json"
+                }
+            }
+            fl.edit_features(adds=[new_feat])
+            print("Successfully created new CMS Dashboard row.")
     except Exception as e:
-        print(f"Warning: Could not update {latest_path}: {e}")
+        print(f"Warning: Failed to update CMS Dashboard Table: {e}")
+    # ---------------------------------------------------------
+
     payload = build_email_payload(summary)
     notify = send_power_automate_notification(payload)
     print("Notification:", notify)
