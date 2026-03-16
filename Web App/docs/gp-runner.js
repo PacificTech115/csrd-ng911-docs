@@ -34,10 +34,15 @@ export async function initGPRunner(hash) {
             <h4>Execute GP Tool</h4>
             <span class="card-tag" style="background:var(--red);color:white">Admin Execution</span>
         </div>
-        <div id="gp-form-container" style="padding: 15px 0;">
-            <i class="fas fa-spinner fa-spin"></i> Loading parameters from ArcGIS Server...
-        </div>
-        <div id="gp-result-container" style="margin-top:15px; display:none; background: #0f172a; color: #00ff00; padding: 15px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; font-size: 0.85rem; max-height: 400px; overflow-y: auto;"></div>
+        <details>
+            <summary style="padding: 15px; cursor: pointer; font-weight: bold; background: rgba(0,0,0,0.1); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <i class="fas fa-chevron-right details-icon"></i> Parameter Configuration (Click to Expand)
+            </summary>
+            <div id="gp-form-container" style="padding: 15px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading parameters from ArcGIS Server...
+            </div>
+            <div id="gp-result-container" style="margin: 0 15px 15px 15px; display:none; background: #0f172a; color: #00ff00; padding: 15px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; font-size: 0.85rem; max-height: 400px; overflow-y: auto;"></div>
+        </details>
     `;
     
     // Insert after the source code block
@@ -69,6 +74,41 @@ export async function initGPRunner(hash) {
             throw new Error(taskDef.error.message);
         }
 
+        // Nightly Orchestrator Defaults Override
+        const defaultOverrides = {
+            'QAAutomationScriptTool': {
+                'target_layer': 'SDE.NG911\\SDE.NG911_SiteAddress',
+                'schema_json': '{"url": "\\\\\\\\GIS\\\\Scripts\\\\NG911\\\\NG911_Automation\\\\SSAP_Schema.json"}',
+                'mode': 'all',
+                'check_types': true,
+                'check_lengths': true,
+                'check_nguid_format': false,
+                'normalize_nguid': true,
+                'mandatory_fields': 'DiscrpAgID;DateUpdate;NGUID;Country;A3;A2;A1',
+                'address_dup_field': 'Full_Addr',
+                'address_dup_max_rows': 5000,
+                'qa_status_field': 'QAStatus',
+                'update_qa_status': true,
+                'out_log_folder': '/arcgis/home/run_summaries'
+            },
+            'ReconcilePostTraditional': {
+                'sde_conn': '{"url": "\\\\\\\\GIS\\\\Scripts\\\\NG911\\\\NG911_Automation\\\\connections\\\\sde@regional.sde"}',
+                'qa_version': 'SDE.QA',
+                'default_version': 'sde.DEFAULT',
+                'editor_versions': 'SDE.CSRD;SDE.Revelstoke;SDE.Golden;SDE.Salmon Arm;SDE.Sicamous',
+                'out_log_folder': '/arcgis/home/run_summaries',
+                'conflict_policy': 'NO_ABORT',
+                'acquire_locks': 'LOCK_ACQUIRED'
+            },
+            'ExportEnterpriseToFileGDB': {
+                'sde_conn': '{"url": "\\\\\\\\GIS\\\\Scripts\\\\NG911\\\\NG911_Automation\\\\connections\\\\sde@regional.sde"}',
+                'target_fc': 'SDE.NG911\\SDE.NG911_SiteAddress',
+                'name_prefix': 'SSAP_Default'
+            }
+        };
+
+        const taskOverrides = defaultOverrides[taskName] || {};
+
         // Build Form
         let formHtml = `<form id="gp-execute-form" style="display:flex; flex-direction:column; gap:10px;">`;
         
@@ -77,10 +117,19 @@ export async function initGPRunner(hash) {
 
         inputParams.forEach(p => {
             const requiredMarker = p.parameterType === 'esriGPParameterTypeRequired' ? '<span style="color:red">*</span>' : '';
-            let defaultVal = (p.defaultValue !== undefined && p.defaultValue !== null) ? p.defaultValue : '';
+            
+            // Check overrides first, then service defaults
+            let defaultVal = '';
+            if (taskOverrides[p.name] !== undefined) {
+                defaultVal = taskOverrides[p.name];
+            } else if (p.defaultValue !== undefined && p.defaultValue !== null) {
+                defaultVal = p.defaultValue;
+            }
             
             formHtml += `<div style="display:flex; flex-direction:column; gap:4px;">
-                <label style="font-size:0.85rem; font-weight:600; color:var(--text-secondary)">${p.displayName} (${p.dataType}) ${requiredMarker}</label>`;
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-secondary)">
+                    ${p.displayName} <i class="fas fa-question-circle" style="color:var(--accent); margin-left:4px;" title="Internal Name: ${p.name} | Type: ${p.dataType}"></i> ${requiredMarker}
+                </label>`;
             
             if (p.choiceList && p.choiceList.length > 0) {
                 formHtml += `<select name="${p.name}" class="form-control" style="padding:8px; border-radius:4px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2); color:white;">`;
