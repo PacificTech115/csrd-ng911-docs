@@ -12,5 +12,10 @@ export const config = {
     notebooks: {
         nightlyOrchestratorId: '811614c266a84b769c1fe9ffbedda058',
         salmonArmETLId: 'fb8fd369499b440c8ae3720c1bbe3b9f'
+    },
+    gpTools: {
+        qaValidation: 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/QA/GPServer',
+        reconcilePost: 'https://apps.csrd.bc.ca/arcgis/rest/services/ReconcilePostTraditional/GPServer',
+        exportSsap: 'https://apps.csrd.bc.ca/arcgis/rest/services/Landbase/ExportSSAP/GPServer'
     }
 };

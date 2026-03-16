@@ -337,6 +337,10 @@ class SPA_Router {
             import(`./automations-dashboard.js?v=${Date.now()}`).then(module => {
                 module.initAutomationsDashboard();
             }).catch(e => console.error("Failed to load automations dashboard module", e));
+        } else if (['script-qa', 'script-reconcile', 'script-export'].includes(hash)) {
+            import(`./gp-runner.js?v=${Date.now()}`).then(module => {
+                module.initGPRunner(hash);
+            }).catch(e => console.error("Failed to load GP runner module", e));
         }
     }
 
