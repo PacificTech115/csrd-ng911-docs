@@ -394,19 +394,19 @@ def finalize_run(summary: dict, run_id: str, status: str):
         json_str = json.dumps(summary)
         encoded_b64 = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
         
-        q = fl.query(where="KeyName = 'dashboard.orchestrator.latest_run'")
+        q = fl.query(where="keyname = 'dashboard.orchestrator.latest_run'")
         if len(q.features) > 0:
             feat = q.features[0]
-            feat.attributes["ContentValue"] = encoded_b64
-            feat.attributes["ContentType"] = "json"
+            feat.attributes["contentvalue"] = encoded_b64
+            feat.attributes["contenttype"] = "json"
             fl.edit_features(updates=[feat])
             arcpy.AddMessage("Successfully updated CMS Dashboard row.")
         else:
             new_feat = {
                 "attributes": {
-                    "KeyName": "dashboard.orchestrator.latest_run",
-                    "ContentValue": encoded_b64,
-                    "ContentType": "json"
+                    "keyname": "dashboard.orchestrator.latest_run",
+                    "contentvalue": encoded_b64,
+                    "contenttype": "json"
                 }
             }
             fl.edit_features(adds=[new_feat])
