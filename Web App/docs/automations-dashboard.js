@@ -75,19 +75,10 @@ export const initAutomationsDashboard = () => {
         const runBtnContainer = document.getElementById('nightlyRunBtnContainer');
         if (runBtnContainer) {
           runBtnContainer.innerHTML = `
-            <button id="runNightlyBtn" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button id="runNightlyBtn" onclick="window.triggerNotebookRun('nightly', '${config.notebooks.nightlyOrchestratorId}', 'runNightlyBtn')" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Pipeline
             </button>
           `;
-          document.getElementById('runNightlyBtn').addEventListener('click', (e) => {
-             e.preventDefault();
-             try {
-                 triggerNotebookRun('nightly', config.notebooks.nightlyOrchestratorId, 'runNightlyBtn');
-             } catch (err) {
-                 alert("UI Error clicking nightly: " + err.message);
-                 console.error(err);
-             }
-          });
         }
       }
 
@@ -143,19 +134,10 @@ export const initAutomationsDashboard = () => {
         const runBtnContainer = document.getElementById('etlRunBtnContainer');
         if (runBtnContainer) {
           runBtnContainer.innerHTML = `
-            <button id="runEtlBtn" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button id="runEtlBtn" onclick="window.triggerNotebookRun('etl', '${config.notebooks.salmonArmETLId}', 'runEtlBtn')" class="btn primary" data-editor-bypass="true" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Sync
             </button>
           `;
-          document.getElementById('runEtlBtn').addEventListener('click', (e) => {
-             e.preventDefault();
-             try {
-                 triggerNotebookRun('etl', config.notebooks.salmonArmETLId, 'runEtlBtn');
-             } catch (err) {
-                 alert("UI Error clicking ETL: " + err.message);
-                 console.error(err);
-             }
-          });
         }
       }
 
@@ -190,9 +172,13 @@ export const initAutomationsDashboard = () => {
   }
 
   // --- Notebook Execution Logic ---
-  const triggerNotebookRun = async (pipelineName, itemId, btnId) => {
+  window.triggerNotebookRun = async (pipelineName, itemId, btnId) => {
+    alert(`Trigger captured for ${pipelineName} (Item: ${itemId})`);
     const btn = document.getElementById(btnId);
-    if (!btn) return;
+    if (!btn) {
+        alert("Failed to find button element!");
+        return;
+    }
     
     const originalText = btn.innerHTML;
     const token = auth.getToken();
