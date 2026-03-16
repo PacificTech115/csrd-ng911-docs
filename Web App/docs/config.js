@@ -18,5 +18,5 @@ export const config = {
         reconcilePost: 'https://apps.csrd.bc.ca/arcgis/rest/services/ReconcilePostTraditional/GPServer',
         exportSsap: 'https://apps.csrd.bc.ca/arcgis/rest/services/Landbase/ExportSSAP/GPServer'
     },
-    aiServerUrl: 'http://localhost:8000' // Change this to your Ngrok/Cloudflare Tunnel URL for external access
+    aiServerUrl: 'https://identifies-honolulu-springs-massachusetts.trycloudflare.com' // Cloudflare Tunnel routing to personal GPU
 };
