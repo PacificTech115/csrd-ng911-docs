@@ -71,7 +71,10 @@ export const initAutomationsDashboard = () => {
               <div style="font-family: monospace; font-size: 0.8rem; background:rgba(0,0,0,0.03); padding:10px; border-radius:6px; overflow-x:auto; line-height: 1.5;">
                 <strong style="color:var(--navy)">Run ID:</strong> ${data.run_id || '--'} <br>
                 <strong style="color:var(--navy)">Invoked By:</strong> ${data.user || '--'} <br>
-                <strong style="color:var(--navy)">Output Artifacts:</strong> ${data.output_files && data.output_files.length > 0 ? data.output_files.map(f => f.split('\\').pop() || f.split('/').pop()).join(', ') : 'None'}
+                <strong style="color:var(--navy)">Output Artifacts:</strong> ${data.output_files && data.output_files.length > 0 ? data.output_files.map(f => {
+                  const pathStr = typeof f === 'string' ? f : (f.path || '');
+                  return pathStr.split('\\').pop() || pathStr.split('/').pop();
+                }).join(', ') : 'None'}
               </div>
         `;
         
