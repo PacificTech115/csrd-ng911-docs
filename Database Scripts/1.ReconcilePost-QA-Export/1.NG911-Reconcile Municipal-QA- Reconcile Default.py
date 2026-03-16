@@ -388,7 +388,6 @@ def finalize_run(summary: dict, run_id: str, status: str):
         print("Latest run summary updated:", latest_path)
     except Exception as e:
         print(f"Warning: Could not update {latest_path}: {e}")
-
     payload = build_email_payload(summary)
     notify = send_power_automate_notification(payload)
     print("Notification:", notify)
