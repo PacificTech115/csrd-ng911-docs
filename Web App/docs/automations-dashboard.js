@@ -71,21 +71,11 @@ export const initAutomationsDashboard = () => {
       }
       
       // Inject Run Button for Admins
-      const userObj = auth.getUser();
-      const userNameStr = userObj ? userObj.username.toLowerCase() : 'none';
-      const isActuallyAdmin = auth.isAdmin();
-      
-      // Force fallback just in case isAdmin() logic is failing on the strict check
-      const shouldRenderBtns = isActuallyAdmin || userNameStr.includes('csrd_service') || userNameStr.includes('admin') || userNameStr.includes('csrd');
-
-      if (shouldRenderBtns) {
+      if (auth.isAdmin()) {
         const runBtnContainer = document.getElementById('nightlyRunBtnContainer');
         if (runBtnContainer) {
           runBtnContainer.innerHTML = `
-            <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: right; margin-bottom: 4px;">
-                Debug Auth Map -> User: ${userNameStr} | isAdmin: ${isActuallyAdmin}
-            </div>
-            <button id="runNightlyBtn" class="btn btn-primary" style="margin-top: 5px; width: 100%; justify-content: center; background: var(--navy);">
+            <button id="runNightlyBtn" class="btn primary" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Pipeline
             </button>
           `;
@@ -143,20 +133,11 @@ export const initAutomationsDashboard = () => {
       }
 
       // Inject Run Button for Admins
-      const userObjETL = auth.getUser();
-      const userNameStrETL = userObjETL ? userObjETL.username.toLowerCase() : 'none';
-      const isActuallyAdminETL = auth.isAdmin();
-      
-      const shouldRenderBtnsETL = isActuallyAdminETL || userNameStrETL.includes('csrd_service') || userNameStrETL.includes('admin') || userNameStrETL.includes('csrd');
-
-      if (shouldRenderBtnsETL) {
+      if (auth.isAdmin()) {
         const runBtnContainer = document.getElementById('etlRunBtnContainer');
         if (runBtnContainer) {
           runBtnContainer.innerHTML = `
-            <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: right; margin-bottom: 4px;">
-                Debug Auth Map -> User: ${userNameStrETL} | isAdmin: ${isActuallyAdminETL}
-            </div>
-            <button id="runEtlBtn" class="btn btn-primary" style="margin-top: 5px; width: 100%; justify-content: center; background: var(--navy);">
+            <button id="runEtlBtn" class="btn primary" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <i class="fas fa-play"></i> Force Run Sync
             </button>
           `;
