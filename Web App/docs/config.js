@@ -17,5 +17,6 @@ export const config = {
         qaValidation: 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/QA/GPServer',
         reconcilePost: 'https://apps.csrd.bc.ca/arcgis/rest/services/ReconcilePostTraditional/GPServer',
         exportSsap: 'https://apps.csrd.bc.ca/arcgis/rest/services/Landbase/ExportSSAP/GPServer'
-    }
+    },
+    aiServerUrl: 'http://localhost:8000' // Change this to your Ngrok/Cloudflare Tunnel URL for external access
 };

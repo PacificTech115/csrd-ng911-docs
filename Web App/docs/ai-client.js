@@ -78,11 +78,19 @@ document.addEventListener('DOMContentLoaded', () => {
         let accumulatedText = "";
 
         try {
-            // Dynamically resolve backend IP (fallback to localhost if executed via local file protocol)
-            const aiHost = window.location.hostname || 'localhost';
+            // Dynamically resolve backend IP from config.js (supports reverse proxies like Ngrok/Cloudflare)
+            let aiHostUrl = `http://${window.location.hostname || 'localhost'}:8000`; // Fallback
+            try {
+                const cfgModule = await import('./config.js');
+                if (cfgModule.config && cfgModule.config.aiServerUrl) {
+                    aiHostUrl = cfgModule.config.aiServerUrl;
+                }
+            } catch (cfgErr) {
+                console.warn("Could not load config for AI Server URL, using dynamic fallback.", cfgErr);
+            }
             
-            // Using Fetch POST to read SSE stream via dynamic backend IP 
-            const response = await fetch(`http://${aiHost}:8000/api/chat`, {
+            // Using Fetch POST to read SSE stream via dynamic backend URL
+            const response = await fetch(`${aiHostUrl}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
