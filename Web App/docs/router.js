@@ -19,6 +19,7 @@ class SPA_Router {
             'rule-mandatory': 'rule-mandatory.html',
             'domains': 'domains.html',
             'automation-scripts': 'automation-scripts.html',
+            'automations-dashboard': 'automations-dashboard.html',
             'gp-tools': 'gp-tools.html',
             'power-automate': 'power-automate.html',
             'maintenance': 'maintenance.html',
@@ -483,6 +484,7 @@ class SPA_Router {
         if (isAdmin) {
             navHtml += `
             <div class="nav-sub-label">Automations</div>
+            <a href="#automations-dashboard" class="nav-indent"><i class="fas fa-chart-line"></i> Dashboard</a>
             <a href="#automation-scripts" class="nav-indent"><i class="fas fa-robot"></i> ArcGIS Notebooks</a>
             <a href="#gp-tools" class="nav-indent"><i class="fas fa-gears"></i> GP Tools</a>
             <a href="#power-automate" class="nav-indent"><i class="fas fa-envelope"></i> Power Automate</a>

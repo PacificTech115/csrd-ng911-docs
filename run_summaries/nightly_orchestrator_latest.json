@@ -1,0 +1,34 @@
+{
+  "run_id": "20261102_020000",
+  "user": "system",
+  "started": "2026-11-02T02:00:00",
+  "finished": "2026-11-02T02:45:12",
+  "status": "success_qa_warnings",
+  "stage_summaries": [
+    {
+      "stage": "MUNI_TO_QA",
+      "success": true,
+      "summary": "Reconcile/Post municipal versions into QA completed."
+    },
+    {
+      "stage": "RUN_QA",
+      "success": false,
+      "summary": "QA status=success_with_warnings; missing_fields=0; nguid_dupes=3; mandatory_null_fields=['Country']"
+    },
+    {
+      "stage": "QA_TO_DEFAULT",
+      "success": true,
+      "summary": "Reconcile/Post QA into DEFAULT completed."
+    },
+    {
+      "stage": "EXPORT_DEFAULT",
+      "success": true,
+      "summary": "Default export completed. ZIP: SSAP_Default_20261102.zip"
+    },
+    {
+      "stage": "DEFAULT_TO_MUNI_SYNC",
+      "success": true,
+      "summary": "Reconciled DEFAULT into municipal versions (NO_POST) so editor versions receive updated QAStatus."
+    }
+  ]
+}

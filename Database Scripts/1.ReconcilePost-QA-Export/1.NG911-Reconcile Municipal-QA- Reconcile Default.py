@@ -379,6 +379,16 @@ def finalize_run(summary: dict, run_id: str, status: str):
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
     print("Run summary saved:", out_path)
+    
+    # Write static latest file for Web App Dashboard
+    latest_path = r"c:\Users\solim\Arcgis Notebooks\Web App\run_summaries\nightly_orchestrator_latest.json"
+    try:
+        with open(latest_path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+        print("Latest run summary updated:", latest_path)
+    except Exception as e:
+        print(f"Warning: Could not update {latest_path}: {e}")
+
     payload = build_email_payload(summary)
     notify = send_power_automate_notification(payload)
     print("Notification:", notify)

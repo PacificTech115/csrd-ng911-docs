@@ -1,0 +1,218 @@
+<!-- ═══ PAGE HEADER ═══ -->
+<header class="page-header">
+  <div class="page-header-content">
+    <nav class="breadcrumb">
+      <a href="#Documentation">Home</a>
+      <i class="fas fa-chevron-right sep"></i>
+      <span>Technical Documentation</span>
+      <i class="fas fa-chevron-right sep"></i>
+      <span class="current">Automations Dashboard</span>
+    </nav>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+      <div>
+        <h1><span>Automations</span> Dashboard</h1>
+        <div class="subtitle">Live System Operational Status</div>
+      </div>
+      <button id="refresh-dashboard" class="btn primary" style="padding: 10px 20px; border-radius: 8px; border: none; background: var(--teal); color: white; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="content-wrap">
+  <section>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-top: 16px;">
+      
+      <!-- Card 1: Nightly Orchestrator -->
+      <div class="card reveal" style="padding: 24px;">
+        <div class="card-header" style="margin-bottom: 20px;">
+          <div class="card-icon teal"><i class="fas fa-moon"></i></div>
+          <h4 style="font-size: 1.25rem;">Nightly Pipeline Tracker</h4>
+        </div>
+        
+        <div id="nightly-status-chip" style="display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; margin-bottom: 16px; background: rgba(148, 163, 184, 0.1); color: var(--text-secondary);">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </div>
+
+        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; display: flex; flex-direction: column; gap: 4px;">
+          <div><i class="fas fa-calendar-alt" style="width: 20px;"></i> <strong>Started:</strong> <span id="nightly-start">--</span></div>
+          <div><i class="fas fa-flag-checkered" style="width: 20px;"></i> <strong>Finished:</strong> <span id="nightly-finish">--</span></div>
+        </div>
+
+        <div id="nightly-stages" style="display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.05);">
+          <!-- Dynamic stages injected here -->
+        </div>
+      </div>
+
+      <!-- Card 2: Salmon Arm ETL -->
+      <div class="card reveal reveal-delay-1" style="padding: 24px;">
+        <div class="card-header" style="margin-bottom: 20px;">
+          <div class="card-icon navy"><i class="fas fa-retweet"></i></div>
+          <h4 style="font-size: 1.25rem;">Salmon Arm ETL Sync</h4>
+        </div>
+        
+        <div id="etl-status-chip" style="display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; margin-bottom: 16px; background: rgba(148, 163, 184, 0.1); color: var(--text-secondary);">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </div>
+
+        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; display: flex; flex-direction: column; gap: 4px;">
+          <div><i class="fas fa-calendar-alt" style="width: 20px;"></i> <strong>Started:</strong> <span id="etl-start">--</span></div>
+          <div><i class="fas fa-flag-checkered" style="width: 20px;"></i> <strong>Finished:</strong> <span id="etl-finish">--</span></div>
+        </div>
+
+        <div id="etl-stats" style="display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.05);">
+          <!-- Dynamic stats injected here -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<script>
+(function() {
+  const formatTime = (isoString) => {
+    if (!isoString) return '--';
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString;
+    return d.toLocaleString();
+  };
+
+  const setStatusChip = (elementId, statusText, isSuccess) => {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    
+    // Status text logic (success, success_qa_warnings count as passed/warnings)
+    let bg = 'rgba(148, 163, 184, 0.1)';
+    let color = 'var(--text-secondary)';
+    let icon = 'fa-info-circle';
+
+    if (isSuccess === true || statusText === 'success') {
+      bg = 'rgba(16, 185, 129, 0.1)';
+      color = 'var(--green)';
+      icon = 'fa-check-circle';
+    } else if (statusText === 'success_qa_warnings') {
+      bg = 'rgba(245, 158, 11, 0.1)';
+      color = '#d97706'; // amber
+      icon = 'fa-exclamation-triangle';
+    } else if (isSuccess === false || statusText?.includes('fail')) {
+      bg = 'rgba(239, 68, 68, 0.1)';
+      color = 'var(--red)';
+      icon = 'fa-times-circle';
+    }
+
+    el.style.background = bg;
+    el.style.color = color;
+    el.innerHTML = `<i class="fas ${icon}"></i> ${statusText || (isSuccess ? 'Success' : 'Failed')}`;
+  };
+
+  const basePath = window.location.pathname.includes('/docs/') ? '../' : '';
+
+  const fetchNightly = async () => {
+    try {
+      // Must bust cache just in case. The backend overwrites the static file.
+      const res = await fetch(`${basePath}run_summaries/nightly_orchestrator_latest.json?t=${Date.now()}`);
+      if (!res.ok) throw new Error("File not found");
+      const data = await res.json();
+      
+      document.getElementById('nightly-start').textContent = formatTime(data.started);
+      document.getElementById('nightly-finish').textContent = formatTime(data.finished);
+      setStatusChip('nightly-status-chip', data.status, null);
+
+      const stagesContainer = document.getElementById('nightly-stages');
+      stagesContainer.innerHTML = '';
+      
+      if (data.stage_summaries && data.stage_summaries.length > 0) {
+        data.stage_summaries.forEach(stage => {
+          const icon = stage.success ? '<i class="fas fa-check" style="color:var(--green)"></i>' : '<i class="fas fa-times" style="color:var(--red)"></i>';
+          stagesContainer.innerHTML += `
+            <div style="display: flex; gap: 12px; align-items:flex-start; font-size: 0.9rem; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 6px;">
+              <div style="margin-top:2px;">${icon}</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; color: var(--navy); margin-bottom: 4px;">${stage.stage}</div>
+                <div style="color: var(--text-secondary); line-height: 1.4;">${stage.summary || ''}</div>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        stagesContainer.innerHTML = '<div style="color:var(--text-secondary);font-size:0.9rem;">No stage data available.</div>';
+      }
+
+    } catch (e) {
+      document.getElementById('nightly-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
+      document.getElementById('nightly-status-chip').style.color = 'var(--red)';
+      console.error(e);
+    }
+  };
+
+  const fetchETL = async () => {
+    try {
+      const res = await fetch(`${basePath}run_summaries/hosted_to_enterprise_sync_latest.json?t=${Date.now()}`);
+      if (!res.ok) throw new Error("File not found");
+      const data = await res.json();
+      
+      document.getElementById('etl-start').textContent = formatTime(data.timestamp);
+      // ETL doesn't write 'finished' explicitly in the root in ETL right now, but writes to timestamp.
+      // We can just rely on the power automate timestamp or just leave finish empty.
+      document.getElementById('etl-finish').textContent = '--';
+      setStatusChip('etl-status-chip', data.success ? 'Success' : 'Failed', data.success);
+
+      const statsContainer = document.getElementById('etl-stats');
+      statsContainer.innerHTML = '';
+      
+      const planned = data.planned || {};
+      const applied = data.applied || {};
+      
+      const statRow = (label, plannedVal, appliedVal) => `
+        <div style="display: flex; justify-content: space-between; font-size: 0.95rem; padding: 8px 0; border-bottom: 1px dashed rgba(0,0,0,0.1);">
+          <span style="color: var(--text-secondary); font-weight: 500;">${label}</span>
+          <span style="font-weight: 600; color: var(--navy);">${appliedVal || 0} / ${plannedVal || 0}</span>
+        </div>
+      `;
+
+      statsContainer.innerHTML += `
+        <div style="font-weight: 600; color: var(--navy); margin-bottom: 8px; font-size: 0.95rem;">Operations (Applied / Planned)</div>
+        ${statRow('Inserts', planned.inserts, applied.adds)}
+        ${statRow('Updates', planned.updates, applied.updates)}
+        ${statRow('Deletes', planned.deletes, applied.deletes)}
+      `;
+      
+      if (data.failure_count > 0) {
+        statsContainer.innerHTML += `
+          <div style="color: var(--red); font-size: 0.85rem; margin-top: 12px; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 4px;">
+            <i class="fas fa-exclamation-triangle"></i> Encountered ${data.failure_count} failures during sync.
+          </div>
+        `;
+      }
+
+    } catch (e) {
+      document.getElementById('etl-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
+      document.getElementById('etl-status-chip').style.color = 'var(--red)';
+      console.error(e);
+    }
+  };
+
+  const loadAll = () => {
+    // reset UI to loading
+    ['nightly-status-chip', 'etl-status-chip'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) {
+        el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        el.style.background = 'rgba(148, 163, 184, 0.1)';
+        el.style.color = 'var(--text-secondary)';
+      }
+    });
+
+    fetchNightly();
+    fetchETL();
+  };
+
+  document.getElementById('refresh-dashboard').addEventListener('click', loadAll);
+  
+  // Initial load
+  loadAll();
+
+})();
+</script>
