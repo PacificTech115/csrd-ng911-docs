@@ -44,7 +44,7 @@ export const initAutomationsDashboard = () => {
       // Pull from the Base64 CMS Cache instead of static files
       const cmsKey = 'dashboard.orchestrator.latest_run';
       const row = window.cms?.cache?.[cmsKey];
-      if (!row || !row[window.cms.fieldMap.content]) throw new Error(`Missing CMS data: ${cmsKey}`);
+      if (!row || !row[window.cms.fieldMap.content]) throw new Error(`MISSING_CMS:${cmsKey}`);
       
       let rawData = row[window.cms.fieldMap.content];
       if (rawData && rawData.match(/^[A-Za-z0-9+/=]+$/)) {
@@ -76,9 +76,17 @@ export const initAutomationsDashboard = () => {
         stagesContainer.innerHTML = '<div style="color:var(--text-secondary);font-size:0.9rem;">No stage data available.</div>';
       }
     } catch (e) {
-      document.getElementById('nightly-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
-      document.getElementById('nightly-status-chip').style.color = 'var(--red)';
-      console.error(e);
+      if (e.message && e.message.includes('MISSING_CMS')) {
+        document.getElementById('nightly-status-chip').innerHTML = '<i class="fas fa-hourglass-start"></i> Awaiting First Run';
+        document.getElementById('nightly-status-chip').style.color = 'var(--text-secondary)';
+        document.getElementById('nightly-start').textContent = '--';
+        document.getElementById('nightly-finish').textContent = '--';
+        document.getElementById('nightly-stages').innerHTML = '<div style="color:var(--text-secondary);font-size:0.9rem;">No data available until the pipeline runs successfully.</div>';
+      } else {
+        document.getElementById('nightly-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
+        document.getElementById('nightly-status-chip').style.color = 'var(--red)';
+        console.error(e);
+      }
     }
 
     // Inject Run Button for Admins (Render regardless of JSON status)
@@ -99,7 +107,7 @@ export const initAutomationsDashboard = () => {
     try {
       const cmsKey = 'dashboard.etl.latest_run';
       const row = window.cms?.cache?.[cmsKey];
-      if (!row || !row[window.cms.fieldMap.content]) throw new Error(`Missing CMS data: ${cmsKey}`);
+      if (!row || !row[window.cms.fieldMap.content]) throw new Error(`MISSING_CMS:${cmsKey}`);
       
       let rawData = row[window.cms.fieldMap.content];
       if (rawData && rawData.match(/^[A-Za-z0-9+/=]+$/)) {
@@ -141,9 +149,17 @@ export const initAutomationsDashboard = () => {
         `;
       }
     } catch (e) {
-      document.getElementById('etl-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
-      document.getElementById('etl-status-chip').style.color = 'var(--red)';
-      console.error(e);
+      if (e.message && e.message.includes('MISSING_CMS')) {
+        document.getElementById('etl-status-chip').innerHTML = '<i class="fas fa-hourglass-start"></i> Awaiting First Run';
+        document.getElementById('etl-status-chip').style.color = 'var(--text-secondary)';
+        document.getElementById('etl-start').textContent = '--';
+        document.getElementById('etl-finish').textContent = '--';
+        document.getElementById('etl-stats').innerHTML = '<div style="color:var(--text-secondary);font-size:0.9rem;">No data available until the sync runs successfully.</div>';
+      } else {
+        document.getElementById('etl-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
+        document.getElementById('etl-status-chip').style.color = 'var(--red)';
+        console.error(e);
+      }
     }
 
     // Inject Run Button for Admins (Render regardless of JSON status)
@@ -170,8 +186,15 @@ export const initAutomationsDashboard = () => {
       }
     });
 
-    fetchNightly();
-    fetchETL();
+    // Force a fresh fetch from the CMS so we don't read stale memory cache
+    if (window.cms && typeof window.cms.fetchAllContent === 'function') {
+        await window.cms.fetchAllContent();
+    }
+    
+    await Promise.all([
+      fetchNightly(),
+      fetchETL()
+    ]);
   };
   
   const refreshBtn = document.getElementById('refresh-dashboard');
