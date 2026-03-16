@@ -43,6 +43,7 @@
         <div id="nightly-stages" style="display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.05);">
           <!-- Dynamic stages injected here -->
         </div>
+        <div id="nightlyRunBtnContainer"></div>
       </div>
 
       <!-- Card 2: Salmon Arm ETL -->
@@ -64,13 +65,16 @@
         <div id="etl-stats" style="display: flex; flex-direction: column; gap: 12px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.05);">
           <!-- Dynamic stats injected here -->
         </div>
+        <div id="etlRunBtnContainer"></div>
       </div>
 
     </div>
   </section>
 </div>
 
-<script>
+<script type="module">
+  import { auth } from './auth.js?v=2';
+  import { config } from './config.js?v=2';
 (function() {
   const formatTime = (isoString) => {
     if (!isoString) return '--';
@@ -139,6 +143,21 @@
       } else {
         stagesContainer.innerHTML = '<div style="color:var(--text-secondary);font-size:0.9rem;">No stage data available.</div>';
       }
+      
+      // Inject Run Button for Admins
+      if (auth.isAdmin()) {
+        const runBtnContainer = document.getElementById('nightlyRunBtnContainer');
+        if (runBtnContainer) {
+          runBtnContainer.innerHTML = `
+            <button id="runNightlyBtn" class="btn btn-primary" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy);">
+              <i class="fas fa-play"></i> Force Run Pipeline
+            </button>
+          `;
+          document.getElementById('runNightlyBtn').addEventListener('click', () => {
+             triggerNotebookRun('nightly', config.notebooks.nightlyOrchestratorId, 'runNightlyBtn');
+          });
+        }
+      }
 
     } catch (e) {
       document.getElementById('nightly-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
@@ -187,6 +206,21 @@
         `;
       }
 
+      // Inject Run Button for Admins
+      if (auth.isAdmin()) {
+        const runBtnContainer = document.getElementById('etlRunBtnContainer');
+        if (runBtnContainer) {
+          runBtnContainer.innerHTML = `
+            <button id="runEtlBtn" class="btn btn-primary" style="margin-top: 15px; width: 100%; justify-content: center; background: var(--navy);">
+              <i class="fas fa-play"></i> Force Run Sync
+            </button>
+          `;
+          document.getElementById('runEtlBtn').addEventListener('click', () => {
+             triggerNotebookRun('etl', config.notebooks.salmonArmETLId, 'runEtlBtn');
+          });
+        }
+      }
+
     } catch (e) {
       document.getElementById('etl-status-chip').innerHTML = '<i class="fas fa-exclamation-circle"></i> Error loading data';
       document.getElementById('etl-status-chip').style.color = 'var(--red)';
@@ -204,6 +238,12 @@
         el.style.color = 'var(--text-secondary)';
       }
     });
+    
+    // Check if user is admin before showing UI
+    if (!auth.isAdmin()) {
+        // We do not render the admin execution containers at all in the HTML initially, 
+        // they are dynamically populated above. We can just proceed with fetching data.
+    }
 
     fetchNightly();
     fetchETL();
@@ -215,4 +255,102 @@
   loadAll();
 
 })();
+  // --- Notebook Execution Logic ---
+  
+  const triggerNotebookRun = async (pipelineName, itemId, btnId) => {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    
+    const originalText = btn.innerHTML;
+    const token = auth.getToken();
+    
+    if (!token) {
+        alert("Authentication context lost. Please refresh the page.");
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to manually trigger the ${pipelineName} pipeline? This action cannot be reversed.`)) {
+        return;
+    }
+
+    try {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'not-allowed';
+
+        // 1. Submit the Job
+        const submitUrl = `${config.portalUrl}/sharing/rest/content/items/${itemId}/executeNotebook`;
+        const params = new URLSearchParams();
+        params.append('f', 'json');
+        params.append('token', token);
+        // Note: Notebook Server API requires passing valid JSON for parameters, even if empty
+        params.append('parameters', '{}'); 
+        
+        const submitRes = await fetch(submitUrl, {
+            method: 'POST',
+            body: params
+        });
+        
+        const submitData = await submitRes.json();
+        
+        if (submitData.error) throw new Error(submitData.error.message);
+        if (!submitData.jobId) throw new Error("No Job ID returned from Notebook Server.");
+        
+        const jobId = submitData.jobId;
+        console.log(`Submitted notebook execution. JobId: ${jobId}`);
+        
+        // 2. Poll the Job Status
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+        
+        const pollInterval = setInterval(async () => {
+            try {
+                const statusUrl = `${config.portalUrl}/sharing/rest/content/items/${itemId}/jobs/${jobId}?f=json&token=${token}`;
+                const statusRes = await fetch(statusUrl);
+                const statusData = await statusRes.json();
+                
+                console.log(`Job status: ${statusData.status}`);
+                
+                if (statusData.status === 'esriJobSucceeded') {
+                    clearInterval(pollInterval);
+                    btn.innerHTML = '<i class="fas fa-check"></i> Complete';
+                    btn.style.background = 'var(--green)';
+                    
+                    // Delay and refresh the dashboard to fetch the new run_summaries static output
+                    setTimeout(() => {
+                        fetchNightly();
+                        fetchETL();
+                        resetButton(btn, originalText);
+                    }, 3000);
+                    
+                } else if (statusData.status === 'esriJobFailed') {
+                    clearInterval(pollInterval);
+                    btn.innerHTML = '<i class="fas fa-times"></i> Failed';
+                    btn.style.background = 'var(--red)';
+                    console.error("Notebook execution failed:", statusData);
+                    alert(`The pipeline execution failed. Please check the ArcGIS Notebook Server logs for Job ID: ${jobId}`);
+                    setTimeout(() => resetButton(btn, originalText), 5000);
+                } 
+                // esriJobSubmitted, esriJobExecuting -> keep polling
+                
+            } catch (pollErr) {
+                console.error("Error polling job status:", pollErr);
+            }
+        }, 5000); // Poll every 5 seconds
+
+    } catch (e) {
+        console.error("Failed to execute notebook:", e);
+        alert(`Failed to execute pipeline: ${e.message}`);
+        resetButton(btn, originalText);
+    }
+  };
+
+  const resetButton = (btn, originalText) => {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.style.background = 'var(--navy)';
+  };
+
 </script>

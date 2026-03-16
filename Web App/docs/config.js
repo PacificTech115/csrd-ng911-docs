@@ -8,5 +8,9 @@ const PORTAL_URL = 'https://apps.csrd.bc.ca/hub';
 export const config = {
     appId: ARCGIS_APP_ID,
     portalUrl: PORTAL_URL,
-    redirectUri: window.location.origin + window.location.pathname
+    redirectUri: window.location.origin + window.location.pathname,
+    notebooks: {
+        nightlyOrchestratorId: '811614c266a84b769c1fe9ffbedda058',
+        salmonArmETLId: 'fb8fd369499b440c8ae3720c1bbe3b9f'
+    }
 };
