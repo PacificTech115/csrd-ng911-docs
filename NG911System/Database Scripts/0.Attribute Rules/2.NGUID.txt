@@ -1,8 +1,10 @@
 var ag = Trim(DefaultValue($feature.DiscrpAgID, ""));
 if (ag == "") return Null;
 
+// Use the synced Municipal ID (FeatureID) if available, otherwise generate a new Central ID
+var gid = DefaultValue($feature.FeatureID, $feature.GlobalID);
+
 // GlobalID sometimes comes with { } — strip them
-var gid = Text($feature.GlobalID);
-gid = Replace(Replace(gid, "{", ""), "}", "");
+gid = Replace(Replace(Text(gid), "{", ""), "}", "");
 
 return "urn:emergency:uid:gis:SSAP:" + gid + ":" + ag;

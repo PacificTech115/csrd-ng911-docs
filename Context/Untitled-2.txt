@@ -1,0 +1,324 @@
+[Skip to content](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#main)
+[Esri Developer](https://developers.arcgis.com/)
+- [Documentation](https://developers.arcgis.com/documentation/)
+- FeaturesMaps and scenesPortal and content managementData hostingData visualizationSpatial analysisPlace searchGeocoding addressesRouting and directionsData enrichmentElevationSecurity and authenticationOffline mapping appsFind datasets
+- Maps and scenes
+- Portal and content management
+- Data hosting
+- Data visualization
+- Spatial analysis
+- Place search
+- Geocoding addresses
+- Routing and directions
+- Data enrichment
+- Elevation
+- Security and authentication
+- Offline mapping apps
+- Find datasets
+- SDKs and APIsSDKs and APIs
+- ProductsExplore developer products
+- SupportExplore help resources
+[Documentation](https://developers.arcgis.com/documentation/)
+- Maps and scenes
+- Portal and content management
+- Data hosting
+- Data visualization
+- Spatial analysis
+- Place search
+- Geocoding addresses
+- Routing and directions
+- Data enrichment
+- Elevation
+- Security and authentication
+- Offline mapping apps
+- Find datasets
+[ArcGIS REST APIs](https://developers.arcgis.com/rest/enterprise-administration/notebook/)
+- [Home](https://developers.arcgis.com/rest/)
+- [Location services](https://developers.arcgis.com/rest/location-based-services/)
+- [Analysis services](https://developers.arcgis.com/rest/analysis-services/)
+- [Content management](https://developers.arcgis.com/rest/users-groups-and-items/)
+- [All services](https://developers.arcgis.com/rest/services-reference/enterprise/)
+- [Enterprise administration](https://developers.arcgis.com/rest/enterprise-administration/)
+[Home](https://developers.arcgis.com/rest/)
+[Location services](https://developers.arcgis.com/rest/location-based-services/)
+[Analysis services](https://developers.arcgis.com/rest/analysis-services/)
+[Content management](https://developers.arcgis.com/rest/users-groups-and-items/)
+[All services](https://developers.arcgis.com/rest/services-reference/enterprise/)
+[Enterprise administration](https://developers.arcgis.com/rest/enterprise-administration/)
+[Server](https://developers.arcgis.com/rest/enterprise-administration/server/overview/)
+[Portal](https://developers.arcgis.com/rest/enterprise-administration/portal/overview-of-portal-administration-in-the-arcgis-rest-api/)
+[Enterprise](https://developers.arcgis.com/rest/enterprise-administration/enterprise/overview-of-the-arcgis-enterprise-admin-api/)
+[Notebook Server](https://developers.arcgis.com/rest/enterprise-administration/notebook/overview/)
+[Mission Server](https://developers.arcgis.com/rest/enterprise-administration/mission-server/get-started/)
+[Video Server](https://developers.arcgis.com/rest/enterprise-administration/video-server/overview/)
+- Overview
+- Site
+- Machines
+
+- [[Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook/)s](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/)NotebooksNotebook[Open Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/open-notebook/)[Close Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/close-notebook/)[Execute Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/execute-notebook/)[Create notebook preview](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-notebook-preview/)[[Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtime/)s](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtimes/)Notebook Runtime[Register (runtime)](https://developers.arcgis.com/rest/enterprise-administration/notebook/register-runtime/)[Restore Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-default-template/)[Restore Factory Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-factory-runtimes/)[Runtime Manifest](https://developers.arcgis.com/rest/enterprise-administration/notebook/runtime-manifest/)[Unregister Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/unregister-notebook-runtime/)[Update Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-default-template/)[Update Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-notebook-runtime/)[Validate Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/validate-runtimes/)[Create Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-snapshot/)[List Snapshots](https://developers.arcgis.com/rest/enterprise-administration/notebook/list-snapshots/)[Delete Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/delete-snapshot/)[Restore Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-snapshot/)[Download Notebook Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/download-snapshot/)[Convert To Item](https://developers.arcgis.com/rest/enterprise-administration/notebook/convert-snapshot-to-a-notebook/)[Import code snippets](https://developers.arcgis.com/rest/enterprise-administration/notebook/import-code-snippets/)[Export code snippets](https://developers.arcgis.com/rest/enterprise-administration/notebook/export-code-snippets/)[[Webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/webhook-receiver/)s](https://developers.arcgis.com/rest/enterprise-administration/notebook/webhook-receivers/)Webhook receiver[Create a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-webhook-receiver/)[Update a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-webhook-receiver/)[Disable a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/disable-webhook-receiver/)[Enable a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/enable-webhook-receiver/)[Validate a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/validate-webhook-receiver/)[Delete a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/delete-webhook-receiver/)
+- [Notebooks](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/)
+- [Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook/)
+- [Open Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/open-notebook/)
+- [Close Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/close-notebook/)
+- [Execute Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/execute-notebook/)
+- [Create notebook preview](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-notebook-preview/)
+- [Notebook Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtimes/)
+- [Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtime/)
+
+- [Register (runtime)](https://developers.arcgis.com/rest/enterprise-administration/notebook/register-runtime/)
+- [Restore Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-default-template/)
+- [Restore Factory Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-factory-runtimes/)
+- [Runtime Manifest](https://developers.arcgis.com/rest/enterprise-administration/notebook/runtime-manifest/)
+- [Unregister Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/unregister-notebook-runtime/)
+- [Update Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-default-template/)
+- [Update Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-notebook-runtime/)
+- [Validate Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/validate-runtimes/)
+- [Create Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-snapshot/)
+- [List Snapshots](https://developers.arcgis.com/rest/enterprise-administration/notebook/list-snapshots/)
+- [Delete Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/delete-snapshot/)
+- [Restore Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-snapshot/)
+- [Download Notebook Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/download-snapshot/)
+- [Convert To Item](https://developers.arcgis.com/rest/enterprise-administration/notebook/convert-snapshot-to-a-notebook/)
+- [Import code snippets](https://developers.arcgis.com/rest/enterprise-administration/notebook/import-code-snippets/)
+- [Export code snippets](https://developers.arcgis.com/rest/enterprise-administration/notebook/export-code-snippets/)
+- [Webhook receivers](https://developers.arcgis.com/rest/enterprise-administration/notebook/webhook-receivers/)
+- [Webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/webhook-receiver/)
+- [Create a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-webhook-receiver/)
+- [Update a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-webhook-receiver/)
+- [Disable a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/disable-webhook-receiver/)
+- [Enable a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/enable-webhook-receiver/)
+- [Validate a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/validate-webhook-receiver/)
+- [Delete a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/delete-webhook-receiver/)
+- Security
+- Services
+- System
+- Data Access
+- Logs
+- Info
+- Mode
+- About
+- Notebook Server REST Services API
+- Geoprocessing Services
+- [Notebooks](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/)
+- [Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook/)
+- [Open Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/open-notebook/)
+- [Close Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/close-notebook/)
+- [Execute Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/execute-notebook/)
+- [Create notebook preview](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-notebook-preview/)
+- [Notebook Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtimes/)
+- [Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtime/)
+- [Register (runtime)](https://developers.arcgis.com/rest/enterprise-administration/notebook/register-runtime/)
+- [Restore Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-default-template/)
+- [Restore Factory Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-factory-runtimes/)
+- [Runtime Manifest](https://developers.arcgis.com/rest/enterprise-administration/notebook/runtime-manifest/)
+- [Unregister Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/unregister-notebook-runtime/)
+
+- [Update Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-default-template/)
+- [Update Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-notebook-runtime/)
+- [Validate Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/validate-runtimes/)
+- [Create Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-snapshot/)
+- [List Snapshots](https://developers.arcgis.com/rest/enterprise-administration/notebook/list-snapshots/)
+- [Delete Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/delete-snapshot/)
+- [Restore Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-snapshot/)
+- [Download Notebook Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/download-snapshot/)
+- [Convert To Item](https://developers.arcgis.com/rest/enterprise-administration/notebook/convert-snapshot-to-a-notebook/)
+- [Import code snippets](https://developers.arcgis.com/rest/enterprise-administration/notebook/import-code-snippets/)
+- [Export code snippets](https://developers.arcgis.com/rest/enterprise-administration/notebook/export-code-snippets/)
+- [Webhook receivers](https://developers.arcgis.com/rest/enterprise-administration/notebook/webhook-receivers/)
+- [Webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/webhook-receiver/)
+- [Create a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-webhook-receiver/)
+- [Update a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-webhook-receiver/)
+- [Disable a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/disable-webhook-receiver/)
+- [Enable a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/enable-webhook-receiver/)
+- [Validate a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/validate-webhook-receiver/)
+- [Delete a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/delete-webhook-receiver/)
+[Notebooks](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/)
+[Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook/)
+[Open Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/open-notebook/)
+[Close Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/close-notebook/)
+[Execute Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/execute-notebook/)
+[Create notebook preview](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-notebook-preview/)
+[Notebook Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtimes/)
+[Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtime/)
+[Register (runtime)](https://developers.arcgis.com/rest/enterprise-administration/notebook/register-runtime/)
+[Restore Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-default-template/)
+[Restore Factory Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-factory-runtimes/)
+[Runtime Manifest](https://developers.arcgis.com/rest/enterprise-administration/notebook/runtime-manifest/)
+[Unregister Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/unregister-notebook-runtime/)
+[Update Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-default-template/)
+[Update Notebook Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-notebook-runtime/)
+[Validate Runtime](https://developers.arcgis.com/rest/enterprise-administration/notebook/validate-runtimes/)
+[Create Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-snapshot/)
+[List Snapshots](https://developers.arcgis.com/rest/enterprise-administration/notebook/list-snapshots/)
+[Delete Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/delete-snapshot/)
+[Restore Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-snapshot/)
+
+[Download Notebook Snapshot](https://developers.arcgis.com/rest/enterprise-administration/notebook/download-snapshot/)
+[Convert To Item](https://developers.arcgis.com/rest/enterprise-administration/notebook/convert-snapshot-to-a-notebook/)
+[Import code snippets](https://developers.arcgis.com/rest/enterprise-administration/notebook/import-code-snippets/)
+[Export code snippets](https://developers.arcgis.com/rest/enterprise-administration/notebook/export-code-snippets/)
+[Webhook receivers](https://developers.arcgis.com/rest/enterprise-administration/notebook/webhook-receivers/)
+[Webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/webhook-receiver/)
+[Create a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/create-webhook-receiver/)
+[Update a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-webhook-receiver/)
+[Disable a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/disable-webhook-receiver/)
+[Enable a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/enable-webhook-receiver/)
+[Validate a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/validate-webhook-receiver/)
+[Delete a webhook receiver](https://developers.arcgis.com/rest/enterprise-administration/notebook/delete-webhook-receiver/)
+
+# Notebooks
+
+[<notebookserveradmin>](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-server-administration-root/)
+
+```
+GET
+```
+
+[Restore Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-default-template/)
+[Update Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-default-template/)
+[Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook/)
+[Notebook Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtimes/)
+
+## https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#descriptionDescription
+This resource provides a list of all ArcGIS Notebooks currently running on your ArcGIS Notebook Server site. The unique ID of each notebook is shown, with the user who owns it in parentheses.
+
+## https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#request-parametersRequest parameters
+start
+
+```
+start
+```
+
+The number of the first entry in the result set response. The index number is 1-based.
+The default value is 1.
+Example:
+
+```
+1 start=5
+```
+
+
+```
+1 start=5
+```
+
+
+```
+1
+```
+
+num
+
+```
+num
+```
+
+The maximum number of results that will be included in the result set response. The default value is 10, and the maximum allowed value is 100.
+The actual number of returned results may be less than the num value. This occurs when the number of results remaining after start is less than num .
+
+```
+num
+```
+
+
+```
+start
+```
+
+
+```
+num
+```
+
+Example:
+
+```
+1 2 //Returns a maximum of 50 results in a response num=50
+```
+
+
+```
+1 2 //Returns a maximum of 50 results in a response num=50
+```
+
+
+```
+1 2
+```
+
+f
+
+```
+f
+```
+
+The response format. The default response format is html .
+
+```
+html
+```
+
+Values: html | json | pjson
+
+```
+html
+```
+
+
+```
+json
+```
+
+
+```
+pjson
+```
+
+## https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#json-response-syntaxJSON Response syntax
+```
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 { "total" : <total number of results>, "notebooks": [ { "itemId": "<notebook 1 itemId>", "notebookUrl": "<notebook 1 url>", "dateLastActivity": "<epoch time in milliseconds>", "id": "<notebook1 id>", "containerId": "<containerId>", "username": "<notebook 1 owner username>" }, { "itemId": "<notebook 2 itemId>", "notebookUrl": "<notebook 2 url>", "dateLastActivity": "<epoch time in milliseconds>", "id": "<notebook2 id>", "containerId": "<containerId>", "username": "<notebook 2 owner username>" } ], "num": < maximum number of results to be included in the result set response >, "start" : <The number of the first entry in the result set response> }
+```
+
+
+```
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 { "total" : <total number of results>, "notebooks": [ { "itemId": "<notebook 1 itemId>", "notebookUrl": "<notebook 1 url>", "dateLastActivity": "<epoch time in milliseconds>", "id": "<notebook1 id>", "containerId": "<containerId>", "username": "<notebook 1 owner username>" }, { "itemId": "<notebook 2 itemId>", "notebookUrl": "<notebook 2 url>", "dateLastActivity": "<epoch time in milliseconds>", "id": "<notebook2 id>", "containerId": "<containerId>", "username": "<notebook 2 owner username>" } ], "num": < maximum number of results to be included in the result set response >, "start" : <The number of the first entry in the result set response> }
+```
+
+
+```
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+```
+
+## https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#json-response-exampleJSON Response example
+
+```
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 { "total": 3, "notebooks": [ { "itemId": "b57954c0e08b4f7db8fa4a80d8f1ab95", "notebookUrl": "/notebooks/84fb308295fc413cb7d6680c266cfab5/notebooks/b57954c0e08b4f7db8fa4a80d8f1ab95.ipynb", "dateLastActivity": "1548975258795", "id": "22f1b51c4cd3451e8c026eacab1114aa", "containerId": "84fb308295fc413cb7d6680c266cfab5", "username": "joe" }, { "itemId": "5bfbb4aaa221443db4e2ddbadccafb3d", "notebookUrl": "/notebooks/4f8d50afb143459a8b3adee800acee3f/notebooks/5bfbb4aaa221443db4e2ddbadccafb3d.ipynb", "dateLastActivity": "1548976247002", "id": "2c914a07f80d49b7ab876d0e4c197e6c", "containerId": "4f8d50afb143459a8b3adee800acee3f", "username": "jane" }, { "itemId": "5bfbb4aaa221443db4e2ddbadccafb3d", "notebookUrl": "/notebooks/84fb308295fc413cb7d6680c266cfab5/notebooks/5bfbb4aaa221443db4e2ddbadccafb3d.ipynb", "dateLastActivity": "1548975767414", "id": "33a48f6f1a7c45b5a5bb6c59ab369292", "containerId": "84fb308295fc413cb7d6680c266cfab5", "username": "joe" } ], "num": 10, "start": 1 }
+```
+
+
+```
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 { "total": 3, "notebooks": [ { "itemId": "b57954c0e08b4f7db8fa4a80d8f1ab95", "notebookUrl": "/notebooks/84fb308295fc413cb7d6680c266cfab5/notebooks/b57954c0e08b4f7db8fa4a80d8f1ab95.ipynb", "dateLastActivity": "1548975258795", "id": "22f1b51c4cd3451e8c026eacab1114aa", "containerId": "84fb308295fc413cb7d6680c266cfab5", "username": "joe" }, { "itemId": "5bfbb4aaa221443db4e2ddbadccafb3d", "notebookUrl": "/notebooks/4f8d50afb143459a8b3adee800acee3f/notebooks/5bfbb4aaa221443db4e2ddbadccafb3d.ipynb", "dateLastActivity": "1548976247002", "id": "2c914a07f80d49b7ab876d0e4c197e6c", "containerId": "4f8d50afb143459a8b3adee800acee3f", "username": "jane" }, { "itemId": "5bfbb4aaa221443db4e2ddbadccafb3d", "notebookUrl": "/notebooks/84fb308295fc413cb7d6680c266cfab5/notebooks/5bfbb4aaa221443db4e2ddbadccafb3d.ipynb", "dateLastActivity": "1548975767414", "id": "33a48f6f1a7c45b5a5bb6c59ab369292", "containerId": "84fb308295fc413cb7d6680c266cfab5", "username": "joe" } ], "num": 10, "start": 1 }
+```
+
+
+```
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+```
+
+- [Description](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#description)
+- [Request parameters](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#request-parameters)
+- [JSON Response syntax](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#json-response-syntax)
+- [JSON Response example](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#json-response-example)
+[Description](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#description)
+[Request parameters](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#request-parameters)
+[JSON Response syntax](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#json-response-syntax)
+[JSON Response example](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebooks/#json-response-example)
+Was this page helpful?
+[Copyright © 2026 Esri](https://www.esri.com/legal/copyright-trademarks). All rights reserved.
+- [Privacy](https://www.esri.com/legal/privacy)
+- Manage cookies
+- [Terms of Use](https://www.esri.com/legal/software-license)
+[Privacy](https://www.esri.com/legal/privacy)
+[Terms of Use](https://www.esri.com/legal/software-license)
+[Sign up to receive the latest news from Esri](https://go.esri.com/subscribe)
+Your browser is no longer supported. Please upgrade your browser for the best experience. See our [browser deprecation post for more details](https://www.esri.com/arcgis-blog/products/arcgis/announcements/so-long-internet-explorer-11/).

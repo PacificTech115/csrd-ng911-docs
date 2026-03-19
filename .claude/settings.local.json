@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E '\\(index|app\\)\\\\.html$')",
+      "Bash(awk 'NR>=164 && NR<=876 && /<td><code>[A-Za-z0-9_]+<\\\\/code><\\\\/td>/' \"Web App/docs/partials/schema-guide.html\")",
+      "Bash(ls /c/Python*/python.exe)",
+      "Read(//c/Users/solim/AppData/Local/Programs/Python/**)",
+      "Read(//c/Users/solim/anaconda3/**)",
+      "Read(//c/Users/solim/miniconda3/**)"
+    ]
+  }
+}

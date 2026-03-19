@@ -1,0 +1,12 @@
+# Notebooks
+
+[<notebookserveradmin>](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-server-administration-root/)
+
+```
+GET
+```
+
+[Restore Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/restore-default-template/)
+[Update Default Template](https://developers.arcgis.com/rest/enterprise-administration/notebook/update-default-template/)
+[Notebook](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook/)
+[Notebook Runtimes](https://developers.arcgis.com/rest/enterprise-administration/notebook/notebook-runtimes/)

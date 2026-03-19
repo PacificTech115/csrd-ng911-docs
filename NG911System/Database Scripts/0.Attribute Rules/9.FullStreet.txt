@@ -1,0 +1,33 @@
+// Full_Street Attribute Rule - Combines all street name components
+// Order: PreMod, PreDir, PreTyp + Separator + St_Name, PostTyp, PostDir, PostMod
+
+var preMod = Trim(DefaultValue($feature.St_PreMod, ""));
+var preDir = Trim(DefaultValue($feature.St_PreDir, ""));
+var preTyp = Trim(DefaultValue($feature.St_PreTyp, ""));
+var stName = Trim(DefaultValue($feature.St_Name, ""));
+var sepRaw = DefaultValue($feature.St_PreSep, "");
+var sep = IIF(Trim(sepRaw) == "", " ", sepRaw);
+var postTyp = Trim(DefaultValue($feature.St_PosTyp, ""));
+var postDir = Trim(DefaultValue($feature.St_PosDir, ""));
+var postMod = Trim(DefaultValue($feature.St_PosMod, ""));
+
+// Build pre-typename part
+var preTypName = "";
+if (preTyp != "" && stName != "") {
+  preTypName = Trim(preTyp + sep + stName);
+} else {
+  preTypName = Trim(preTyp + stName);
+}
+
+// Assemble street parts in NENA SSAP sequence
+var streetArr = [];
+if (preMod != "") Push(streetArr, preMod);
+if (preDir != "") Push(streetArr, preDir);
+if (preTypName != "") Push(streetArr, preTypName);
+if (postTyp != "") Push(streetArr, postTyp);
+if (postDir != "") Push(streetArr, postDir);
+if (postMod != "") Push(streetArr, postMod);
+
+var fullStreet = Concatenate(streetArr, " ");
+
+return IIF(Trim(fullStreet) == "", Null, fullStreet);
