@@ -99,18 +99,18 @@ def ingest():
     except Exception as e:
         print(f"Note: {e}")
 
-    # Define sources — RAW source files only, no HTML duplicates
-    # Resolve data dir relative to this script's location
+    # Define sources — read directly from the repo root (not stale AI/data/ copies).
+    # This ensures the knowledge base always reflects the latest committed code.
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(script_dir, "..", "data")
+    repo_root = os.path.normpath(os.path.join(script_dir, "..", ".."))
 
     sources = {
-        os.path.join(data_dir, "Database Scripts", "0.Attribute Rules"): ["txt", "js"],
-        os.path.join(data_dir, "Database Scripts", "1.ReconcilePost-QA-Export"): ["py", "html"],
-        os.path.join(data_dir, "Database Scripts", "2. Salmon Arm Sync"): ["py", "html"],
-        os.path.join(data_dir, "Documentation"): ["md", "txt"],
-        # Web App: only the JS modules and CSS — NOT the HTML partials
-        os.path.join(data_dir, "Web App", "docs"): ["js", "css"],
+        os.path.join(repo_root, "NG911System", "Database Scripts", "0.Attribute Rules"): ["txt", "js"],
+        os.path.join(repo_root, "NG911System", "Database Scripts", "1.ReconcilePost-QA-Export"): ["py", "html"],
+        os.path.join(repo_root, "NG911System", "Database Scripts", "2. Salmon Arm Sync"): ["py", "html"],
+        os.path.join(repo_root, "Context", "Documentation"): ["md", "txt"],
+        # Web App: JS modules and CSS (partials are excluded via skip_dirs)
+        os.path.join(repo_root, "Web App", "docs"): ["js", "css"],
     }
 
     all_docs = []

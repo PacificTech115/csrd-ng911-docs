@@ -6,15 +6,15 @@ directly to the Web App frontend.
 
 import json
 import logging
+import threading
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 import uvicorn
-import requests
 
 # Import the pre-built, tool-equipped LangGraph agent
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from agent import agent
 
 # Set up logging to avoid polluting stdout
@@ -32,11 +32,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class UserContext(BaseModel):
+    username: str = "anonymous"
+    is_admin: bool = False
+    municipality: str = ""
+    current_page: str = ""
+
 class ChatRequest(BaseModel):
     message: str
     thread_id: str = "default_session"
+    user_context: UserContext = UserContext()
 
-async def stream_agent_events(user_message: str, thread_id: str):
+
+def _build_user_context_message(ctx: UserContext) -> str:
+    """Build a concise user context string for the system prompt."""
+    role = "Admin" if ctx.is_admin else "Municipal Editor"
+    if ctx.municipality:
+        role += f" ({ctx.municipality.title()})"
+    parts = [
+        f"User: {ctx.username}",
+        f"Role: {role}",
+    ]
+    if ctx.current_page:
+        parts.append(f"Viewing: #{ctx.current_page}")
+    return " | ".join(parts)
+
+
+async def stream_agent_events(user_message: str, thread_id: str, user_context: UserContext):
     """
     Generator that invokes the LangGraph agent and yields SSE events.
     Events are formattted as dicts matching the SSE spec.
@@ -44,11 +66,15 @@ async def stream_agent_events(user_message: str, thread_id: str):
     config = {"configurable": {"thread_id": thread_id}}
     
     try:
-        # Wrap the query in a HumanMessage.
-        # Since 'ui/app.py' originally used agent.stream(..., stream_mode="messages"),
-        # we do the same here to get token-by-token streaming and tool calls.
+        # Build message list: inject user context as a system message, then the user query.
+        messages = []
+        if user_context.username != "anonymous":
+            ctx_str = _build_user_context_message(user_context)
+            messages.append(SystemMessage(content=f"[CURRENT USER] {ctx_str}"))
+        messages.append(HumanMessage(content=user_message))
+
         for event, metadata in agent.stream(
-            {"messages": [HumanMessage(content=user_message)]},
+            {"messages": messages},
             config=config,
             stream_mode="messages",
         ):
@@ -64,7 +90,7 @@ async def stream_agent_events(user_message: str, thread_id: str):
                         }
             
             # Check if this is an AI Message token payload
-            if event.content and event.type == "ai":
+            if getattr(event, "content", None) and getattr(event, "type", "") in ("ai", "AIMessageChunk"):
                 # Some events might just be tool execution acknowledgments; 
                 # we only want to stream actual textual content destined for the user.
                 yield {
@@ -90,8 +116,23 @@ async def chat_endpoint(request: ChatRequest):
     """
     Accepts a user message and returns an SSE stream.
     """
-    return EventSourceResponse(stream_agent_events(request.message, request.thread_id))
+    return EventSourceResponse(
+        stream_agent_events(request.message, request.thread_id, request.user_context)
+    )
+
+
+@app.post("/api/reingest")
+async def reingest_endpoint():
+    """Triggers knowledge base re-ingestion. Called by CI/CD after deploy."""
+    try:
+        from database.ingest import ingest
+        thread = threading.Thread(target=ingest, daemon=True)
+        thread.start()
+        return {"status": "ingestion_started"}
+    except Exception as e:
+        logger.error(f"Reingest failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
-    # Run the server locally. Host 0.0.0.0 allows it to be accessed from the network.
     uvicorn.run(app, host="0.0.0.0", port=8000)

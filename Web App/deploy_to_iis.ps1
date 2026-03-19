@@ -68,7 +68,17 @@ try {
         if ($RoboCode -ge 8) {
             Add-Content -Path $LogFile -Value "[$TimestampEnd] ERROR: Robocopy failed with Exit Code $RoboCode.`n----------------------------------------"
         } else {
-            Add-Content -Path $LogFile -Value "[$TimestampEnd] Deployment completed successfully! (Robocopy Code $RoboCode)`n----------------------------------------"
+            Add-Content -Path $LogFile -Value "[$TimestampEnd] Deployment completed successfully! (Robocopy Code $RoboCode)"
+
+            # Trigger AI knowledge base re-ingestion so the assistant stays current
+            try {
+                $reingestResponse = Invoke-RestMethod -Uri "https://ai.pacifictechsystems.ca/api/reingest" -Method POST -TimeoutSec 10
+                Add-Content -Path $LogFile -Value "[$TimestampEnd] AI re-ingestion triggered: $($reingestResponse.status)"
+            } catch {
+                Add-Content -Path $LogFile -Value "[$TimestampEnd] AI re-ingestion trigger failed (non-critical): $($_.Exception.Message)"
+            }
+
+            Add-Content -Path $LogFile -Value "----------------------------------------"
         }
     }
     else {

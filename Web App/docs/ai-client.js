@@ -13,6 +13,87 @@ document.addEventListener('DOMContentLoaded', () => {
     let sessionId = "session_" + Math.random().toString(36).substring(2, 9);
     let isWaitingForResponse = false;
 
+    // --- User Context Helpers ---
+    const detectMunicipality = (username) => {
+        if (!username) return '';
+        const u = username.toLowerCase();
+        if (u.includes('revelstoke')) return 'revelstoke';
+        if (u.includes('golden')) return 'golden';
+        if (u.includes('salmonarm') || u.includes('salmon_arm')) return 'salmonarm';
+        if (u.includes('sicamous')) return 'sicamous';
+        return '';
+    };
+
+    const getUserContext = () => {
+        try {
+            const userStr = localStorage.getItem('csrd_arcgis_user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            const username = user ? user.username : 'anonymous';
+
+            // Mirror admin check from auth.js
+            const uLower = username.toLowerCase();
+            const admins = ['csrd_service', 'csrd_gis', 'dmajor@csrd'];
+            const isAdmin = admins.includes(uLower) || uLower === 'csrd' || uLower.includes('admin');
+
+            return {
+                username: username,
+                is_admin: isAdmin,
+                municipality: detectMunicipality(username),
+                current_page: window.location.hash.substring(1) || 'home'
+            };
+        } catch (e) {
+            return { username: 'anonymous', is_admin: false, municipality: '', current_page: '' };
+        }
+    };
+
+    // --- Navigation Command Processing ---
+    const processNavigationCommands = (container) => {
+        const html = container.innerHTML;
+        // Match {{nav:route#elementId|Label}} or {{nav:route|Label}}
+        const processed = html.replace(
+            /\{\{nav:([^#|}]+)(?:#([^|}]+))?\|([^}]+)\}\}/g,
+            (match, route, elementId, label) => {
+                const dataEl = elementId ? ` data-element="${elementId}"` : '';
+                return `<button class="ai-nav-btn" data-route="${route}"${dataEl} onclick="window.handleAINavigation(this)"><i class="fas fa-arrow-right"></i> ${label}</button>`;
+            }
+        );
+        if (processed !== html) {
+            container.innerHTML = processed;
+        }
+    };
+
+    // Global navigation handler
+    window.handleAINavigation = function(btn) {
+        const route = btn.dataset.route;
+        const elementId = btn.dataset.element;
+
+        // Navigate to the page
+        window.location.hash = route;
+
+        // If there's a target element, scroll to it after the page loads
+        if (elementId) {
+            setTimeout(() => {
+                const el = document.getElementById(elementId)
+                    || document.querySelector(`[data-field="${elementId}"]`);
+                if (el) {
+                    // Expand parent group if it's collapsed
+                    const groupBody = el.closest('.field-group-body');
+                    if (groupBody && groupBody.classList.contains('collapsed')) {
+                        groupBody.classList.remove('collapsed');
+                        const header = groupBody.previousElementSibling;
+                        if (header && header.classList.contains('field-group-header')) {
+                            header.classList.remove('collapsed');
+                        }
+                    }
+
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.add('ai-highlight');
+                    setTimeout(() => el.classList.remove('ai-highlight'), 3000);
+                }
+            }, 600);
+        }
+    };
+
     // --- State Toggles ---
     fab.addEventListener('click', () => {
         aiWidgetContainer.classList.remove('ai-widget-closed');
@@ -93,9 +174,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${aiHostUrl}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    message: text, 
-                    thread_id: sessionId
+                body: JSON.stringify({
+                    message: text,
+                    thread_id: sessionId,
+                    user_context: getUserContext()
                 })
             });
 
@@ -138,6 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             responseDiv.innerHTML = marked.parse(accumulatedText);
                         } else if (currentEvent === 'done') {
                             toolRibbon.style.display = "none";
+                            // Process navigation commands in the final response
+                            processNavigationCommands(responseDiv);
                         }
                     }
                 }

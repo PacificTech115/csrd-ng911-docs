@@ -10,6 +10,8 @@ from langgraph.checkpoint.memory import MemorySaver
 from core.llm_config import get_llm
 from tools.file_tools import read_file, list_directory, search_codebase
 from tools.knowledge_tools import search_knowledge_base
+from tools.cms_tools import query_cms_content
+from tools.navigation_tools import get_navigation_target
 
 # ─── System Prompt ───────────────────────────────────────────────────
 SYSTEM_PROMPT = """\
@@ -116,8 +118,71 @@ FORMATTING AND TONE — FOLLOW STRICTLY:
 16. When the user asks to SEE or SHOW code/templates/rules, return the file
     content VERBATIM inside a fenced code block. Do not rewrite, improve, or
     critique it. Just show the source with its file path.
-17. If asked about Portal IDs, REST endpoints, web apps, feature services, or 
+17. If asked about Portal IDs, REST endpoints, web apps, feature services, or
     any system dependencies, ALWAYS use read_file('Documentation/System_Dependencies.md') FIRST.
+
+═══════════════════════════════════════════════════════════════
+ USER AWARENESS
+═══════════════════════════════════════════════════════════════
+
+A [CURRENT USER] system message may precede each query with the user's identity.
+- Admin users: full access. You may reference GP tools, automations, all municipalities.
+- Municipal users: tailor answers to their municipality. Do not reference admin-only \
+  tools (GP runner, automations dashboard) unless they are an admin.
+- If the user context says "anonymous", treat them as a general public visitor.
+
+═══════════════════════════════════════════════════════════════
+ NAVIGATION COMMANDS (interactive buttons in the Web App)
+═══════════════════════════════════════════════════════════════
+
+When your answer references a page or section of the Documentation Hub, include a \
+navigation button so the user can jump directly there. Use this exact syntax:
+
+  {{nav:ROUTE|Button Label}}           -- navigates to a page
+  {{nav:ROUTE#ELEMENT_ID|Button Label}} -- navigates + scrolls to a specific element
+
+The frontend will render these as clickable buttons. Use them naturally at the end \
+of a relevant paragraph or as a standalone line. Do NOT overuse them -- one or two \
+per response is ideal.
+
+WEB APP ROUTE MAP:
+  (empty) or home         -> Home / landing page
+  architecture            -> System architecture overview
+  schema-guide            -> Full 61-field NENA SSAP schema reference
+  attribute-rules         -> All 9 attribute rule summaries
+  rule-full-address       -> Full Address concatenation rule (Arcade)
+  rule-nguid              -> NGUID generation rule
+  rule-longitude          -> Longitude extraction rule
+  rule-latitude           -> Latitude extraction rule
+  rule-addcode            -> AddCode rule
+  rule-dateupdate         -> DateUpdate trigger rule
+  rule-qastatus           -> QAStatus rule
+  rule-defaultagency      -> Default Agency rule
+  rule-mandatory          -> Mandatory fields constraint rule
+  domains                 -> Domain value lookup tables
+  automation-scripts      -> ArcGIS Notebook automation scripts overview
+  automations-dashboard   -> Live pipeline run monitoring [Admin only]
+  gp-tools                -> Geoprocessing tools overview [Admin only]
+  power-automate          -> Power Automate notification workflows [Admin only]
+  script-orchestrator     -> Nightly Orchestrator script details
+  script-etl              -> Salmon Arm ETL script details
+  script-qa               -> QA Validation GP tool details
+  script-reconcile        -> Reconcile/Post GP tool details
+  script-export           -> Export FGDB GP tool details
+  maintenance             -> System maintenance guide [Admin only]
+  system-resources        -> Portal items and service URLs [Admin only]
+  version-edits           -> Version edit history [Admin only]
+  quick-reference         -> Quick reference card [Admin only]
+  revelstoke              -> Revelstoke municipal user guide [Restricted]
+  golden                  -> Golden municipal user guide [Restricted]
+  salmonarm               -> Salmon Arm municipal user guide [Restricted]
+  sicamous                -> Sicamous municipal user guide [Restricted]
+  sync-app                -> Municipal Data Sync App
+
+SCHEMA GUIDE FIELD IDS (for scroll-to targeting):
+  Use #field-{FieldName} to target specific fields on the schema-guide page.
+  Examples: field-Agency, field-St_Name, field-Add_Number, field-St_PreTyp, \
+  field-NGUID, field-Latitude, field-Longitude, field-QA_Status
 """
 
 # ─── Tools ───────────────────────────────────────────────────────────
@@ -126,6 +191,8 @@ ALL_TOOLS = [
     list_directory,
     search_codebase,
     search_knowledge_base,
+    query_cms_content,
+    get_navigation_target,
 ]
 
 # ─── Message Trimmer ─────────────────────────────────────────────────
@@ -136,6 +203,7 @@ def trim_messages(state):
     """
     Prevents context explosion by trimming old tool results.
     - Pre-pends the SYSTEM_PROMPT.
+    - Preserves [CURRENT USER] SystemMessages injected by api.py.
     - Keeps the last RECENT_WINDOW messages untouched.
     - For older messages, drops ToolMessage content (file reads, search
       results) since those are the biggest context consumers.
@@ -143,8 +211,18 @@ def trim_messages(state):
     msgs = state.get("messages", [])
     sys_msg = SystemMessage(content=SYSTEM_PROMPT)
 
+    # Extract any user-context SystemMessages from the input (injected by api.py)
+    user_ctx_msgs = [
+        m for m in msgs
+        if isinstance(m, SystemMessage) and "[CURRENT USER]" in m.content
+    ]
+    # Filter them out of the main message flow (we'll prepend them after SYSTEM_PROMPT)
+    msgs = [m for m in msgs if m not in user_ctx_msgs]
+
+    prefix = [sys_msg] + user_ctx_msgs
+
     if len(msgs) <= RECENT_WINDOW:
-        return [sys_msg] + msgs
+        return prefix + msgs
 
     old = msgs[:-RECENT_WINDOW]
     recent = msgs[-RECENT_WINDOW:]
@@ -152,7 +230,6 @@ def trim_messages(state):
     trimmed = []
     for m in old:
         if hasattr(m, "tool_call_id") and m.type == "tool":
-            # Replace bulky tool output with a short summary
             trimmed.append(
                 ToolMessage(
                     content="[output trimmed to save context]",
@@ -163,7 +240,7 @@ def trim_messages(state):
         else:
             trimmed.append(m)
 
-    return [sys_msg] + trimmed + recent
+    return prefix + trimmed + recent
 
 
 # ─── Agent ───────────────────────────────────────────────────────────

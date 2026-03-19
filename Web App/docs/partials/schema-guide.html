@@ -162,42 +162,42 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.1.table">
-            <tr>
+            <tr id="field-Agency">
               <td><code>Agency</code></td>
               <td>Text(255)</td>
               <td>Owning agency label</td>
               <td>Salmon Arm</td>
               <td>Use for definition queries</td>
             </tr>
-            <tr>
+            <tr id="field-DiscrpAgID">
               <td><code>DiscrpAgID</code></td>
               <td>Text(100)</td>
               <td>Domain-based agency ID; in NGUID</td>
               <td>sicamous.ca</td>
               <td>Not same as Agency</td>
             </tr>
-            <tr>
+            <tr id="field-Add_Number">
               <td><code>Add_Number</code></td>
               <td>Integer</td>
               <td>Primary civic number</td>
               <td>431</td>
               <td>Numbers only</td>
             </tr>
-            <tr>
+            <tr id="field-St_Name">
               <td><code>St_Name</code></td>
               <td>Text(254)</td>
               <td>Core street name body</td>
               <td>Main</td>
               <td>No type/directional</td>
             </tr>
-            <tr>
+            <tr id="field-A3">
               <td><code>A3</code></td>
               <td>Text(100)</td>
               <td>Locality / community</td>
               <td>Sicamous</td>
               <td>Must match AddCode lookup</td>
             </tr>
-            <tr>
+            <tr id="field-Unit">
               <td><code>Unit</code></td>
               <td>Text(75)</td>
               <td>Unit / suite identifier</td>
@@ -229,14 +229,14 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.2.table">
-            <tr>
+            <tr id="field-AddNum_Pre">
               <td><code>AddNum_Pre</code></td>
               <td>Text(15)</td>
               <td>Address number prefix</td>
               <td>A or 12</td>
               <td>Rare; numeric inserts dash</td>
             </tr>
-            <tr>
+            <tr id="field-AddNum_Suf">
               <td><code>AddNum_Suf</code></td>
               <td>Text(15)</td>
               <td>Address number suffix</td>
@@ -268,49 +268,49 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.3.table">
-            <tr>
+            <tr id="field-St_PreMod">
               <td><code>St_PreMod</code></td>
               <td>Text(15)</td>
               <td>Modifier before name</td>
               <td>Old, Upper</td>
               <td>Full words</td>
             </tr>
-            <tr>
+            <tr id="field-St_PreDir">
               <td><code>St_PreDir</code></td>
               <td>Text(10)</td>
               <td>Directional before name</td>
               <td>Southwest</td>
               <td>No abbreviations</td>
             </tr>
-            <tr>
+            <tr id="field-St_PreTyp">
               <td><code>St_PreTyp</code></td>
               <td>Text(50)</td>
               <td>Type before name</td>
               <td>Highway</td>
               <td>No abbreviations</td>
             </tr>
-            <tr>
+            <tr id="field-St_PreSep">
               <td><code>St_PreSep</code></td>
               <td>Text(20)</td>
               <td>Separator PreTyp&#x2194;Name</td>
               <td>(blank)</td>
               <td>Blank = space</td>
             </tr>
-            <tr>
+            <tr id="field-St_PosTyp">
               <td><code>St_PosTyp</code></td>
               <td>Text(50)</td>
               <td>Type after name</td>
               <td>Road</td>
               <td>No abbreviations</td>
             </tr>
-            <tr>
+            <tr id="field-St_PosDir">
               <td><code>St_PosDir</code></td>
               <td>Text(10)</td>
               <td>Directional after name</td>
               <td>South</td>
               <td>No abbreviations</td>
             </tr>
-            <tr>
+            <tr id="field-St_PosMod">
               <td><code>St_PosMod</code></td>
               <td>Text(25)</td>
               <td>Modifier after name</td>
@@ -342,35 +342,35 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.4.table">
-            <tr>
+            <tr id="field-Country">
               <td><code>Country</code></td>
               <td>Text(2)</td>
               <td>Country code</td>
               <td>CA</td>
               <td>Default CA</td>
             </tr>
-            <tr>
+            <tr id="field-A1">
               <td><code>A1</code></td>
               <td>Text(2)</td>
               <td>Province code</td>
               <td>BC</td>
               <td>Default BC</td>
             </tr>
-            <tr>
+            <tr id="field-A2">
               <td><code>A2</code></td>
               <td>Text(100)</td>
               <td>Regional district</td>
               <td>Columbia Shuswap Regional District</td>
               <td>Often constant</td>
             </tr>
-            <tr>
+            <tr id="field-Uninc_Comm">
               <td><code>Uninc_Comm</code></td>
               <td>Text(100)</td>
               <td>Unincorporated community</td>
               <td>Malakwa</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Nbrhd_Comm">
               <td><code>Nbrhd_Comm</code></td>
               <td>Text(100)</td>
               <td>Neighborhood community</td>
@@ -402,35 +402,35 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.5.table">
-            <tr>
+            <tr id="field-Post_Comm">
               <td><code>Post_Comm</code></td>
               <td>Text(40)</td>
               <td>Postal community name</td>
               <td>Sicamous</td>
               <td>If different from A3</td>
             </tr>
-            <tr>
+            <tr id="field-Post_Code">
               <td><code>Post_Code</code></td>
               <td>Text(7)</td>
               <td>Postal code</td>
               <td>V0E 2V0</td>
               <td>Standard format</td>
             </tr>
-            <tr>
+            <tr id="field-PostCodeEx">
               <td><code>PostCodeEx</code></td>
               <td>Text(4)</td>
               <td>Postal extension</td>
               <td>123</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-MSAGComm">
               <td><code>MSAGComm</code></td>
               <td>Text(30)</td>
               <td>MSAG community (legacy)</td>
               <td>SICAMOUS</td>
               <td>Legacy routing</td>
             </tr>
-            <tr>
+            <tr id="field-ESN">
               <td><code>ESN</code></td>
               <td>Text(5)</td>
               <td>Emergency Service Number</td>
@@ -462,28 +462,28 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.6.table">
-            <tr>
+            <tr id="field-LSt_PreDir">
               <td><code>LSt_PreDir</code></td>
               <td>Text(2)</td>
               <td>Legacy pre-directional</td>
               <td>N</td>
               <td>Abbreviations OK</td>
             </tr>
-            <tr>
+            <tr id="field-LSt_Name">
               <td><code>LSt_Name</code></td>
               <td>Text(75)</td>
               <td>Legacy street name</td>
               <td>Main St</td>
               <td>May include type</td>
             </tr>
-            <tr>
+            <tr id="field-LSt_Typ">
               <td><code>LSt_Typ</code></td>
               <td>Text(4)</td>
               <td>Legacy street type</td>
               <td>Rd</td>
               <td>Abbreviations OK</td>
             </tr>
-            <tr>
+            <tr id="field-LSt_PosDir">
               <td><code>LSt_PosDir</code></td>
               <td>Text(2)</td>
               <td>Legacy post-directional</td>
@@ -515,35 +515,35 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.7.table">
-            <tr>
+            <tr id="field-Building">
               <td><code>Building</code></td>
               <td>Text(75)</td>
               <td>Building name</td>
               <td>Lakeside Towers</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Floor">
               <td><code>Floor</code></td>
               <td>Text(75)</td>
               <td>Floor identifier</td>
               <td>3</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Room">
               <td><code>Room</code></td>
               <td>Text(75)</td>
               <td>Room identifier</td>
               <td>201</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Seat">
               <td><code>Seat</code></td>
               <td>Text(75)</td>
               <td>Seat / space</td>
               <td>Section A Row 3 Seat 14</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Addtl_Loc">
               <td><code>Addtl_Loc</code></td>
               <td>Text(225)</td>
               <td>Access notes</td>
@@ -575,35 +575,35 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.8.table">
-            <tr>
+            <tr id="field-Place_Type">
               <td><code>Place_Type</code></td>
               <td>Text(50)</td>
               <td>Place / site type</td>
               <td>Residential</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Placement">
               <td><code>Placement</code></td>
               <td>Text(25)</td>
               <td>Placement method</td>
               <td>Entrance</td>
               <td>Driveway / Rooftop / etc</td>
             </tr>
-            <tr>
+            <tr id="field-LandmkName">
               <td><code>LandmkName</code></td>
               <td>Text(150)</td>
               <td>Landmark name</td>
               <td>Sicamous Community Hall</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Milepost">
               <td><code>Milepost</code></td>
               <td>Text(150)</td>
               <td>Milepost reference</td>
               <td>Hwy 1 MP 23</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Elevation">
               <td><code>Elevation</code></td>
               <td>Integer</td>
               <td>Elevation (meters)</td>
@@ -635,14 +635,14 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.9.table">
-            <tr>
+            <tr id="field-Effective">
               <td><code>Effective</code></td>
               <td>Date/Time</td>
               <td>Effective date</td>
               <td>2026-03-01</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Expire">
               <td><code>Expire</code></td>
               <td>Date/Time</td>
               <td>Expiration date</td>
@@ -674,42 +674,42 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.10.table">
-            <tr>
+            <tr id="field-AddDataURI">
               <td><code>AddDataURI</code></td>
               <td>Text(254)</td>
               <td>Supporting info URI</td>
               <td>(internal link)</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Featureid">
               <td><code>Featureid</code></td>
               <td>Text(255)</td>
               <td>External feature ID</td>
               <td>SA-ADDR-001234</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Parcelid">
               <td><code>Parcelid</code></td>
               <td>Text(255)</td>
               <td>Parcel identifier</td>
               <td>012-345-678</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Roll">
               <td><code>Roll</code></td>
               <td>Text(15)</td>
               <td>Assessment roll number</td>
               <td>12-345-678-901</td>
               <td>Optional</td>
             </tr>
-            <tr>
+            <tr id="field-Addressnotes">
               <td><code>Addressnotes</code></td>
               <td>Text(255)</td>
               <td>Notes</td>
               <td>Created from subdivision plan</td>
               <td>Avoid sensitive info</td>
             </tr>
-            <tr>
+            <tr id="field-Alternateaccess">
               <td><code>Alternateaccess</code></td>
               <td>Text(255)</td>
               <td>Alternate access</td>
@@ -741,49 +741,49 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.11.table">
-            <tr>
+            <tr id="field-Full_Addr">
               <td><code>Full_Addr</code></td>
               <td>Text(255)</td>
               <td>Complete civic address</td>
               <td>12-431 Old Southwest Highway 1 Road, Sicamous, BC V0E 2V0</td>
               <td>Rule #1</td>
             </tr>
-            <tr>
+            <tr id="field-NGUID">
               <td><code>NGUID</code></td>
               <td>Text(254)</td>
               <td>NENA Globally Unique ID</td>
               <td>urn:emergency:uid:gis:SSAP:3F25&hellip;3301:sicamous.ca</td>
               <td>Rule #2; needs DiscrpAgID</td>
             </tr>
-            <tr>
+            <tr id="field-AddCode">
               <td><code>AddCode</code></td>
               <td>Text(6)</td>
               <td>Numeric code from A3</td>
               <td>574</td>
               <td>Rule #5; from lookup</td>
             </tr>
-            <tr>
+            <tr id="field-DateUpdate">
               <td><code>DateUpdate</code></td>
               <td>Date/Time</td>
               <td>Last edit timestamp</td>
               <td>2026-02-19 14:22</td>
               <td>Rule #6</td>
             </tr>
-            <tr>
+            <tr id="field-Longitude">
               <td><code>Longitude</code></td>
               <td>Double</td>
               <td>Longitude (WGS84)</td>
               <td>-118.944321</td>
               <td>Rule #3</td>
             </tr>
-            <tr>
+            <tr id="field-Latitude">
               <td><code>Latitude</code></td>
               <td>Double</td>
               <td>Latitude (WGS84)</td>
               <td>50.837221</td>
               <td>Rule #4</td>
             </tr>
-            <tr>
+            <tr id="field-QAStatus">
               <td><code>QAStatus</code></td>
               <td>Text(255)</td>
               <td>QA/QC status</td>
@@ -815,49 +815,49 @@
             </tr>
           </thead>
           <tbody data-cms-key="schema.group.12.table">
-            <tr>
+            <tr id="field-OBJECTID">
               <td><code>OBJECTID</code></td>
               <td>ObjectID</td>
               <td>System row ID</td>
               <td>(auto)</td>
               <td>Not nullable</td>
             </tr>
-            <tr>
+            <tr id="field-GlobalID">
               <td><code>GlobalID</code></td>
               <td>GlobalID</td>
               <td>System GUID</td>
               <td>(auto)</td>
               <td>Used in NGUID</td>
             </tr>
-            <tr>
+            <tr id="field-created_user">
               <td><code>created_user</code></td>
               <td>Text(255)</td>
               <td>Creator username</td>
               <td>(auto)</td>
               <td>Editor tracking</td>
             </tr>
-            <tr>
+            <tr id="field-created_date">
               <td><code>created_date</code></td>
               <td>Date/Time</td>
               <td>Creation date</td>
               <td>(auto)</td>
               <td>Editor tracking</td>
             </tr>
-            <tr>
+            <tr id="field-last_edited_user">
               <td><code>last_edited_user</code></td>
               <td>Text(255)</td>
               <td>Last editor</td>
               <td>(auto)</td>
               <td>Editor tracking</td>
             </tr>
-            <tr>
+            <tr id="field-last_edited_date">
               <td><code>last_edited_date</code></td>
               <td>Date/Time</td>
               <td>Last edit date</td>
               <td>(auto)</td>
               <td>Editor tracking</td>
             </tr>
-            <tr>
+            <tr id="field-Shape">
               <td><code>Shape</code></td>
               <td>Geometry</td>
               <td>Point geometry</td>

@@ -3503,6 +3503,41 @@ input:checked+.slider:before {
   border: 1px solid var(--teal-border);
   animation: fadeIn 0.3s ease;
 }
+/* AI Navigation Buttons (rendered from {{nav:...}} syntax) */
+.ai-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 4px 4px 4px 0;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.ai-nav-btn:hover {
+  background: var(--navy);
+  transform: translateY(-1px);
+}
+.ai-nav-btn i {
+  font-size: 0.7rem;
+}
+
+/* AI Highlight effect for scroll-to targets */
+.ai-highlight {
+  animation: aiHighlightPulse 3s ease;
+}
+@keyframes aiHighlightPulse {
+  0%   { background-color: rgba(0, 180, 160, 0.35); outline: 2px solid var(--teal); outline-offset: 2px; }
+  50%  { background-color: rgba(0, 180, 160, 0.15); outline: 2px solid var(--teal); outline-offset: 2px; }
+  100% { background-color: transparent; outline: none; }
+}
+
 .ai-input-wrapper {
   display: flex;
   gap: 12px;
