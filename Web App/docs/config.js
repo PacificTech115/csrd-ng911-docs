@@ -18,5 +18,5 @@ export const config = {
         reconcilePost: 'https://apps.csrd.bc.ca/arcgis/rest/services/ReconcilePostTraditional/GPServer',
         exportSsap: 'https://apps.csrd.bc.ca/arcgis/rest/services/Landbase/ExportSSAP/GPServer'
     },
-    aiServerUrl: 'https://suffering-fitted-josh-venture.trycloudflare.com' // Cloudflare Tunnel routing to personal GPU
+    aiServerUrl: 'https://ai.pacifictechsystems.ca' // Permanent Cloudflare Tunnel routing to personal GPU
 };
