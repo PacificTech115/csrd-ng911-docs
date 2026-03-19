@@ -6,6 +6,7 @@ directly to the Web App frontend.
 
 import json
 import logging
+import re
 import threading
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +17,7 @@ import uvicorn
 # Import the pre-built, tool-equipped LangGraph agent
 from langchain_core.messages import HumanMessage, SystemMessage
 from agent import agent
+from tools.navigation_tools import get_navigation_target
 
 # Set up logging to avoid polluting stdout
 logging.basicConfig(level=logging.INFO)
@@ -73,6 +75,8 @@ async def stream_agent_events(user_message: str, thread_id: str, user_context: U
             messages.append(SystemMessage(content=f"[CURRENT USER] {ctx_str}"))
         messages.append(HumanMessage(content=user_message))
 
+        accumulated_text = ""
+
         for event, metadata in agent.stream(
             {"messages": messages},
             config=config,
@@ -91,14 +95,24 @@ async def stream_agent_events(user_message: str, thread_id: str, user_context: U
             
             # Check if this is an AI Message token payload
             if getattr(event, "content", None) and getattr(event, "type", "") in ("ai", "AIMessageChunk"):
-                # Some events might just be tool execution acknowledgments; 
-                # we only want to stream actual textual content destined for the user.
+                accumulated_text += event.content
                 yield {
                     "event": "message",
                     "data": json.dumps({"chunk": event.content})
                 }
 
-        # Issue completion event
+        # Auto-append navigation link if the agent didn't include one
+        if "{{nav:" not in accumulated_text:
+            nav_result = get_navigation_target.invoke(user_message)
+            if "{{nav:" in nav_result:
+                nav_match = re.search(r'\{\{nav:[^}]+\}\}', nav_result)
+                if nav_match:
+                    nav_chunk = "\n\n" + nav_match.group(0)
+                    yield {
+                        "event": "message",
+                        "data": json.dumps({"chunk": nav_chunk})
+                    }
+
         yield {
             "event": "done",
             "data": "{}"
