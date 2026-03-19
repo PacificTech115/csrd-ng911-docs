@@ -15,7 +15,7 @@ The Windows Scheduled Task should run under an account with permissions to read/
 # 1. Configuration (UPDATE THESE PATHS FOR YOUR SPECIFIC GIS SERVER ENVIRONMENT)
 # ==============================================================================
 $RepoDir = "C:\Staging\csrd-ng911-docs"           # The local clone of your GitHub repo on the server
-$WebDir  = "C:\inetpub\wwwroot\csrd-docs"         # The target IIS directory where the site is hosted
+$WebDir  = "C:\inetpub\wwwroot\ng911"             # The target IIS directory where the site is hosted
 $LogFile = "C:\Staging\deploy_log.txt"            # Where to log deployment output
 
 # ==============================================================================
@@ -34,6 +34,7 @@ try {
     # Step 2: Fetch latest history from GitHub
     Add-Content -Path $LogFile -Value "Fetching from origin..."
     $fetchOutput = git fetch origin main 2>&1
+    Add-Content -Path $LogFile -Value $fetchOutput
     
     # Step 3: Check if we are behind the remote main branch
     $statusOutput = git status -uno 2>&1
@@ -45,10 +46,10 @@ try {
         $pullOutput = git pull origin main 2>&1
         Add-Content -Path $LogFile -Value $pullOutput
         
-        # Step 4: Mirror the docs directory to IIS
+        # Step 4: Mirror the Web App directory to IIS
         Add-Content -Path $LogFile -Value "Mirroring repo to IIS using Robocopy..."
         
-        $SourceDir = Join-Path -Path $RepoDir -ChildPath "docs"
+        $SourceDir = Join-Path -Path $RepoDir -ChildPath "Web App"
         
         <#
           Robocopy arguments:
