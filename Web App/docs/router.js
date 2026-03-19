@@ -1,3 +1,4 @@
+import { config } from './config.js';
 import { auth } from './auth.js?v=3';
 
 class SPA_Router {
@@ -263,11 +264,7 @@ class SPA_Router {
             'btn-sicamous-pitemx', 'home-btn-sicamous-pitemx'
         ];
 
-        const serviceMap = {
-            'revelstoke': 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/NG911_Address_Revelstoke_Edit/FeatureServer',
-            'golden': 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/NG911_Address_Golden_Edit/FeatureServer',
-            'sicamous': 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/NG911_Address_Sicamous_Edit/FeatureServer'
-        };
+        const serviceMap = config.services.municipalEdit;
 
         pitemxBtnIds.forEach(id => {
             const btn = document.getElementById(id);
@@ -306,7 +303,7 @@ class SPA_Router {
                         const itemId = data.serviceItemId;
 
                         // 2. Build the authenticated REST API endpoint requesting the pitemx from the Portal Item
-                        const downloadUrl = `https://apps.csrd.bc.ca/hub/sharing/rest/content/items/${itemId}/item.pitemx?token=${token}`;
+                        const downloadUrl = `${config.portalUrl}/sharing/rest/content/items/${itemId}/item.pitemx?token=${token}`;
                         
                         // Fire the download
                         window.location.href = downloadUrl;

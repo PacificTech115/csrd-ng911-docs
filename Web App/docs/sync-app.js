@@ -1,7 +1,9 @@
 // docs/sync-app.js
 
-window.initSyncAppModule = function() {
+window.initSyncAppModule = async function() {
     console.log("Sync App initializing...");
+
+    const { config } = await import('./config.js');
 
     let targetLayerUrl = "";
     let sourceFeatures = [];
@@ -11,10 +13,8 @@ window.initSyncAppModule = function() {
     let targetSchemaFields = [];
     let sourceSchemaFields = [];
     let sourceSpatialReference = null;
-    
-    // The base URL for the CSRD Hosted services
-    // Using the same base from router.js: 'https://apps.csrd.bc.ca/arcgis/rest/services/Regional/NG911_Address_...'
-    const csrdBaseUrl = "https://apps.csrd.bc.ca/arcgis/rest/services/Regional";
+
+    const csrdBaseUrl = config.services.regionalBase;
 
     function getTargetLayerName() {
         if (!window.csrdAuth || !window.csrdAuth.getUser()) return null;
@@ -60,12 +60,12 @@ window.initSyncAppModule = function() {
             // Register for both standard root and REST root to be safe
             const expireTime = parseInt(expiresStr);
             esriId.registerToken({
-                server: "https://apps.csrd.bc.ca/arcgis/rest/services",
+                server: config.arcgisRestBase,
                 token: csrdToken,
                 expires: expireTime
             });
             esriId.registerToken({
-                server: "https://apps.csrd.bc.ca",
+                server: config.arcgisBase,
                 token: csrdToken,
                 expires: expireTime
             });

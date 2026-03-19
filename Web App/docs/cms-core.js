@@ -4,7 +4,7 @@
 class CMSController {
     constructor() {
         this.cache = {}; // Stores { 'home.heroTitle': 'CSRD NG9-1-1...' }
-        this.tableUrl = 'https://apps.csrd.bc.ca/arcgis/rest/services/Hosted/NG911_Docs_CMS/FeatureServer/0';
+        this.tableUrl = null;
         this.isLoaded = false;
         this.pendingEdits = {}; // Stores edits before saving to ArcGIS
 
@@ -23,6 +23,10 @@ class CMSController {
      * This is called once on site load.
      */
     async fetchAllContent() {
+        if (!this.tableUrl) {
+            const { config } = await import('./config.js');
+            this.tableUrl = config.cmsTableUrl;
+        }
         const token = localStorage.getItem('csrd_arcgis_token');
         if (!token) {
             console.warn("CMS: No token found. Skipping content fetch.");
@@ -154,6 +158,10 @@ class CMSController {
      * Saves all tracked edits back to the ArcGIS Hosted Table via applyEdits
      */
     async saveAllEdits() {
+        if (!this.tableUrl) {
+            const { config } = await import('./config.js');
+            this.tableUrl = config.cmsTableUrl;
+        }
         const token = localStorage.getItem('csrd_arcgis_token');
         if (!token) throw new Error("Authentication required to save.");
 

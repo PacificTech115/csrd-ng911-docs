@@ -463,7 +463,8 @@ async function openPortalPickerModal(container) {
         if (!token || !userStr) throw new Error("Not authenticated with ArcGIS.");
 
         const user = JSON.parse(userStr);
-        const portalUrl = 'https://apps.csrd.bc.ca/hub';
+        const { config } = await import('./config.js');
+        const portalUrl = config.portalUrl;
 
         // Fetch up to 100 items from the root folder first
         const res = await fetch(`${portalUrl}/sharing/rest/content/users/${user.username}?f=json&num=100&token=${token}`);
