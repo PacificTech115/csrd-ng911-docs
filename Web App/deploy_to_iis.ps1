@@ -53,23 +53,23 @@ try {
         
         <#
           Robocopy arguments:
-          /MIR : Mirror directory tree (equivalent to /E plus /PURGE, deleting destination files that no longer exist in source)
-          /MT:8 : Multi-threading (8 threads) for faster copying
-          /R:1 /W:1 : Retry once, wait 1 second on locked files
-          /NDL /NFL : No directory/file logging (quiet mode for success)
+          /MIR : Mirror directory tree (equivalent to /E plus /PURGE)
+          /MT:8 : Multi-threading
+          /R:1 /W:1 : Retry once, wait 1 second
+          /NDL /NFL : No directory/file logging
           /NP : No progress percentage
         #>
-        $roboArgs = @(
-            $SourceDir,
-            $WebDir,
-            "/MIR", "/MT:8", "/R:1", "/W:1", "/NDL", "/NFL", "/NP"
-        )
+        # Execute natively to perfectly preserve paths with spaces
+        & robocopy.exe "$SourceDir" "$WebDir" /MIR /MT:8 /R:1 /W:1 /NDL /NFL /NP
         
-        # Execute Robocopy. (Note: Robocopy returns exit codes < 8 for success)
-        Start-Process -FilePath "robocopy.exe" -ArgumentList $roboArgs -Wait -NoNewWindow
-        
+        $RoboCode = $LASTEXITCODE
         $TimestampEnd = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        Add-Content -Path $LogFile -Value "[$TimestampEnd] Deployment completed successfully!`n----------------------------------------"
+        
+        if ($RoboCode -ge 8) {
+            Add-Content -Path $LogFile -Value "[$TimestampEnd] ERROR: Robocopy failed with Exit Code $RoboCode.`n----------------------------------------"
+        } else {
+            Add-Content -Path $LogFile -Value "[$TimestampEnd] Deployment completed successfully! (Robocopy Code $RoboCode)`n----------------------------------------"
+        }
     }
     else {
         Add-Content -Path $LogFile -Value "No updates detected. Branch is up to date.`n----------------------------------------"
