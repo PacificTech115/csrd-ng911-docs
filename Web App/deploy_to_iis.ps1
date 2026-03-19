@@ -14,9 +14,9 @@ The Windows Scheduled Task should run under an account with permissions to read/
 # ==============================================================================
 # 1. Configuration (UPDATE THESE PATHS FOR YOUR SPECIFIC GIS SERVER ENVIRONMENT)
 # ==============================================================================
-$RepoDir = "C:\Staging\csrd-ng911-docs"           # The local clone of your GitHub repo on the server
+$RepoDir = "C:\Users\Chilco\Documents\NG911Hub"   # The local clone of your GitHub repo on the server
 $WebDir  = "C:\inetpub\wwwroot\ng911"             # The target IIS directory where the site is hosted
-$LogFile = "C:\Staging\deploy_log.txt"            # Where to log deployment output
+$LogFile = "C:\Users\Chilco\Documents\NG911Hub\deploy_log.txt" # Where to log deployment output
 
 # ==============================================================================
 # Script Execution
