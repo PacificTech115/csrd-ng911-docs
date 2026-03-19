@@ -67,15 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const route = btn.dataset.route;
         const elementId = btn.dataset.element;
 
-        // Navigate to the page
-        window.location.hash = route;
+        const scrollToElement = () => {
+            if (!elementId) return;
 
-        // If there's a target element, scroll to it after the page loads
-        if (elementId) {
-            setTimeout(() => {
+            // Poll for the element (the router may still be loading the partial)
+            let attempts = 0;
+            const poll = setInterval(() => {
+                attempts++;
                 const el = document.getElementById(elementId)
                     || document.querySelector(`[data-field="${elementId}"]`);
+
                 if (el) {
+                    clearInterval(poll);
+
                     // Expand parent group if it's collapsed
                     const groupBody = el.closest('.field-group-body');
                     if (groupBody && groupBody.classList.contains('collapsed')) {
@@ -86,11 +90,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.classList.add('ai-highlight');
-                    setTimeout(() => el.classList.remove('ai-highlight'), 3000);
+                    // Small delay to let any CSS transitions finish
+                    setTimeout(() => {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.classList.add('ai-highlight');
+                        setTimeout(() => el.classList.remove('ai-highlight'), 3000);
+                    }, 100);
                 }
-            }, 600);
+
+                if (attempts >= 20) clearInterval(poll); // Give up after 4 seconds
+            }, 200);
+        };
+
+        // Check if we're already on the target page
+        const currentHash = window.location.hash.substring(1) || '';
+        if (currentHash === route) {
+            // Already on the page — just scroll
+            scrollToElement();
+        } else {
+            // Navigate, then scroll once the page loads
+            window.location.hash = route;
+            scrollToElement();
         }
     };
 
