@@ -14,13 +14,90 @@ from tools.knowledge_tools import search_knowledge_base
 from tools.cms_tools import query_cms_content
 from tools.navigation_tools import get_navigation_target
 
-# ─── Load Master Context dynamically ────────────────────────────────
-_MASTER_CTX_PATH = os.path.join(os.path.dirname(__file__), "..", "Context", "Master_Context.md")
-try:
-    with open(_MASTER_CTX_PATH, "r", encoding="utf-8") as _f:
-        _MASTER_CONTEXT = _f.read()
-except FileNotFoundError:
-    _MASTER_CONTEXT = ""
+# ─── Dynamic File Map Builder ────────────────────────────────────────
+import glob as _glob
+
+_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+_NG911 = os.path.join(_REPO_ROOT, "NG911System")
+
+
+def _build_file_map():
+    """Scan the repo at startup to build a dynamic file map for the system prompt."""
+    sections = []
+
+    # Attribute Rules
+    rules_dir = os.path.join(_NG911, "Database Scripts", "0.Attribute Rules")
+    rules = sorted(_glob.glob(os.path.join(rules_dir, "*.txt")))
+    if rules:
+        lines = ["ATTRIBUTE RULES (Arcade expressions on SDE.NG911_SiteAddress):"]
+        for r in rules:
+            name = os.path.splitext(os.path.basename(r))[0]
+            rel = os.path.relpath(r, _REPO_ROOT).replace("\\", "/")
+            lines.append(f"  {name} → {rel}")
+        sections.append("\n".join(lines))
+
+    # Automation Scripts
+    auto_dir = os.path.join(_NG911, "Database Scripts", "1.ReconcilePost-QA-Export")
+    scripts = sorted(_glob.glob(os.path.join(auto_dir, "*.py")))
+    if scripts:
+        lines = ["AUTOMATION SCRIPTS (Python / ArcPy):"]
+        for s in scripts:
+            name = os.path.splitext(os.path.basename(s))[0]
+            rel = os.path.relpath(s, _REPO_ROOT).replace("\\", "/")
+            lines.append(f"  {name} → {rel}")
+        sections.append("\n".join(lines))
+
+    # Salmon Arm ETL
+    etl_dir = os.path.join(_NG911, "Database Scripts", "2. Salmon Arm Sync")
+    etl_scripts = sorted(_glob.glob(os.path.join(etl_dir, "*.py")))
+    if etl_scripts:
+        lines = ["SALMON ARM ETL:"]
+        for s in etl_scripts:
+            name = os.path.splitext(os.path.basename(s))[0]
+            rel = os.path.relpath(s, _REPO_ROOT).replace("\\", "/")
+            lines.append(f"  {name} → {rel}")
+        sections.append("\n".join(lines))
+
+    # Power Automate Templates
+    pa_files = sorted(
+        _glob.glob(os.path.join(auto_dir, "*.html"))
+        + _glob.glob(os.path.join(etl_dir, "*.html"))
+    )
+    if pa_files:
+        lines = ["POWER AUTOMATE TEMPLATES:"]
+        for f in pa_files:
+            name = os.path.splitext(os.path.basename(f))[0]
+            rel = os.path.relpath(f, _REPO_ROOT).replace("\\", "/")
+            lines.append(f"  {name} → {rel}")
+        sections.append("\n".join(lines))
+
+    # Documentation
+    sections.append(
+        "DATABASE SCHEMA:\n"
+        "  Full 61-field Schema → Documentation/Database_Schema_Summary.md\n\n"
+        "SYSTEM DEPENDENCIES (Portal items, REST endpoints, UNC paths):\n"
+        "  All Services & Paths → Documentation/System_Dependencies.md"
+    )
+
+    # Web App JS modules
+    webapp_dir = os.path.join(_REPO_ROOT, "Web App", "docs")
+    js_files = sorted(_glob.glob(os.path.join(webapp_dir, "*.js")))
+    # Exclude auto-generated search-data.js
+    js_files = [f for f in js_files if "search-data" not in os.path.basename(f)]
+    if js_files:
+        lines = ["WEB APP (Documentation Hub SPA):"]
+        for f in js_files:
+            name = os.path.splitext(os.path.basename(f))[0]
+            rel = os.path.relpath(f, _REPO_ROOT).replace("\\", "/")
+            lines.append(f"  {name} → {rel}")
+        # Also include the stylesheet
+        lines.append(f"  shared.css → Web App/docs/shared.css")
+        sections.append("\n".join(lines))
+
+    return "\n\n".join(sections)
+
+
+_FILE_MAP = _build_file_map()
 
 # ─── System Prompt ───────────────────────────────────────────────────
 SYSTEM_PROMPT = f"""\
@@ -28,61 +105,22 @@ You are the **NG911 Central Database AI Assistant**, the expert system for the \
 Columbia Shuswap Regional District (CSRD) NG911 Addressing System built by \
 Pacific Tech Systems.
 
-═══════════════════════════════════════════════════════════════
- PROJECT ARCHITECTURE (from Master_Context.md)
-═══════════════════════════════════════════════════════════════
-
-{_MASTER_CONTEXT}
-
 You can help with:
-• Database schema questions (61-field NENA SSAP SiteAddress feature class)
-• Arcade attribute rule authoring, debugging, and optimization
-• Python/ArcPy automation scripts (nightly pipeline, GP tools, ETL)
-• QA validation logic and troubleshooting
-• System architecture, versioning hierarchy, and maintenance
-• Power Automate notification workflows
-• Documentation Hub (SPA) code and CMS patterns
+- Database schema questions (61-field NENA SSAP SiteAddress feature class)
+- Arcade attribute rule authoring, debugging, and optimization
+- Python/ArcPy automation scripts (nightly pipeline, GP tools, ETL)
+- QA validation logic and troubleshooting
+- System architecture, versioning hierarchy, and maintenance
+- Power Automate notification workflows
+- Documentation Hub (SPA) code and CMS patterns
+
+For architecture questions, use search_knowledge_base('architecture') to find Master_Context.md.
 
 ═══════════════════════════════════════════════════════════════
  FILE MAP — Use read_file() with these paths to get exact source code
 ═══════════════════════════════════════════════════════════════
 
-ATTRIBUTE RULES (Arcade expressions on SDE.NG911_SiteAddress):
-  Full Address  → Database Scripts/0.Attribute Rules/1.Full Address.txt
-  NGUID         → Database Scripts/0.Attribute Rules/2.NGUID.txt
-  Longitude     → Database Scripts/0.Attribute Rules/3.Longitude.txt
-  Latitude      → Database Scripts/0.Attribute Rules/4.Latitude.txt
-  AddCode       → Database Scripts/0.Attribute Rules/5.Addcode.txt
-  DateUpdate    → Database Scripts/0.Attribute Rules/6.DateUpdate.txt
-  QAStatus      → Database Scripts/0.Attribute Rules/7.QAStatus.txt
-  Default Agency→ Database Scripts/0.Attribute Rules/8.defaultagency-inactive.txt
-  Mandatory     → Database Scripts/0.Attribute Rules/A.Mandatory (constraint rule).txt
-
-AUTOMATION SCRIPTS (Python / ArcPy):
-  Nightly Orchestrator  → Database Scripts/1.ReconcilePost-QA-Export/1.NG911-Reconcile Municipal-QA- Reconcile Default.py
-  Reconcile GP Tool     → Database Scripts/1.ReconcilePost-QA-Export/ReconcilePostGPtool.py
-  QA SSAP GP Tool       → Database Scripts/1.ReconcilePost-QA-Export/QASSAPGPtool.py
-  Export GP Tool        → Database Scripts/1.ReconcilePost-QA-Export/ExportGPtool.py
-  Salmon Arm ETL Sync   → Database Scripts/2. Salmon Arm Sync/2.NG911-SalmonArmETL.py
-
-POWER AUTOMATE TEMPLATES:
-  Pipeline Notification  → Database Scripts/1.ReconcilePost-QA-Export/PowerautomateEmail-Reconcile-QA-Reconcile-Export.html
-  Salmon Arm Notification→ Database Scripts/2. Salmon Arm Sync/PowerautomateEmail-SalmonArmsync.html
-
-DATABASE SCHEMA:
-  Full 61-field Schema   → Documentation/Database_Schema_Summary.md
-
-SYSTEM DEPENDENCIES (Portal items, REST endpoints, UNC paths):
-  All Services & Paths   → Documentation/System_Dependencies.md
-
-WEB APP (Documentation Hub SPA):
-  Router          → Web App/docs/router.js
-  Auth Module     → Web App/docs/auth.js
-  CMS Core        → Web App/docs/cms-core.js
-  Editor Core     → Web App/docs/editor-core.js
-  Search Core     → Web App/docs/search-core.js
-  Stylesheet      → Web App/docs/shared.css
-  Config          → Web App/docs/config.js
+{_FILE_MAP}
 
 ═══════════════════════════════════════════════════════════════
  RESPONSE RULES
