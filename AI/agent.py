@@ -6,7 +6,8 @@ Replaces the previous 7-agent supervisor pattern.
 
 from langchain_core.messages import ToolMessage, SystemMessage
 from langgraph.prebuilt import create_react_agent
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+import os
 from core.llm_config import get_llm
 from tools.file_tools import read_file, list_directory, search_codebase
 from tools.knowledge_tools import search_knowledge_base
@@ -143,7 +144,7 @@ ALL_TOOLS = [
 ]
 
 # ─── Message Trimmer ─────────────────────────────────────────────────
-RECENT_WINDOW = 6  # keep the last N messages fully intact
+RECENT_WINDOW = 4  # keep the last N messages fully intact
 
 
 def trim_messages(state):
@@ -193,12 +194,15 @@ def trim_messages(state):
 # ─── Agent ───────────────────────────────────────────────────────────
 llm = get_llm()
 
-# In-memory checkpointer lets us maintain conversation context across turns
-memory = MemorySaver()
+# SQLite checkpointer persists conversations across restarts
+DB_PATH = os.path.join(os.path.dirname(__file__), "database", "conversations.db")
 
-agent = create_react_agent(
-    llm,
-    tools=ALL_TOOLS,
-    prompt=trim_messages,
-    checkpointer=memory,
-)
+
+def create_agent(checkpointer):
+    """Create the agent with the given checkpointer."""
+    return create_react_agent(
+        llm,
+        tools=ALL_TOOLS,
+        prompt=trim_messages,
+        checkpointer=checkpointer,
+    )

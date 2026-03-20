@@ -8,6 +8,7 @@ import json
 import logging
 import re
 import threading
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -16,14 +17,30 @@ import uvicorn
 
 # Import the pre-built, tool-equipped LangGraph agent
 from langchain_core.messages import HumanMessage, SystemMessage
-from agent import agent
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from agent import create_agent, DB_PATH
 from tools.navigation_tools import get_navigation_target
 
 # Set up logging to avoid polluting stdout
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="CSRD NG911 AI Assistant API")
+# Global agent reference (set during startup)
+agent = None
+checkpointer = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage async SQLite checkpointer lifecycle."""
+    global agent, checkpointer
+    async with AsyncSqliteSaver.from_conn_string(DB_PATH) as checkpointer:
+        agent = create_agent(checkpointer)
+        logger.info(f"SQLite checkpointer initialized at {DB_PATH}")
+        yield
+
+
+app = FastAPI(title="CSRD NG911 AI Assistant API", lifespan=lifespan)
 
 # Configure CORS so the Web App (which may run on a different port/IP) can communicate
 app.add_middleware(
@@ -77,7 +94,7 @@ async def stream_agent_events(user_message: str, thread_id: str, user_context: U
 
         accumulated_text = ""
 
-        for event, metadata in agent.stream(
+        async for event, metadata in agent.astream(
             {"messages": messages},
             config=config,
             stream_mode="messages",
@@ -92,7 +109,7 @@ async def stream_agent_events(user_message: str, thread_id: str, user_context: U
                             "event": "tool",
                             "data": json.dumps({"tool": name})
                         }
-            
+
             # Check if this is an AI Message token payload
             if getattr(event, "content", None) and getattr(event, "type", "") in ("ai", "AIMessageChunk"):
                 accumulated_text += event.content
@@ -112,6 +129,12 @@ async def stream_agent_events(user_message: str, thread_id: str, user_context: U
                         "event": "message",
                         "data": json.dumps({"chunk": nav_chunk})
                     }
+
+        # Save/update conversation metadata
+        title = user_message[:50].strip()
+        if len(user_message) > 50:
+            title += "..."
+        _upsert_conversation_meta(thread_id, user_context.username, title)
 
         yield {
             "event": "done",
@@ -153,6 +176,92 @@ async def nav_map_endpoint():
     """Returns the current dynamic navigation map (for debugging)."""
     from tools.navigation_tools import NAVIGATION_MAP
     return {"count": len(NAVIGATION_MAP), "entries": NAVIGATION_MAP}
+
+
+# ─── Conversation History Endpoints ──────────────────────────────────
+
+# Separate SQLite table for conversation metadata (title, user, timestamps)
+# The checkpointer stores message content; this stores the index.
+import sqlite3
+
+def _ensure_meta_table():
+    """Create conversation metadata table if it doesn't exist."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS conversation_meta (
+            thread_id TEXT PRIMARY KEY,
+            username TEXT NOT NULL,
+            title TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+_ensure_meta_table()
+
+
+def _upsert_conversation_meta(thread_id: str, username: str, title: str):
+    """Insert new conversation or update timestamp of existing one (title preserved)."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("""
+        INSERT INTO conversation_meta (thread_id, username, title, updated_at)
+        VALUES (?, ?, ?, datetime('now'))
+        ON CONFLICT(thread_id) DO UPDATE SET updated_at = datetime('now')
+    """, (thread_id, username, title))
+    conn.commit()
+    conn.close()
+
+
+@app.get("/api/conversations")
+async def list_conversations(username: str = "anonymous"):
+    """Returns list of past conversations for a user."""
+    conn = sqlite3.connect(DB_PATH)
+    rows = conn.execute(
+        "SELECT thread_id, title, created_at, updated_at FROM conversation_meta WHERE username = ? ORDER BY updated_at DESC LIMIT 50",
+        (username,)
+    ).fetchall()
+    conn.close()
+    return [
+        {"thread_id": r[0], "title": r[1], "created_at": r[2], "updated_at": r[3]}
+        for r in rows
+    ]
+
+
+@app.get("/api/conversations/{thread_id}")
+async def get_conversation(thread_id: str):
+    """Returns message history for a specific conversation thread."""
+    try:
+        config = {"configurable": {"thread_id": thread_id}}
+        state = await agent.aget_state(config)
+        if not state or not state.values:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+
+        messages = []
+        for msg in state.values.get("messages", []):
+            msg_type = getattr(msg, "type", "")
+            content = getattr(msg, "content", "")
+            if msg_type == "human":
+                messages.append({"role": "user", "content": content})
+            elif msg_type == "ai" and content:
+                messages.append({"role": "assistant", "content": content})
+        return {"thread_id": thread_id, "messages": messages}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching conversation {thread_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/api/conversations/{thread_id}")
+async def delete_conversation(thread_id: str):
+    """Deletes a conversation from metadata (checkpointer data remains but is orphaned)."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("DELETE FROM conversation_meta WHERE thread_id = ?", (thread_id,))
+    conn.commit()
+    conn.close()
+    return {"status": "deleted"}
 
 
 if __name__ == "__main__":

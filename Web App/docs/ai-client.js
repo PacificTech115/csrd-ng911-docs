@@ -4,14 +4,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('ai-chat-modal');
     const btnClose = document.getElementById('ai-btn-close');
     const btnExpand = document.getElementById('ai-btn-expand');
+    const btnHistory = document.getElementById('ai-btn-history');
+    const historySidebar = document.getElementById('ai-history-sidebar');
+    const historyClose = document.getElementById('ai-history-close');
+    const historyList = document.getElementById('ai-history-list');
+    const newChatBtn = document.getElementById('ai-new-chat');
     const inputField = document.getElementById('ai-chat-input');
     const submitBtn = document.getElementById('ai-chat-submit');
     const messagesContainer = document.getElementById('ai-chat-messages');
     const toolRibbon = document.getElementById('ai-tool-ribbon');
 
     let isFullScreen = false;
-    let sessionId = "session_" + Math.random().toString(36).substring(2, 9);
     let isWaitingForResponse = false;
+    let aiHostUrl = null; // resolved once on first use
+
+    // --- Session Management (persistent per user) ---
+    const getUsername = () => {
+        try {
+            const userStr = localStorage.getItem('csrd_arcgis_user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            return user ? user.username : 'anonymous';
+        } catch (e) { return 'anonymous'; }
+    };
+
+    const getSessionKey = () => `ai_session_${getUsername()}`;
+
+    const loadOrCreateSession = () => {
+        const stored = localStorage.getItem(getSessionKey());
+        if (stored) return stored;
+        const newId = "session_" + Math.random().toString(36).substring(2, 9);
+        localStorage.setItem(getSessionKey(), newId);
+        return newId;
+    };
+
+    let sessionId = loadOrCreateSession();
+
+    const startNewSession = () => {
+        sessionId = "session_" + Math.random().toString(36).substring(2, 9);
+        localStorage.setItem(getSessionKey(), sessionId);
+        messagesContainer.innerHTML = `
+            <div class="ai-message ai-message-assistant">
+                Hi! I'm the NG911 AI Assistant. You can ask me about schema fields, attribute rules, or system automation scripts.
+            </div>`;
+    };
 
     // --- User Context Helpers ---
     const detectMunicipality = (username) => {
@@ -25,25 +60,33 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getUserContext = () => {
+        const username = getUsername();
+        const uLower = username.toLowerCase();
+        const admins = ['csrd_service', 'csrd_gis', 'dmajor@csrd'];
+        const isAdmin = admins.includes(uLower) || uLower === 'csrd' || uLower.includes('admin');
+        return {
+            username: username,
+            is_admin: isAdmin,
+            municipality: detectMunicipality(username),
+            current_page: window.location.hash.substring(1) || 'home'
+        };
+    };
+
+    // --- Resolve backend URL (once) ---
+    const resolveHostUrl = async () => {
+        if (aiHostUrl) return aiHostUrl;
         try {
-            const userStr = localStorage.getItem('csrd_arcgis_user');
-            const user = userStr ? JSON.parse(userStr) : null;
-            const username = user ? user.username : 'anonymous';
-
-            // Mirror admin check from auth.js
-            const uLower = username.toLowerCase();
-            const admins = ['csrd_service', 'csrd_gis', 'dmajor@csrd'];
-            const isAdmin = admins.includes(uLower) || uLower === 'csrd' || uLower.includes('admin');
-
-            return {
-                username: username,
-                is_admin: isAdmin,
-                municipality: detectMunicipality(username),
-                current_page: window.location.hash.substring(1) || 'home'
-            };
+            const cfgModule = await import('./config.js');
+            if (cfgModule.config && cfgModule.config.aiServerUrl) {
+                aiHostUrl = cfgModule.config.aiServerUrl;
+            }
         } catch (e) {
-            return { username: 'anonymous', is_admin: false, municipality: '', current_page: '' };
+            console.warn("Could not load config for AI Server URL, using dynamic fallback.", e);
         }
+        if (!aiHostUrl) {
+            aiHostUrl = `http://${window.location.hostname || 'localhost'}:8000`;
+        }
+        return aiHostUrl;
     };
 
     // --- Wrap tables for horizontal scroll ---
@@ -60,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Navigation Command Processing ---
     const processNavigationCommands = (container) => {
         const html = container.innerHTML;
-        // Match {{nav:route#elementId|Label}} or {{nav:route|Label}}
         const processed = html.replace(
             /\{\{nav:([^#|}]+)(?:#([^|}]+))?\|([^}]+)\}\}/g,
             (match, route, elementId, label) => {
@@ -80,18 +122,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const scrollToElement = () => {
             if (!elementId) return;
-
-            // Poll for the element (the router may still be loading the partial)
             let attempts = 0;
             const poll = setInterval(() => {
                 attempts++;
                 const el = document.getElementById(elementId)
                     || document.querySelector(`[data-field="${elementId}"]`);
-
                 if (el) {
                     clearInterval(poll);
-
-                    // Expand parent group if it's collapsed
                     const groupBody = el.closest('.field-group-body');
                     if (groupBody && groupBody.classList.contains('collapsed')) {
                         groupBody.classList.remove('collapsed');
@@ -100,30 +137,117 @@ document.addEventListener('DOMContentLoaded', () => {
                             header.classList.remove('collapsed');
                         }
                     }
-
-                    // Small delay to let any CSS transitions finish
                     setTimeout(() => {
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         el.classList.add('ai-highlight');
                         setTimeout(() => el.classList.remove('ai-highlight'), 3000);
                     }, 100);
                 }
-
-                if (attempts >= 20) clearInterval(poll); // Give up after 4 seconds
+                if (attempts >= 20) clearInterval(poll);
             }, 200);
         };
 
-        // Check if we're already on the target page
         const currentHash = window.location.hash.substring(1) || '';
         if (currentHash === route) {
-            // Already on the page — just scroll
             scrollToElement();
         } else {
-            // Navigate, then scroll once the page loads
             window.location.hash = route;
             scrollToElement();
         }
     };
+
+    // --- Conversation History ---
+    const loadConversationHistory = async () => {
+        const url = await resolveHostUrl();
+        const username = getUsername();
+        try {
+            const res = await fetch(`${url}/api/conversations?username=${encodeURIComponent(username)}`);
+            if (!res.ok) return;
+            const conversations = await res.json();
+
+            if (conversations.length === 0) {
+                historyList.innerHTML = '<div class="ai-history-empty">No past conversations</div>';
+                return;
+            }
+
+            historyList.innerHTML = conversations.map(c => `
+                <div class="ai-history-item" data-thread-id="${c.thread_id}">
+                    <div class="ai-history-item-content">
+                        <div class="ai-history-item-title">${c.title}</div>
+                        <div class="ai-history-item-date">${new Date(c.updated_at + 'Z').toLocaleDateString()}</div>
+                    </div>
+                    <button class="ai-history-item-delete" data-thread-id="${c.thread_id}" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+
+            // Click to load conversation
+            historyList.querySelectorAll('.ai-history-item-content').forEach(item => {
+                item.addEventListener('click', () => {
+                    const threadId = item.parentElement.dataset.threadId;
+                    loadConversation(threadId);
+                });
+            });
+
+            // Click to delete
+            historyList.querySelectorAll('.ai-history-item-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const threadId = btn.dataset.threadId;
+                    await fetch(`${url}/api/conversations/${threadId}`, { method: 'DELETE' });
+                    btn.closest('.ai-history-item').remove();
+                    if (historyList.children.length === 0) {
+                        historyList.innerHTML = '<div class="ai-history-empty">No past conversations</div>';
+                    }
+                });
+            });
+        } catch (e) {
+            console.error("Failed to load conversation history:", e);
+            historyList.innerHTML = '<div class="ai-history-empty">Could not load history</div>';
+        }
+    };
+
+    const loadConversation = async (threadId) => {
+        const url = await resolveHostUrl();
+        try {
+            const res = await fetch(`${url}/api/conversations/${threadId}`);
+            if (!res.ok) throw new Error("Not found");
+            const data = await res.json();
+
+            // Switch to this thread
+            sessionId = threadId;
+            localStorage.setItem(getSessionKey(), threadId);
+
+            // Clear and re-render messages
+            messagesContainer.innerHTML = '';
+            for (const msg of data.messages) {
+                appendMessage(msg.role === 'user' ? 'user' : 'assistant', msg.content);
+            }
+
+            // Close sidebar
+            historySidebar.classList.remove('open');
+        } catch (e) {
+            console.error("Failed to load conversation:", e);
+        }
+    };
+
+    // History sidebar toggle
+    if (btnHistory) {
+        btnHistory.addEventListener('click', () => {
+            historySidebar.classList.add('open');
+            loadConversationHistory();
+        });
+    }
+    if (historyClose) {
+        historyClose.addEventListener('click', () => {
+            historySidebar.classList.remove('open');
+        });
+    }
+    if (newChatBtn) {
+        newChatBtn.addEventListener('click', () => {
+            startNewSession();
+            historySidebar.classList.remove('open');
+        });
+    }
 
     // --- State Toggles ---
     fab.addEventListener('click', () => {
@@ -135,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnClose.addEventListener('click', () => {
         aiWidgetContainer.classList.remove('ai-widget-open');
         aiWidgetContainer.classList.add('ai-widget-closed');
-        // Reset full screen if closed
         if (isFullScreen) {
             isFullScreen = false;
             aiWidgetContainer.classList.remove('ai-widget-fullscreen');
@@ -158,14 +281,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const appendMessage = (role, text) => {
         const msgDiv = document.createElement('div');
         msgDiv.className = `ai-message ai-message-${role}`;
-        
-        // Use Marked.js for AI responses
+
         if (role === 'assistant' && typeof marked !== 'undefined') {
             msgDiv.innerHTML = marked.parse(text);
         } else {
             msgDiv.textContent = text;
         }
-        
+
         messagesContainer.appendChild(msgDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         return msgDiv;
@@ -176,33 +298,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = inputField.value.trim();
         if (!text) return;
 
-        // Clear input, show user message
         inputField.value = '';
-        inputField.style.height = 'auto'; // reset height
+        inputField.style.height = 'auto';
         appendMessage('user', text);
         isWaitingForResponse = true;
-        
+
         toolRibbon.textContent = "";
         toolRibbon.style.display = "none";
 
-        // Create a placeholder for the AI's streaming response
+        // Create response bubble with thinking animation
         const responseDiv = appendMessage('assistant', '');
+        responseDiv.innerHTML = '<div class="ai-thinking"><span></span><span></span><span></span></div>';
         let accumulatedText = "";
+        let thinkingCleared = false;
 
         try {
-            // Dynamically resolve backend IP from config.js (supports reverse proxies like Ngrok/Cloudflare)
-            let aiHostUrl = `http://${window.location.hostname || 'localhost'}:8000`; // Fallback
-            try {
-                const cfgModule = await import('./config.js');
-                if (cfgModule.config && cfgModule.config.aiServerUrl) {
-                    aiHostUrl = cfgModule.config.aiServerUrl;
-                }
-            } catch (cfgErr) {
-                console.warn("Could not load config for AI Server URL, using dynamic fallback.", cfgErr);
-            }
-            
-            // Using Fetch POST to read SSE stream via dynamic backend URL
-            const response = await fetch(`${aiHostUrl}/api/chat`, {
+            const url = await resolveHostUrl();
+
+            const response = await fetch(`${url}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -224,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split('\n');
-                buffer = lines.pop(); // Keep the last incomplete line in the buffer
+                buffer = lines.pop();
 
                 let currentEvent = null;
 
@@ -236,8 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (currentEvent === 'message') {
                             const data = JSON.parse(dataStr);
                             if (data.chunk) {
+                                // Clear thinking animation on first token
+                                if (!thinkingCleared) {
+                                    thinkingCleared = true;
+                                }
                                 accumulatedText += data.chunk;
-                                // Update markdown dynamically
                                 responseDiv.innerHTML = marked.parse(accumulatedText);
                                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
                             }
@@ -251,7 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             responseDiv.innerHTML = marked.parse(accumulatedText);
                         } else if (currentEvent === 'done') {
                             toolRibbon.style.display = "none";
-                            // Process navigation commands in the final response
                             processNavigationCommands(responseDiv);
                             wrapTables(responseDiv);
                         }

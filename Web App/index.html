@@ -98,9 +98,19 @@
                     <i class="fas fa-robot"></i> <strong>NG911 AI</strong>
                 </div>
                 <div class="ai-chat-actions">
+                    <button id="ai-btn-history" title="Chat History" aria-label="History"><i class="fas fa-clock-rotate-left"></i></button>
                     <button id="ai-btn-expand" title="Toggle Fullscreen" aria-label="Expand"><i class="fas fa-expand"></i></button>
                     <button id="ai-btn-close" title="Close" aria-label="Close"><i class="fas fa-times"></i></button>
                 </div>
+            </div>
+            <!-- Conversation History Sidebar -->
+            <div id="ai-history-sidebar" class="ai-history-sidebar">
+                <div class="ai-history-header">
+                    <span>Chat History</span>
+                    <button id="ai-history-close" title="Close History"><i class="fas fa-times"></i></button>
+                </div>
+                <button id="ai-new-chat" class="ai-history-new-btn"><i class="fas fa-plus"></i> New Chat</button>
+                <div id="ai-history-list" class="ai-history-list"></div>
             </div>
             <div id="ai-chat-messages" class="ai-chat-messages">
                 <div class="ai-message ai-message-assistant">
