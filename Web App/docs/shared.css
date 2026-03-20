@@ -3417,9 +3417,9 @@ input:checked+.slider:before {
   font-size: 0.92rem;
   line-height: 1.6;
   animation: fadeIn 0.3s ease;
-  overflow: hidden;
   overflow-wrap: break-word;
   word-break: break-word;
+  flex-shrink: 0;
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
