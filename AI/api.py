@@ -137,15 +137,22 @@ async def chat_endpoint(request: ChatRequest):
 
 @app.post("/api/reingest")
 async def reingest_endpoint():
-    """Triggers knowledge base re-ingestion. Called by CI/CD after deploy."""
+    """Triggers knowledge base re-ingestion + nav map rebuild. Called by CI/CD after deploy."""
     try:
         from database.ingest import ingest
         thread = threading.Thread(target=ingest, daemon=True)
         thread.start()
-        return {"status": "ingestion_started"}
+        return {"status": "ingestion_started", "note": "Navigation map will rebuild after ingestion completes."}
     except Exception as e:
         logger.error(f"Reingest failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/nav-map")
+async def nav_map_endpoint():
+    """Returns the current dynamic navigation map (for debugging)."""
+    from tools.navigation_tools import NAVIGATION_MAP
+    return {"count": len(NAVIGATION_MAP), "entries": NAVIGATION_MAP}
 
 
 if __name__ == "__main__":

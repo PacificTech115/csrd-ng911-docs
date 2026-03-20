@@ -1,84 +1,159 @@
 """
-Navigation context tool — helps the agent construct navigation commands
-that the frontend renders as clickable buttons.
+Dynamic Navigation Context Tool.
+Scans the Web App's router.js and HTML partials at startup to build
+a live navigation map. No more hard-coded routes or field IDs.
+Rebuilds automatically when /api/reingest is called.
 """
 
+import os
+import re
+import logging
 from langchain_core.tools import tool
 
-# Mapping of topics/keywords to routes and element IDs.
-# This is the agent's knowledge of where things live in the web app.
-NAVIGATION_MAP = {
-    # Schema fields → schema-guide page with element IDs
-    "agency": {"route": "schema-guide", "element": "field-Agency", "label": "Agency field"},
-    "discrpagid": {"route": "schema-guide", "element": "field-DiscrpAgID", "label": "DiscrpAgID field"},
-    "add_number": {"route": "schema-guide", "element": "field-Add_Number", "label": "Add_Number field"},
-    "st_name": {"route": "schema-guide", "element": "field-St_Name", "label": "St_Name field"},
-    "a3": {"route": "schema-guide", "element": "field-A3", "label": "A3 (Locality) field"},
-    "unit": {"route": "schema-guide", "element": "field-Unit", "label": "Unit field"},
-    "addnum_pre": {"route": "schema-guide", "element": "field-AddNum_Pre", "label": "AddNum_Pre field"},
-    "addnum_suf": {"route": "schema-guide", "element": "field-AddNum_Suf", "label": "AddNum_Suf field"},
-    "st_premod": {"route": "schema-guide", "element": "field-St_PreMod", "label": "St_PreMod field"},
-    "st_predir": {"route": "schema-guide", "element": "field-St_PreDir", "label": "St_PreDir field"},
-    "st_pretyp": {"route": "schema-guide", "element": "field-St_PreTyp", "label": "St_PreTyp field"},
-    "st_presep": {"route": "schema-guide", "element": "field-St_PreSep", "label": "St_PreSep field"},
-    "st_postyp": {"route": "schema-guide", "element": "field-St_PosTyp", "label": "St_PosTyp field"},
-    "st_posdir": {"route": "schema-guide", "element": "field-St_PosDir", "label": "St_PosDir field"},
-    "st_posmod": {"route": "schema-guide", "element": "field-St_PosMod", "label": "St_PosMod field"},
-    "nguid": {"route": "schema-guide", "element": "field-NGUID", "label": "NGUID field"},
-    "latitude": {"route": "schema-guide", "element": "field-Latitude", "label": "Latitude field"},
-    "longitude": {"route": "schema-guide", "element": "field-Longitude", "label": "Longitude field"},
-    "qa_status": {"route": "schema-guide", "element": "field-QA_Status", "label": "QA_Status field"},
-    "dateupdate": {"route": "schema-guide", "element": "field-DateUpdate", "label": "DateUpdate field"},
-    "addcode": {"route": "schema-guide", "element": "field-AddCode", "label": "AddCode field"},
-    "full_address": {"route": "schema-guide", "element": "field-Full_Address", "label": "Full_Address field"},
+logger = logging.getLogger(__name__)
 
-    # Attribute rules → dedicated rule pages
-    "full address rule": {"route": "rule-full-address", "label": "Full Address Rule"},
-    "nguid rule": {"route": "rule-nguid", "label": "NGUID Rule"},
-    "longitude rule": {"route": "rule-longitude", "label": "Longitude Rule"},
-    "latitude rule": {"route": "rule-latitude", "label": "Latitude Rule"},
-    "addcode rule": {"route": "rule-addcode", "label": "AddCode Rule"},
-    "dateupdate rule": {"route": "rule-dateupdate", "label": "DateUpdate Rule"},
-    "qastatus rule": {"route": "rule-qastatus", "label": "QAStatus Rule"},
-    "default agency rule": {"route": "rule-defaultagency", "label": "Default Agency Rule"},
-    "mandatory rule": {"route": "rule-mandatory", "label": "Mandatory Fields Rule"},
+# Resolve paths relative to the AI/ directory
+_AI_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_REPO_ROOT = os.path.normpath(os.path.join(_AI_DIR, ".."))
+_WEBAPP_DIR = os.path.join(_REPO_ROOT, "Web App", "docs")
+_PARTIALS_DIR = os.path.join(_WEBAPP_DIR, "partials")
+_ROUTER_JS = os.path.join(_WEBAPP_DIR, "router.js")
 
-    # Pages
-    "schema guide": {"route": "schema-guide", "label": "Schema Guide"},
-    "schema": {"route": "schema-guide", "label": "Schema Guide"},
-    "attribute rules": {"route": "attribute-rules", "label": "Attribute Rules"},
-    "domains": {"route": "domains", "label": "Domain Tables"},
-    "architecture": {"route": "architecture", "label": "Architecture Overview"},
-    "automations dashboard": {"route": "automations-dashboard", "label": "Automations Dashboard"},
-    "automations": {"route": "automations-dashboard", "label": "Automations Dashboard"},
-    "gp tools": {"route": "gp-tools", "label": "GP Tools"},
-    "power automate": {"route": "power-automate", "label": "Power Automate"},
-    "maintenance": {"route": "maintenance", "label": "Maintenance Guide"},
-    "system resources": {"route": "system-resources", "label": "System Resources"},
-    "sync app": {"route": "sync-app", "label": "Data Sync App"},
-    "data sync": {"route": "sync-app", "label": "Data Sync App"},
+# Module-level cache — rebuilt by build_navigation_map()
+NAVIGATION_MAP: dict[str, dict] = {}
 
-    # Scripts
-    "nightly pipeline": {"route": "script-orchestrator", "label": "Nightly Orchestrator"},
-    "orchestrator": {"route": "script-orchestrator", "label": "Nightly Orchestrator"},
-    "salmon arm etl": {"route": "script-etl", "label": "Salmon Arm ETL"},
-    "etl": {"route": "script-etl", "label": "Salmon Arm ETL"},
-    "qa validation": {"route": "script-qa", "label": "QA Validation Tool"},
-    "reconcile post": {"route": "script-reconcile", "label": "Reconcile/Post Tool"},
-    "export": {"route": "script-export", "label": "Export FGDB Tool"},
 
-    # Municipal guides
-    "revelstoke": {"route": "revelstoke", "label": "Revelstoke Guide"},
-    "golden": {"route": "golden", "label": "Golden Guide"},
-    "salmon arm": {"route": "salmonarm", "label": "Salmon Arm Guide"},
-    "sicamous": {"route": "sicamous", "label": "Sicamous Guide"},
+def _humanize_route(route: str) -> str:
+    """Convert 'rule-full-address' → 'Full Address Rule', 'schema-guide' → 'Schema Guide'."""
+    if route.startswith("rule-"):
+        rule_name = route[5:].replace("-", " ").title()
+        return f"{rule_name} Rule"
+    if route.startswith("script-"):
+        script_name = route[7:].replace("-", " ").title()
+        return f"{script_name} Script"
+    return route.replace("-", " ").title()
 
-    # Domain tables (scroll targets on domains page)
-    "agency domain": {"route": "domains", "element": "tbl-agency", "label": "Agency Domain Table"},
-    "discrpagid domain": {"route": "domains", "element": "tbl-discrpagid", "label": "DiscrpAgID Domain Table"},
-    "locality domain": {"route": "domains", "element": "tbl-locality", "label": "Locality Domain Table"},
-    "addcode domain": {"route": "domains", "element": "tbl-addcode", "label": "AddCode Lookup Table"},
-}
+
+def _scan_routes() -> dict[str, str]:
+    """Parse router.js to extract all route → partial mappings."""
+    routes = {}
+    try:
+        with open(_ROUTER_JS, "r", encoding="utf-8") as f:
+            content = f.read()
+        # Match patterns like: 'schema-guide': 'schema-guide.html'
+        for m in re.finditer(r"'([a-z0-9-]+)'\s*:\s*'([^']+\.html)'", content):
+            routes[m.group(1)] = m.group(2)
+    except Exception as e:
+        logger.error(f"Failed to scan router.js: {e}")
+    return routes
+
+
+def _scan_element_ids(partial_file: str) -> list[str]:
+    """Extract all id="..." values from an HTML partial."""
+    ids = []
+    try:
+        filepath = os.path.join(_PARTIALS_DIR, partial_file)
+        if not os.path.exists(filepath):
+            return ids
+        with open(filepath, "r", encoding="utf-8") as f:
+            content = f.read()
+        for m in re.finditer(r'id="([^"]+)"', content):
+            ids.append(m.group(1))
+    except Exception as e:
+        logger.error(f"Failed to scan {partial_file}: {e}")
+    return ids
+
+
+def build_navigation_map() -> dict[str, dict]:
+    """
+    Build the full navigation map dynamically by scanning:
+    1. router.js for all routes
+    2. Each HTML partial for element IDs (field-*, tbl-*, section-*, etc.)
+
+    Populates both route-level entries (e.g., "schema guide" → schema-guide)
+    and element-level entries (e.g., "st_pretyp" → schema-guide#field-St_PreTyp).
+    """
+    global NAVIGATION_MAP
+    nav = {}
+    routes = _scan_routes()
+
+    logger.info(f"Building dynamic navigation map from {len(routes)} routes...")
+
+    for route, partial in routes.items():
+        label = _humanize_route(route)
+
+        # Add route-level entry (e.g., "schema guide" → schema-guide)
+        route_key = route.replace("-", " ")
+        nav[route_key] = {"route": route, "label": label}
+
+        # Add common aliases
+        if route == "schema-guide":
+            nav["schema"] = {"route": route, "label": label}
+        elif route == "automations-dashboard":
+            nav["automations"] = {"route": route, "label": label}
+            nav["dashboard"] = {"route": route, "label": label}
+        elif route == "sync-app":
+            nav["data sync"] = {"route": route, "label": label}
+            nav["sync"] = {"route": route, "label": label}
+        elif route == "gp-tools":
+            nav["gp tools"] = {"route": route, "label": label}
+            nav["geoprocessing"] = {"route": route, "label": label}
+        elif route == "script-orchestrator":
+            nav["nightly pipeline"] = {"route": route, "label": label}
+            nav["orchestrator"] = {"route": route, "label": label}
+        elif route == "script-etl":
+            nav["salmon arm etl"] = {"route": route, "label": label}
+            nav["etl"] = {"route": route, "label": label}
+        elif route == "script-qa":
+            nav["qa validation"] = {"route": route, "label": label}
+        elif route == "script-reconcile":
+            nav["reconcile post"] = {"route": route, "label": label}
+            nav["reconcile"] = {"route": route, "label": label}
+        elif route == "script-export":
+            nav["export"] = {"route": route, "label": label}
+
+        # Scan the partial for element IDs
+        element_ids = _scan_element_ids(partial)
+        for eid in element_ids:
+            # field-St_PreTyp → keyword "st_pretyp", label "St_PreTyp field"
+            if eid.startswith("field-"):
+                field_name = eid[6:]  # e.g., "St_PreTyp"
+                keyword = field_name.lower()
+                nav[keyword] = {
+                    "route": route,
+                    "element": eid,
+                    "label": f"{field_name} field",
+                }
+                # Also add with underscores replaced by spaces
+                nav[keyword.replace("_", " ")] = {
+                    "route": route,
+                    "element": eid,
+                    "label": f"{field_name} field",
+                }
+
+            # tbl-agency → keyword "agency domain", label "Agency Domain Table"
+            elif eid.startswith("tbl-"):
+                tbl_name = eid[4:].replace("-", " ").title()
+                keyword = f"{tbl_name.lower()} domain"
+                nav[keyword] = {
+                    "route": route,
+                    "element": eid,
+                    "label": f"{tbl_name} Domain Table",
+                }
+
+            # section-* → keyword "section name", label "Section Name"
+            elif eid.startswith("section-"):
+                section_name = eid[8:].replace("-", " ").title()
+                keyword = section_name.lower()
+                nav[keyword] = {
+                    "route": route,
+                    "element": eid,
+                    "label": section_name,
+                }
+
+    NAVIGATION_MAP = nav
+    logger.info(f"Navigation map built: {len(nav)} entries from {len(routes)} routes")
+    return nav
 
 
 @tool
@@ -88,20 +163,22 @@ def get_navigation_target(topic: str) -> str:
     - topic: what the user wants to see (e.g., 'St_PreTyp', 'NGUID rule', 'GP tools', 'domains')
     Returns the navigation syntax to embed in your response.
     """
+    # Lazy-build on first call if map is empty
+    if not NAVIGATION_MAP:
+        build_navigation_map()
+
     topic_lower = topic.lower().strip()
 
     # Try exact match first
     if topic_lower in NAVIGATION_MAP:
-        entry = NAVIGATION_MAP[topic_lower]
-        return _format_nav(entry)
+        return _format_nav(NAVIGATION_MAP[topic_lower])
 
-    # Try partial/fuzzy matching
+    # Try partial/fuzzy matching — prefer longer (more specific) matches
     best_match = None
     best_score = 0
     for key, entry in NAVIGATION_MAP.items():
-        # Check if topic is a substring of key or vice versa
         if topic_lower in key or key in topic_lower:
-            score = len(key)  # Prefer longer (more specific) matches
+            score = len(key)
             if score > best_score:
                 best_score = score
                 best_match = entry
@@ -111,8 +188,7 @@ def get_navigation_target(topic: str) -> str:
 
     return (
         f"No specific navigation target found for '{topic}'. "
-        f"You can still use {{{{nav:ROUTE#ELEMENT_ID|Label}}}} syntax manually "
-        f"if you know the correct route from the route map in your system prompt."
+        f"Available routes: {', '.join(sorted(set(e['route'] for e in NAVIGATION_MAP.values())))}"
     )
 
 
@@ -127,3 +203,7 @@ def _format_nav(entry: dict) -> str:
     else:
         syntax = f"{{{{nav:{route}|{label}}}}}"
         return f"Navigation target found.\nRoute: #{route}\nUse this syntax in your response: {syntax}"
+
+
+# Build the map on module import
+build_navigation_map()

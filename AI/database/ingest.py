@@ -2,11 +2,11 @@
 NG911 Knowledge Base Ingestion Pipeline.
 Chunks and ingests project source files into ChromaDB with enriched metadata.
 
-Key improvements over the original:
-- 2500-char chunks (was 750) to keep functions/rules intact.
-- Metadata enrichment with category and component tags.
-- Deduplication: ingest raw source files only (skip HTML docs that embed the same code).
-- Incremental-aware: wipes before ingest but architecture supports hash-based diffing later.
+Dynamic architecture:
+- Scans ALL web app files including HTML partials (32+ pages)
+- Ingests full documentation directory (schema, dependencies, guides)
+- Rebuilds the navigation map after ingestion
+- Called automatically via /api/reingest endpoint
 """
 
 import os
@@ -31,7 +31,7 @@ def _classify(file_path: str) -> dict:
     if "0.attribute rules" in fp:
         meta["category"] = "attribute_rule"
         base = os.path.splitext(os.path.basename(file_path))[0]
-        meta["component"] = base  # e.g., "1.Full Address"
+        meta["component"] = base
     elif "1.reconcilepost" in fp or "reconcile" in fp:
         meta["category"] = "automation_script"
         meta["component"] = os.path.basename(file_path)
@@ -41,6 +41,11 @@ def _classify(file_path: str) -> dict:
     elif "documentation" in fp:
         meta["category"] = "documentation"
         meta["component"] = os.path.basename(file_path)
+    elif "partials" in fp:
+        # HTML page partials — tag with page route for precise retrieval
+        base = os.path.splitext(os.path.basename(file_path))[0]
+        meta["category"] = "web_page"
+        meta["component"] = base  # e.g., "schema-guide", "rule-nguid"
     elif "web app" in fp:
         meta["category"] = "web_app"
         meta["component"] = os.path.basename(file_path)
@@ -48,9 +53,10 @@ def _classify(file_path: str) -> dict:
 
 
 def load_documents(directory: str, extensions: list[str]) -> list:
-    """Recursively load files from a directory, skipping Archive and venv folders."""
+    """Recursively load files from a directory, skipping non-essential folders."""
     documents = []
-    skip_dirs = {"Archive", "venv", "__pycache__", "node_modules", ".git", "chroma_db", "assets", "partials"}
+    # Only skip truly non-useful directories — partials are NOW included
+    skip_dirs = {"Archive", "venv", "__pycache__", "node_modules", ".git", "chroma_db", "assets"}
 
     for ext in extensions:
         pattern = os.path.join(directory, f"**/*.{ext}")
@@ -60,10 +66,10 @@ def load_documents(directory: str, extensions: list[str]) -> list:
             if parts & skip_dirs:
                 continue
 
-            # Skip massive files that add noise (Base64 blobs, search indexes)
+            # Skip massive files (binary/generated data)
             try:
                 size = os.path.getsize(file_path)
-                if size > 80_000:  # > 80KB is likely a generated/data file
+                if size > 120_000:  # 120KB limit (increased for large HTML partials)
                     print(f"[Skip large] {file_path} ({size:,} bytes)")
                     continue
             except OSError:
@@ -99,18 +105,20 @@ def ingest():
     except Exception as e:
         print(f"Note: {e}")
 
-    # Define sources — read directly from the repo root (not stale AI/data/ copies).
-    # This ensures the knowledge base always reflects the latest committed code.
+    # Define sources — read directly from the repo root.
     script_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.normpath(os.path.join(script_dir, "..", ".."))
 
     sources = {
+        # NG911 System: Attribute Rules
         os.path.join(repo_root, "NG911System", "Database Scripts", "0.Attribute Rules"): ["txt", "js"],
+        # NG911 System: Automation scripts + Power Automate templates
         os.path.join(repo_root, "NG911System", "Database Scripts", "1.ReconcilePost-QA-Export"): ["py", "html"],
         os.path.join(repo_root, "NG911System", "Database Scripts", "2. Salmon Arm Sync"): ["py", "html"],
+        # Documentation: Schema summary, system dependencies, guides
         os.path.join(repo_root, "Context", "Documentation"): ["md", "txt"],
-        # Web App: JS modules and CSS (partials are excluded via skip_dirs)
-        os.path.join(repo_root, "Web App", "docs"): ["js", "css"],
+        # Web App: JS modules, CSS, AND HTML partials (all 32+ pages)
+        os.path.join(repo_root, "Web App", "docs"): ["js", "css", "html"],
     }
 
     all_docs = []
@@ -136,6 +144,9 @@ def ingest():
             "\nclass ",    # Python class boundaries
             "\n## ",       # Markdown H2
             "\n# ",        # Markdown H1
+            "\n<section",  # HTML section boundaries
+            "\n<div",      # HTML div boundaries
+            "\n<tr",       # HTML table row boundaries
             "\n\n",        # Paragraph breaks
             "\n",          # Line breaks
             " ",           # Word breaks
@@ -145,7 +156,6 @@ def ingest():
     print(f"Created {len(chunks)} chunks (avg ~{sum(len(c.page_content) for c in chunks)//max(len(chunks),1)} chars).")
 
     print("\n--- Ingesting into ChromaDB ---")
-    # Batch to avoid memory issues with large embedding sets
     BATCH = 100
     for i in range(0, len(chunks), BATCH):
         batch = chunks[i : i + BATCH]
@@ -153,6 +163,14 @@ def ingest():
         print(f"  Batch {i // BATCH + 1}: {len(batch)} chunks embedded.")
 
     print(f"\n[Done] {len(chunks)} chunks stored in {CHROMA_DB_DIR}")
+
+    # Rebuild the navigation map after ingestion so it picks up any new pages/fields
+    try:
+        from tools.navigation_tools import build_navigation_map
+        nav = build_navigation_map()
+        print(f"[Nav] Navigation map rebuilt: {len(nav)} entries")
+    except Exception as e:
+        print(f"[Nav] Warning: could not rebuild navigation map: {e}")
 
 
 if __name__ == "__main__":
