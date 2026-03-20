@@ -3581,23 +3581,24 @@ input:checked+.slider:before {
 /* Input Action Buttons (thinking toggle, screenshot) */
 .ai-input-actions {
     display: flex;
-    gap: 2px;
+    gap: 4px;
     align-items: center;
-    padding: 0 4px;
+    padding: 4px 0;
 }
 .ai-input-action-btn {
-    background: none;
-    border: none;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
     cursor: pointer;
-    font-size: 0.95rem;
-    padding: 5px 7px;
-    border-radius: 4px;
-    color: #999;
-    transition: color 0.2s, background 0.2s;
+    font-size: 1.05rem;
+    padding: 7px 9px;
+    border-radius: 6px;
+    color: #777;
+    transition: all 0.2s;
+    line-height: 1;
 }
-.ai-input-action-btn:hover { color: var(--navy); background: rgba(0,0,0,0.05); }
-.ai-think-toggle.active { color: var(--teal); }
-.ai-screenshot-active { color: #e74c3c !important; }
+.ai-input-action-btn:hover { color: var(--teal); background: rgba(0,180,160,0.08); border-color: var(--teal); }
+.ai-think-toggle.active { color: var(--teal); border-color: var(--teal); background: rgba(0,180,160,0.08); }
+.ai-screenshot-active { color: #e74c3c !important; border-color: #e74c3c !important; background: rgba(231,76,60,0.08) !important; }
 
 /* Thinking Block (collapsible reasoning from LLM) */
 .ai-thinking-block {
@@ -3760,7 +3761,7 @@ input:checked+.slider:before {
 
 .ai-input-wrapper {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: flex-end;
 }
 #ai-chat-input {
