@@ -143,9 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Thinking Mode Toggle ---
     if (btnThink) {
+        const thinkLabel = btnThink.querySelector('.ai-toolbar-label');
         btnThink.addEventListener('click', () => {
             thinkingEnabled = !thinkingEnabled;
             btnThink.classList.toggle('active', thinkingEnabled);
+            if (thinkLabel) thinkLabel.textContent = thinkingEnabled ? 'Think' : 'Think Off';
             btnThink.title = thinkingEnabled
                 ? 'Thinking mode ON (deeper reasoning)'
                 : 'Thinking mode OFF (faster responses)';
@@ -154,22 +156,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Screenshot Capture ---
     if (btnScreenshot) {
+        const ssLabel = btnScreenshot.querySelector('.ai-toolbar-label');
         btnScreenshot.addEventListener('click', async () => {
             if (pendingScreenshot) {
                 // Click again to remove attached screenshot
                 pendingScreenshot = null;
                 btnScreenshot.classList.remove('ai-screenshot-active');
+                if (ssLabel) ssLabel.textContent = 'Screenshot';
                 btnScreenshot.title = 'Capture screenshot of current page';
                 return;
             }
-            const target = document.querySelector('#content-area') || document.querySelector('main') || document.body;
+            // Show capturing state
+            if (ssLabel) ssLabel.textContent = 'Capturing...';
+            const target = document.querySelector('.main') || document.querySelector('main') || document.body;
             try {
+                if (typeof html2canvas === 'undefined') {
+                    console.error('html2canvas not loaded');
+                    if (ssLabel) ssLabel.textContent = 'Screenshot';
+                    return;
+                }
                 const canvas = await html2canvas(target, { scale: 0.5, useCORS: true, logging: false });
                 pendingScreenshot = canvas.toDataURL('image/png').split(',')[1];
                 btnScreenshot.classList.add('ai-screenshot-active');
+                if (ssLabel) ssLabel.textContent = 'Attached';
                 btnScreenshot.title = 'Screenshot attached (click to remove)';
             } catch (err) {
                 console.error('Screenshot capture failed:', err);
+                if (ssLabel) ssLabel.textContent = 'Screenshot';
             }
         });
     }
