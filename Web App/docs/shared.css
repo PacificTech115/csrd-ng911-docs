@@ -3417,6 +3417,9 @@ input:checked+.slider:before {
   font-size: 0.92rem;
   line-height: 1.6;
   animation: fadeIn 0.3s ease;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
@@ -3469,10 +3472,13 @@ input:checked+.slider:before {
   color: inherit;
   padding: 0;
 }
+.ai-message-assistant .table-wrap {
+  overflow-x: auto;
+  margin: 12px 0;
+}
 .ai-message-assistant table {
   width: 100%;
   border-collapse: collapse;
-  margin: 12px 0;
   font-size: 0.85em;
 }
 .ai-message-assistant th, .ai-message-assistant td {

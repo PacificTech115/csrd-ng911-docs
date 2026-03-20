@@ -46,6 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- Wrap tables for horizontal scroll ---
+    const wrapTables = (container) => {
+        container.querySelectorAll('table').forEach(table => {
+            if (table.parentElement.classList.contains('table-wrap')) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-wrap';
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+        });
+    };
+
     // --- Navigation Command Processing ---
     const processNavigationCommands = (container) => {
         const html = container.innerHTML;
@@ -242,6 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             toolRibbon.style.display = "none";
                             // Process navigation commands in the final response
                             processNavigationCommands(responseDiv);
+                            wrapTables(responseDiv);
                         }
                     }
                 }
