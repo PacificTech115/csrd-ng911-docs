@@ -119,6 +119,8 @@ def ingest():
         os.path.join(repo_root, "Context", "Documentation"): ["md", "txt"],
         # Web App: JS modules, CSS, AND HTML partials (all 32+ pages)
         os.path.join(repo_root, "Web App", "docs"): ["js", "css", "html"],
+        # Agent memories: architectural decisions and changelogs
+        os.path.join(repo_root, ".agents", "memory"): ["md"],
     }
 
     all_docs = []

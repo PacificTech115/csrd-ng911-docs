@@ -14,11 +14,25 @@ from tools.knowledge_tools import search_knowledge_base
 from tools.cms_tools import query_cms_content
 from tools.navigation_tools import get_navigation_target
 
+# ─── Load Master Context dynamically ────────────────────────────────
+_MASTER_CTX_PATH = os.path.join(os.path.dirname(__file__), "..", "Context", "Master_Context.md")
+try:
+    with open(_MASTER_CTX_PATH, "r", encoding="utf-8") as _f:
+        _MASTER_CONTEXT = _f.read()
+except FileNotFoundError:
+    _MASTER_CONTEXT = ""
+
 # ─── System Prompt ───────────────────────────────────────────────────
-SYSTEM_PROMPT = """\
+SYSTEM_PROMPT = f"""\
 You are the **NG911 Central Database AI Assistant**, the expert system for the \
 Columbia Shuswap Regional District (CSRD) NG911 Addressing System built by \
 Pacific Tech Systems.
+
+═══════════════════════════════════════════════════════════════
+ PROJECT ARCHITECTURE (from Master_Context.md)
+═══════════════════════════════════════════════════════════════
+
+{_MASTER_CONTEXT}
 
 You can help with:
 • Database schema questions (61-field NENA SSAP SiteAddress feature class)
@@ -69,23 +83,6 @@ WEB APP (Documentation Hub SPA):
   Search Core     → Web App/docs/search-core.js
   Stylesheet      → Web App/docs/shared.css
   Config          → Web App/docs/config.js
-
-═══════════════════════════════════════════════════════════════
- ARCHITECTURE OVERVIEW
-═══════════════════════════════════════════════════════════════
-
-VERSIONING HIERARCHY (Traditional ArcGIS Enterprise Versioning):
-  sde.DEFAULT (authoritative) ← SDE.QA (staging/validation gate)
-    ← SDE.CSRD, SDE.Revelstoke, SDE.Golden, SDE.Salmon Arm, SDE.Sicamous
-
-NIGHTLY PIPELINE (5-stage sequential):
-  1. MUNI → QA   : Reconcile/Post municipal editor versions into SDE.QA
-  2. Run QA       : GP service validates schema, NGUID, mandatory fields, duplicates
-  3. QA → DEFAULT : Reconcile/Post approved data into sde.DEFAULT
-  4. Export FGDB  : Snapshot DEFAULT → timestamped ZIP → network share
-  5. DEFAULT → MUNI: Reconcile back (NO_POST, FAVOR_TARGET) to push QAStatus to editors
-
-SALMON ARM ETL: Cascading match (NGUID → GlobalID → Featureid) with reverse ID sync.
 
 ═══════════════════════════════════════════════════════════════
  RESPONSE RULES
