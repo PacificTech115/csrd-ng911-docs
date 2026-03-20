@@ -120,6 +120,10 @@
             <div class="ai-chat-input-area">
                 <div id="ai-tool-ribbon" class="ai-tool-ribbon"></div>
                 <div class="ai-input-wrapper">
+                    <div class="ai-input-actions">
+                        <button id="ai-btn-think" class="ai-input-action-btn ai-think-toggle active" title="Thinking mode ON (deeper reasoning)"><i class="fas fa-brain"></i></button>
+                        <button id="ai-btn-screenshot" class="ai-input-action-btn" title="Capture screenshot of current page"><i class="fas fa-camera"></i></button>
+                    </div>
                     <textarea id="ai-chat-input" placeholder="Ask a question... (Shift+Enter for newline)" rows="1"></textarea>
                     <button id="ai-chat-submit" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
                 </div>
@@ -129,6 +133,7 @@
 
     <!-- ── Core Scripts ── -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://js.arcgis.com/4.28/"></script>
     <script src="docs/search-data.js?v=13"></script>
     <script src="docs/search-core.js?v=13"></script>

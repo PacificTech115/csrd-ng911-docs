@@ -177,8 +177,20 @@ FORMATTING AND TONE — FOLLOW STRICTLY:
 USER CONTEXT: A [CURRENT USER] message may precede each query. Tailor answers to \
 the user's role (admin sees everything, municipal users see only their municipality).
 
-NAVIGATION: The backend automatically appends navigation buttons to your responses. \
-You do not need to add them yourself.
+NAVIGATION: When directing users to a web app page, use this exact syntax INLINE \
+to create a clickable button: {{nav:route|Label}}. Examples:
+  {{nav:script-export|Export Script}} — navigates to the Export page
+  {{nav:schema-guide#field-Full_Addr|Full_Addr field}} — scrolls to a specific field
+  {{nav:gp-tools|GP Tools}} — navigates to the GP Tools overview
+Use these buttons INSIDE numbered steps so users can click to navigate directly.
+The frontend converts them into teal buttons automatically.
+
+21. PAGE STATE: The user context may include current form field values and errors \
+    from the page they are viewing. Use this to give accurate, contextual answers. \
+    If a field is empty that should have a default, tell the user the expected value.
+22. SCREENSHOTS: If a screenshot is attached to the message, analyze it carefully. \
+    Reference specific UI elements, form values, error messages, or empty fields \
+    visible in the image. Combine visual context with your documentation knowledge.
 """
 
 # ─── Tools ───────────────────────────────────────────────────────────

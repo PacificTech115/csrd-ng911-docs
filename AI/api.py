@@ -51,16 +51,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class PageState(BaseModel):
+    form_fields: dict = {}
+    gp_status: str | None = None
+    errors: list[str] = []
+
 class UserContext(BaseModel):
     username: str = "anonymous"
     is_admin: bool = False
     municipality: str = ""
     current_page: str = ""
+    page_state: PageState | None = None
 
 class ChatRequest(BaseModel):
     message: str
     thread_id: str = "default_session"
     user_context: UserContext = UserContext()
+    screenshot: str | None = None
+    thinking: bool = True
 
 
 def _build_user_context_message(ctx: UserContext) -> str:
@@ -74,23 +82,47 @@ def _build_user_context_message(ctx: UserContext) -> str:
     ]
     if ctx.current_page:
         parts.append(f"Viewing: #{ctx.current_page}")
+    # Page state: form fields and errors
+    if ctx.page_state:
+        if ctx.page_state.form_fields:
+            fields = []
+            for k, v in ctx.page_state.form_fields.items():
+                fields.append(f'{k}="{v}"' if v else f'{k}=(EMPTY)')
+            parts.append(f"Form: {', '.join(fields)}")
+        if ctx.page_state.gp_status:
+            parts.append(f"GP Status: {ctx.page_state.gp_status}")
+        if ctx.page_state.errors:
+            parts.append(f"Errors: {'; '.join(ctx.page_state.errors)}")
     return " | ".join(parts)
 
 
-async def stream_agent_events(user_message: str, thread_id: str, user_context: UserContext):
+async def stream_agent_events(user_message: str, thread_id: str, user_context: UserContext,
+                              screenshot: str | None = None, thinking: bool = True):
     """
     Generator that invokes the LangGraph agent and yields SSE events.
     Events are formattted as dicts matching the SSE spec.
     """
     config = {"configurable": {"thread_id": thread_id}}
-    
+
     try:
         # Build message list: inject user context as a system message, then the user query.
         messages = []
         if user_context.username != "anonymous":
             ctx_str = _build_user_context_message(user_context)
             messages.append(SystemMessage(content=f"[CURRENT USER] {ctx_str}"))
-        messages.append(HumanMessage(content=user_message))
+
+        # Prepend /no_think when thinking is disabled
+        actual_message = user_message if thinking else f"/no_think\n{user_message}"
+
+        # Build multimodal message if screenshot is attached
+        if screenshot:
+            content = [
+                {"type": "text", "text": actual_message},
+                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{screenshot}"}}
+            ]
+            messages.append(HumanMessage(content=content))
+        else:
+            messages.append(HumanMessage(content=actual_message))
 
         accumulated_text = ""
 
@@ -154,7 +186,10 @@ async def chat_endpoint(request: ChatRequest):
     Accepts a user message and returns an SSE stream.
     """
     return EventSourceResponse(
-        stream_agent_events(request.message, request.thread_id, request.user_context)
+        stream_agent_events(
+            request.message, request.thread_id, request.user_context,
+            screenshot=request.screenshot, thinking=request.thinking,
+        )
     )
 
 

@@ -13,10 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = document.getElementById('ai-chat-submit');
     const messagesContainer = document.getElementById('ai-chat-messages');
     const toolRibbon = document.getElementById('ai-tool-ribbon');
+    const btnThink = document.getElementById('ai-btn-think');
+    const btnScreenshot = document.getElementById('ai-btn-screenshot');
 
     let isFullScreen = false;
     let isWaitingForResponse = false;
     let aiHostUrl = null; // resolved once on first use
+    let thinkingEnabled = true; // on by default for Qwen 3.5 35B
+    let pendingScreenshot = null; // base64 PNG or null
 
     // --- Session Management (persistent per user) ---
     const getUsername = () => {
@@ -98,6 +102,31 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     };
 
+    // --- Page State Capture ---
+    const capturePageState = () => {
+        const state = {};
+        // GP Runner form fields (present on script-* pages)
+        const gpForm = document.getElementById('gp-execute-form');
+        if (gpForm) {
+            state.form_fields = {};
+            gpForm.querySelectorAll('input, select, textarea').forEach(el => {
+                const name = el.name || el.id;
+                if (!name) return;
+                if (el.type === 'checkbox') {
+                    state.form_fields[name] = el.checked ? 'true' : 'false';
+                } else {
+                    state.form_fields[name] = el.value || '';
+                }
+            });
+        }
+        // GP Runner status text
+        const statusEl = document.querySelector('#gp-result-container');
+        if (statusEl && statusEl.textContent.trim()) {
+            state.gp_status = statusEl.textContent.trim().substring(0, 200);
+        }
+        return Object.keys(state).length ? state : null;
+    };
+
     const getUserContext = () => {
         const username = getUsername();
         const uLower = username.toLowerCase();
@@ -107,9 +136,65 @@ document.addEventListener('DOMContentLoaded', () => {
             username: username,
             is_admin: isAdmin,
             municipality: detectMunicipality(username),
-            current_page: window.location.hash.substring(1) || 'home'
+            current_page: window.location.hash.substring(1) || 'home',
+            page_state: capturePageState()
         };
     };
+
+    // --- Thinking Mode Toggle ---
+    if (btnThink) {
+        btnThink.addEventListener('click', () => {
+            thinkingEnabled = !thinkingEnabled;
+            btnThink.classList.toggle('active', thinkingEnabled);
+            btnThink.title = thinkingEnabled
+                ? 'Thinking mode ON (deeper reasoning)'
+                : 'Thinking mode OFF (faster responses)';
+        });
+    }
+
+    // --- Screenshot Capture ---
+    if (btnScreenshot) {
+        btnScreenshot.addEventListener('click', async () => {
+            if (pendingScreenshot) {
+                // Click again to remove attached screenshot
+                pendingScreenshot = null;
+                btnScreenshot.classList.remove('ai-screenshot-active');
+                btnScreenshot.title = 'Capture screenshot of current page';
+                return;
+            }
+            const target = document.querySelector('#content-area') || document.querySelector('main') || document.body;
+            try {
+                const canvas = await html2canvas(target, { scale: 0.5, useCORS: true, logging: false });
+                pendingScreenshot = canvas.toDataURL('image/png').split(',')[1];
+                btnScreenshot.classList.add('ai-screenshot-active');
+                btnScreenshot.title = 'Screenshot attached (click to remove)';
+            } catch (err) {
+                console.error('Screenshot capture failed:', err);
+            }
+        });
+    }
+
+    // Clipboard paste support for images (Ctrl+V)
+    inputField.addEventListener('paste', (e) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (const item of items) {
+            if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const blob = item.getAsFile();
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    pendingScreenshot = reader.result.split(',')[1];
+                    if (btnScreenshot) {
+                        btnScreenshot.classList.add('ai-screenshot-active');
+                        btnScreenshot.title = 'Screenshot attached (click to remove)';
+                    }
+                };
+                reader.readAsDataURL(blob);
+                break;
+            }
+        }
+    });
 
     // --- Resolve backend URL (once) ---
     const resolveHostUrl = async () => {
@@ -361,9 +446,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message: text,
                     thread_id: sessionId,
-                    user_context: getUserContext()
+                    user_context: getUserContext(),
+                    screenshot: pendingScreenshot,
+                    thinking: thinkingEnabled
                 })
             });
+
+            // Clear screenshot after sending
+            pendingScreenshot = null;
+            if (btnScreenshot) {
+                btnScreenshot.classList.remove('ai-screenshot-active');
+                btnScreenshot.title = 'Capture screenshot of current page';
+            }
 
             if (!response.ok) throw new Error("API returned status " + response.status);
 
@@ -394,7 +488,19 @@ document.addEventListener('DOMContentLoaded', () => {
                                     thinkingCleared = true;
                                 }
                                 accumulatedText += data.chunk;
-                                responseDiv.innerHTML = marked.parse(accumulatedText);
+                                // Render <think> blocks as collapsible, strip from main display
+                                let displayText = accumulatedText;
+                                // Completed think blocks → collapsible details
+                                displayText = displayText.replace(
+                                    /<think>([\s\S]*?)<\/think>/g,
+                                    '<details class="ai-thinking-block"><summary>View reasoning</summary><div class="ai-thinking-content">$1</div></details>'
+                                );
+                                // In-progress think block (no closing tag yet) → show as faded
+                                displayText = displayText.replace(
+                                    /<think>([\s\S]*)$/,
+                                    '<div class="ai-thinking-stream"><i class="fas fa-brain"></i> Reasoning...</div>'
+                                );
+                                responseDiv.innerHTML = marked.parse(displayText);
                                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
                             }
                         } else if (currentEvent === 'tool') {
