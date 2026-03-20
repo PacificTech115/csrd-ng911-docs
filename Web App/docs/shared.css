@@ -3682,6 +3682,33 @@ input:checked+.slider:before {
   padding: 24px 12px;
 }
 
+/* Suggested Prompt Buttons */
+.ai-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 4px 12px;
+  animation: fadeIn 0.4s ease;
+}
+.ai-suggestion-btn {
+  background: transparent;
+  color: var(--teal);
+  border: 1.5px solid var(--teal);
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.ai-suggestion-btn:hover {
+  background: var(--teal);
+  color: white;
+  transform: translateY(-1px);
+}
+
 .ai-input-wrapper {
   display: flex;
   gap: 12px;

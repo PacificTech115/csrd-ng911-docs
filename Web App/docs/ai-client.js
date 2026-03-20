@@ -46,6 +46,45 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="ai-message ai-message-assistant">
                 Hi! I'm the NG911 AI Assistant. You can ask me about schema fields, attribute rules, or system automation scripts.
             </div>`;
+        showSuggestions();
+    };
+
+    // --- Suggested Prompt Buttons ---
+    const showSuggestions = () => {
+        // Remove existing suggestions if any
+        const existing = messagesContainer.querySelector('.ai-suggestions');
+        if (existing) existing.remove();
+
+        const isAdmin = getUserContext().is_admin;
+        const prompts = [
+            { label: 'Schema Fields', text: 'What fields are in the schema?' },
+            { label: 'Attribute Rules', text: 'Show me the attribute rules' },
+            { label: 'Nightly Pipeline', text: 'How does the nightly pipeline work?' },
+            { label: 'Schema Guide', text: 'Take me to the schema guide' },
+        ];
+        if (isAdmin) {
+            prompts.push({ label: 'GP Tool Runs', text: 'What are the latest GP tool runs?' });
+        }
+
+        const container = document.createElement('div');
+        container.className = 'ai-suggestions';
+        prompts.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'ai-suggestion-btn';
+            btn.textContent = p.label;
+            btn.addEventListener('click', () => {
+                inputField.value = p.text;
+                submitMessage();
+            });
+            container.appendChild(btn);
+        });
+        messagesContainer.appendChild(container);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    };
+
+    const removeSuggestions = () => {
+        const el = messagesContainer.querySelector('.ai-suggestions');
+        if (el) el.remove();
     };
 
     // --- User Context Helpers ---
@@ -300,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         inputField.value = '';
         inputField.style.height = 'auto';
+        removeSuggestions();
         appendMessage('user', text);
         isWaitingForResponse = true;
 
@@ -391,6 +431,11 @@ document.addEventListener('DOMContentLoaded', () => {
             submitMessage();
         }
     });
+
+    // Show suggestions on initial load (only if chat is fresh — just the welcome message)
+    if (messagesContainer.children.length <= 1) {
+        showSuggestions();
+    }
 
     // Auto-resize textarea
     inputField.addEventListener('input', function() {
