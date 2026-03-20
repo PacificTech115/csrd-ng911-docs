@@ -32,7 +32,7 @@ def search_knowledge_base(query: str, category: str = "") -> str:
     if store is None:
         return "Error: Knowledge base not initialized. Run ingest.py first."
 
-    search_kwargs = {"k": 6}
+    search_kwargs = {"k": 4}
     if category:
         search_kwargs["filter"] = {"category": category}
 

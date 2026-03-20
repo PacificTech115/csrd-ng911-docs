@@ -1,5 +1,15 @@
 # System Dependencies & Resource Index
 
+## URL Quick Reference
+
+| URL | Application | Purpose |
+|-----|------------|---------|
+| apps.csrd.bc.ca/ng911 | NG911 Documentation Hub | Web app with docs, GP tools, AI assistant, Sync App |
+| apps.csrd.bc.ca/hub | CSRD ArcGIS Enterprise Portal | Maps, data management, ArcGIS Pro connections |
+| ai.pacifictechsystems.ca | AI Backend | FastAPI + LangGraph RAG service (Cloudflare Tunnel to localhost:8000) |
+
+**Important:** The Documentation Hub and the Portal are DIFFERENT applications on the same server. The Documentation Hub (`/ng911`) is the custom SPA built by Pacific Tech Systems. The Portal (`/hub`) is the standard ArcGIS Enterprise Portal.
+
 ## ArcGIS Enterprise Portal
 - Portal URL: https://apps.csrd.bc.ca/hub
 - Base URL: https://apps.csrd.bc.ca

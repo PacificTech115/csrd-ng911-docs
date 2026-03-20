@@ -71,13 +71,16 @@ def _build_file_map():
             lines.append(f"  {name} → {rel}")
         sections.append("\n".join(lines))
 
-    # Documentation
-    sections.append(
-        "DATABASE SCHEMA:\n"
-        "  Full 61-field Schema → Documentation/Database_Schema_Summary.md\n\n"
-        "SYSTEM DEPENDENCIES (Portal items, REST endpoints, UNC paths):\n"
-        "  All Services & Paths → Documentation/System_Dependencies.md"
-    )
+    # Documentation Guides
+    docs_dir = os.path.join(_REPO_ROOT, "Context", "Documentation")
+    docs = sorted(_glob.glob(os.path.join(docs_dir, "*.md")))
+    if docs:
+        lines = ["DOCUMENTATION GUIDES (plain-language references — prefer these over source code):"]
+        for d in docs:
+            name = os.path.splitext(os.path.basename(d))[0]
+            rel = os.path.relpath(d, _REPO_ROOT).replace("\\", "/")
+            lines.append(f"  {name} → {rel}")
+        sections.append("\n".join(lines))
 
     # Web App JS modules
     webapp_dir = os.path.join(_REPO_ROOT, "Web App", "docs")
@@ -159,7 +162,13 @@ FORMATTING AND TONE — FOLLOW STRICTLY:
     critique it. Just show the source with its file path.
 18. If asked about Portal IDs, REST endpoints, web apps, feature services, or
     any system dependencies, ALWAYS use read_file('Documentation/System_Dependencies.md') FIRST.
-19. If you cannot find the answer after searching, say so honestly. Do not fabricate information.
+19. For questions about GP tools (Export, QA, Reconcile), how to use the web app,
+    the nightly pipeline, attribute rules, sync app, CMS editing, authentication,
+    municipal workflows, or troubleshooting — ALWAYS read the matching
+    Documentation guide FIRST (see DOCUMENTATION GUIDES in the file map above).
+    These guides contain accurate parameters, step-by-step instructions, and
+    defaults. Do NOT rely on reading Python/JS source code for user-facing answers.
+20. If you cannot find the answer after searching, say so honestly. Do not fabricate information.
 
 ═══════════════════════════════════════════════════════════════
  USER AWARENESS & NAVIGATION

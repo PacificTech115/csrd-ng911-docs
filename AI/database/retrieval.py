@@ -11,7 +11,7 @@ from core.llm_config import get_embeddings
 CHROMA_DB_DIR = os.getenv("CHROMA_DB_DIR", "./database/chroma_db")
 
 
-def get_retriever(k: int = 6, category: str = ""):
+def get_retriever(k: int = 4, category: str = ""):
     """
     Returns a configured ChromaDB retriever.
     - k: number of results.
