@@ -3475,16 +3475,19 @@ input:checked+.slider:before {
 .ai-message-assistant .table-wrap {
   overflow-x: auto;
   margin: 12px 0;
+  -webkit-overflow-scrolling: touch;
 }
 .ai-message-assistant table {
-  width: 100%;
+  min-width: 320px;
+  width: max-content;
   border-collapse: collapse;
   font-size: 0.85em;
 }
 .ai-message-assistant th, .ai-message-assistant td {
   border: 1px solid var(--border);
-  padding: 8px 10px;
+  padding: 6px 8px;
   text-align: left;
+  white-space: nowrap;
 }
 .ai-message-assistant th {
   background: var(--bg-sidebar);
