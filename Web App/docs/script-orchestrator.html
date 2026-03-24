@@ -179,8 +179,9 @@ NB_RUN_DIR = <span class="str">"/arcgis/home/run_summaries"</span>
         <tr><td>1</td><td>MUNI &rarr; QA</td><td>Reconcile/post all municipal editor versions into SDE.QA</td><td>Pipeline stops immediately</td></tr>
         <tr><td>2</td><td>Run QA</td><td>Execute QA validation GP service; update QAStatus on all scoped features</td><td>Configurable via <code>QA_BLOCKING</code></td></tr>
         <tr><td>3</td><td>QA &rarr; DEFAULT</td><td>Reconcile/post SDE.QA into sde.DEFAULT</td><td>Pipeline stops immediately</td></tr>
-        <tr><td>4</td><td>Export FGDB</td><td>Export DEFAULT feature class to File Geodatabase, zip, copy to network share</td><td>Pipeline stops immediately</td></tr>
-        <tr><td>5</td><td>DEFAULT &rarr; MUNI</td><td>Reconcile DEFAULT back to municipal versions (NO_POST) so QAStatus flows down</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>4</td><td>Compress</td><td>Compress geodatabase to push versioned deltas to the base table</td><td>Non-blocking (warning only)</td></tr>
+        <tr><td>5</td><td>Delete/Recreate</td><td>Delete and recreate all municipal editor versions for a clean slate</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>6</td><td>Export FGDB</td><td>Export DEFAULT feature class to File Geodatabase, zip, copy to network share</td><td>Pipeline stops immediately</td></tr>
       </tbody>
     </table>
   </div>

@@ -29,7 +29,7 @@
 <!-- PURPOSE -->
 <section>
   <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose</h2>
-  <p class="reveal">ArcPy wrapper for traditional versioning reconcile/post operations, published as an ArcGIS GP service. Supports three distinct stage modes that control data flow direction, posting behavior, and conflict resolution strategy within the CSRD versioning hierarchy.</p>
+  <p class="reveal">ArcPy wrapper for traditional versioning reconcile/post operations, published as an ArcGIS GP service. Supports five distinct stage modes that control data flow direction, posting behavior, conflict resolution strategy, geodatabase compression, and version management within the CSRD versioning hierarchy.</p>
 </section>
 
 
@@ -48,14 +48,16 @@
       <div class="code-header"><span>Python — ReconcilePostGPtool.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
       <pre># ReconcilePostTraditional.py
 # Traditional versioning reconcile/post automation (ArcPy)
-# Supports two stages:
-#   - MUNI_TO_QA    : reconcile/post multiple municipal versions into QA
-#   - QA_TO_DEFAULT : reconcile/post QA into DEFAULT
-#   - DEFAULT_TO_MUNI_SYNC : reconcile DEFAULT into municipal versions (NO_POST)
+# Supports five stages:
+#   - MUNI_TO_QA              : reconcile/post multiple municipal versions into QA
+#   - QA_TO_DEFAULT           : reconcile/post QA into DEFAULT
+#   - DEFAULT_TO_MUNI_SYNC    : reconcile DEFAULT into municipal versions (NO_POST)
+#   - COMPRESS                : compress the geodatabase (push deltas to base table)
+#   - DELETE_RECREATE_VERSIONS: delete and recreate municipal editor versions
 #
 # Expected Script Tool parameters (ORDER MATTERS):
 #   0 sde_conn         (File)
-#   1 stage            (String) -&gt; &quot;MUNI_TO_QA&quot; | &quot;QA_TO_DEFAULT&quot; | &quot;DEFAULT_TO_MUNI_SYNC&quot;
+#   1 stage            (String)
 #   2 qa_version       (String) -&gt; e.g., &quot;SDE.QA&quot;
 #   3 default_version  (String) -&gt; e.g., &quot;sde.DEFAULT&quot;
 #   4 editor_versions  (String) -&gt; semicolon list: &quot;SDE.CSRD;SDE.Sicamous;...&quot;
@@ -331,10 +333,12 @@ if __name__ == &quot;__main__&quot;:
         <tr><td><code>MUNI_TO_QA</code></td><td>Municipal editors &rarr; SDE.QA</td><td>POST</td><td>FAVOR_EDIT_VERSION</td></tr>
         <tr><td><code>QA_TO_DEFAULT</code></td><td>SDE.QA &rarr; sde.DEFAULT</td><td>POST</td><td>FAVOR_EDIT_VERSION</td></tr>
         <tr><td><code>DEFAULT_TO_MUNI_SYNC</code></td><td>sde.DEFAULT &rarr; Municipal editors</td><td>NO_POST</td><td>FAVOR_TARGET_VERSION</td></tr>
+        <tr><td><code>COMPRESS</code></td><td>Geodatabase &rarr; Base table</td><td>N/A</td><td>N/A</td></tr>
+        <tr><td><code>DELETE_RECREATE_VERSIONS</code></td><td>Delete + recreate municipal editors</td><td>N/A</td><td>N/A</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="alert info reveal"><i class="fas fa-info-circle"></i><span><code>DEFAULT_TO_MUNI_SYNC</code> uses <strong>NO_POST</strong> combined with <strong>FAVOR_TARGET_VERSION</strong> so that QAStatus values and other approved data from DEFAULT flow down to municipal versions without overwriting any pending local edits.</span></div>
+  <div class="alert info reveal"><i class="fas fa-info-circle"></i><span><code>COMPRESS</code> pushes versioned deltas to the base table. <code>DELETE_RECREATE_VERSIONS</code> removes and recreates editor versions as children of <code>SDE.QA</code> with <code>PUBLIC</code> access for a clean editing slate.</span></div>
 </section>
 
 <!-- PARAMETERS -->
@@ -349,7 +353,7 @@ if __name__ == &quot;__main__&quot;:
         <thead><tr><th>#</th><th>Name</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td>0</td><td><code>sde_conn</code></td><td>File</td><td>Path to the SDE connection file (.sde)</td></tr>
-          <tr><td>1</td><td><code>stage</code></td><td>String</td><td>Operation mode: <code>MUNI_TO_QA</code>, <code>QA_TO_DEFAULT</code>, or <code>DEFAULT_TO_MUNI_SYNC</code></td></tr>
+          <tr><td>1</td><td><code>stage</code></td><td>String</td><td>Operation mode: <code>MUNI_TO_QA</code>, <code>QA_TO_DEFAULT</code>, <code>DEFAULT_TO_MUNI_SYNC</code>, <code>COMPRESS</code>, or <code>DELETE_RECREATE_VERSIONS</code></td></tr>
           <tr><td>2</td><td><code>qa_version</code></td><td>String</td><td>Name of the QA version (e.g., <code>SDE.QA</code>)</td></tr>
           <tr><td>3</td><td><code>default_version</code></td><td>String</td><td>Name of the default version (e.g., <code>sde.DEFAULT</code>)</td></tr>
           <tr><td>4</td><td><code>editor_versions</code></td><td>String</td><td>Semicolon-delimited list of municipal editor version names</td></tr>
@@ -395,13 +399,15 @@ if __name__ == &quot;__main__&quot;:
 
   <div class="card reveal doc-section">
     <h4>2. Stage Execution Logic</h4>
-    <div class="doc-meta"><span>Lines 96 &ndash; 233</span><span>3 stage branches</span></div>
+    <div class="doc-meta"><span>Lines 96 &ndash; 270</span><span>5 stage branches</span></div>
     <div class="breakdown-detail">
       <strong>Stages</strong>
       <ul>
         <li><strong>MUNI_TO_QA</strong> &mdash; Reconciles all editor versions into QA. Uses <code>FAVOR_EDIT_VERSION</code> + <code>POST</code>.</li>
         <li><strong>QA_TO_DEFAULT</strong> &mdash; Reconciles QA into DEFAULT. Same settings.</li>
         <li><strong>DEFAULT_TO_MUNI_SYNC</strong> &mdash; Reconciles DEFAULT into municipal versions with <code>NO_POST</code> + <code>FAVOR_TARGET_VERSION</code>. Pushes QAStatus back to editors.</li>
+        <li><strong>COMPRESS</strong> &mdash; Runs <code>arcpy.management.Compress</code> to push versioned deltas to the base table.</li>
+        <li><strong>DELETE_RECREATE_VERSIONS</strong> &mdash; Deletes and recreates all municipal editor versions as children of <code>SDE.QA</code> with <code>PUBLIC</code> access.</li>
       </ul>
       <strong>To modify</strong>
       <ul>

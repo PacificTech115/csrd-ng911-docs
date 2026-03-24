@@ -87,7 +87,7 @@
           <h4 style="font-size:.82rem;margin-bottom:8px">Status Badge</h4>
           <ul>
             <li><span style="color:var(--green);font-weight:600"><i class="fas fa-circle-check"></i> PASSED</span>
-              &mdash; All 5 pipeline stages completed successfully</li>
+              &mdash; All 6 pipeline stages completed successfully</li>
             <li><span style="color:var(--red);font-weight:600"><i class="fas fa-circle-xmark"></i> FAILED</span> &mdash;
               One or more stages failed; check the stage breakdown</li>
             <li><span style="color:var(--amber);font-weight:600"><i class="fas fa-triangle-exclamation"></i>
@@ -159,14 +159,20 @@
           </tr>
           <tr>
             <td>4</td>
-            <td>Export FGDB</td>
-            <td>Export DEFAULT to File Geodatabase, zip, copy to network share</td>
-            <td>Pipeline stops immediately</td>
+            <td>Compress</td>
+            <td>Compress geodatabase to push versioned deltas to the base table</td>
+            <td>Non-blocking (warning only)</td>
           </tr>
           <tr>
             <td>5</td>
-            <td>DEFAULT &rarr; MUNI</td>
-            <td>Reconcile DEFAULT back to municipal versions (NO_POST)</td>
+            <td>Delete/Recreate</td>
+            <td>Delete and recreate all municipal editor versions for a clean slate</td>
+            <td>Pipeline stops immediately</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Export FGDB</td>
+            <td>Export DEFAULT to File Geodatabase, zip, copy to network share</td>
             <td>Pipeline stops immediately</td>
           </tr>
         </tbody>
@@ -487,7 +493,7 @@
           <tr>
             <td><strong>Set permissions</strong></td>
             <td>Right-click version &rarr; Properties &rarr; Access: Private/Protected/Public</td>
-            <td>Municipal versions should be <em>Protected</em> (owner writes, others read)</td>
+            <td>Municipal versions should be <em>Public</em> (all users can read and write)</td>
           </tr>
           <tr>
             <td><strong>Compress GDB</strong></td>

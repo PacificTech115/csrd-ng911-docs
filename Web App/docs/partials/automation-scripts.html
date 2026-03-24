@@ -24,9 +24,11 @@
     <div class="pipeline-arrow"><div class="dot" style="animation-delay:.4s"></div></div>
     <div class="pipeline-step s3">Stage 3<small>QA &rarr; DEFAULT</small></div>
     <div class="pipeline-arrow"><div class="dot" style="animation-delay:.8s"></div></div>
-    <div class="pipeline-step s4">Stage 4<small>Export FGDB</small></div>
+    <div class="pipeline-step s4">Stage 4<small>Compress</small></div>
     <div class="pipeline-arrow"><div class="dot" style="animation-delay:1.2s"></div></div>
-    <div class="pipeline-step s5">Stage 5<small>DEFAULT &rarr; MUNI</small></div>
+    <div class="pipeline-step s5">Stage 5<small>Delete/Recreate</small></div>
+    <div class="pipeline-arrow"><div class="dot" style="animation-delay:1.6s"></div></div>
+    <div class="pipeline-step s6">Stage 6<small>Export FGDB</small></div>
   </div>
 
   <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
@@ -39,7 +41,7 @@
           <span class="card-tag">Notebook</span>
           <i class="fas fa-arrow-right card-arrow"></i>
         </div>
-        <p>Master pipeline: 5-stage nightly reconcile, QA, export, and sync</p>
+        <p>Master pipeline: 6-stage nightly reconcile, QA, compress, version reset, and export</p>
         <div class="dependency-chips">
           <span class="dependency-chip"><i class="fas fa-code-branch"></i><a href="#script-reconcile">Reconcile/Post GP</a></span>
           <span class="dependency-chip"><i class="fas fa-clipboard-check"></i><a href="#script-qa">QA Validation GP</a></span>
