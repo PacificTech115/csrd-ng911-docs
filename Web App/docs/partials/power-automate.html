@@ -106,7 +106,7 @@
       Contains status badge, QA counters, detail tables, blocking feature samples, issues-by-agency breakdown, pipeline stage results, and output file links.
     </p>
     <button class="doc-toggle" type="button" data-target="email-tpl-nightly" aria-expanded="false">
-      <i class="fas fa-chevron-right"></i><span>Show template (218 lines)</span>
+      <i class="fas fa-chevron-right"></i><span>Show template (219 lines)</span>
     </button>
     <div id="email-tpl-nightly" class="doc-body collapsed">
       <div class="code-block">
@@ -116,18 +116,18 @@
   
     &lt;div style=&quot;margin-bottom:14px;&quot;&gt;
       &lt;span style=&quot;display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;
-        background:@{if(equals(triggerBody()?['status'],'success'),'#dcfce7','#fee2e2')};
-        color:@{if(equals(triggerBody()?['status'],'success'),'#166534','#991b1b')};&quot;&gt;
-        @{if(equals(triggerBody()?['status'],'success'),'PASSED','FAILED')}
+        background:@{if(equals(triggerBody()?[&#x27;status&#x27;],&#x27;success&#x27;),&#x27;#dcfce7&#x27;,&#x27;#fee2e2&#x27;)};
+        color:@{if(equals(triggerBody()?[&#x27;status&#x27;],&#x27;success&#x27;),&#x27;#166534&#x27;,&#x27;#991b1b&#x27;)};&quot;&gt;
+        @{if(equals(triggerBody()?[&#x27;status&#x27;],&#x27;success&#x27;),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;)}
       &lt;/span&gt;
     &lt;/div&gt;
   
     &lt;table style=&quot;border-collapse:collapse;width:100%;margin-bottom:16px;&quot;&gt;
       &lt;tbody&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;width:220px;&quot;&gt;&lt;b&gt;Run ID&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{triggerBody()?['run_id']}&lt;/td&gt;&lt;/tr&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;User&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{triggerBody()?['user']}&lt;/td&gt;&lt;/tr&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Started&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{formatDateTime(triggerBody()?['started'],'dddd, MMMM d, yyyy  h:mm tt')}&lt;/td&gt;&lt;/tr&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Finished&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{formatDateTime(triggerBody()?['finished'],'dddd, MMMM d, yyyy  h:mm tt')}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;width:220px;&quot;&gt;&lt;b&gt;Run ID&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{triggerBody()?[&#x27;run_id&#x27;]}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;User&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{triggerBody()?[&#x27;user&#x27;]}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Started&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{formatDateTime(triggerBody()?[&#x27;started&#x27;],&#x27;dddd, MMMM d, yyyy  h:mm tt&#x27;)}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:6px 10px;background:#f8fafc;&quot;&gt;&lt;b&gt;Finished&lt;/b&gt;&lt;/td&gt;&lt;td style=&quot;padding:6px 10px;&quot;&gt;@{formatDateTime(triggerBody()?[&#x27;finished&#x27;],&#x27;dddd, MMMM d, yyyy  h:mm tt&#x27;)}&lt;/td&gt;&lt;/tr&gt;
       &lt;/tbody&gt;
     &lt;/table&gt;
   
@@ -144,14 +144,14 @@
         &lt;tr&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Features checked (new/edited or not previously passed)&lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;&quot;&gt;
-            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0)}
+            @{coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;scope&#x27;]?[&#x27;rows_in_scope&#x27;], 0)}
           &lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Rows evaluated in this QA run&lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Features with blocking issues&lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#dc2626;&quot;&gt;
-            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)}
+            @{coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;total_failed_features&#x27;], 0)}
           &lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Mandatory-null failures&lt;/td&gt;
         &lt;/tr&gt;
@@ -161,14 +161,14 @@
             @{if(
               greater(
                 sub(
-                  coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0),
-                  coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)
+                  coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;scope&#x27;]?[&#x27;rows_in_scope&#x27;], 0),
+                  coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;total_failed_features&#x27;], 0)
                 ),
                 0
               ),
               sub(
-                coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['scope']?['rows_in_scope'], 0),
-                coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'], 0)
+                coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;scope&#x27;]?[&#x27;rows_in_scope&#x27;], 0),
+                coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;total_failed_features&#x27;], 0)
               ),
               0
             )}
@@ -178,7 +178,7 @@
         &lt;tr&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Warning issue groups&lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#ea580c;&quot;&gt;
-            @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['address_duplicates']?['duplicate_nguid_count'], 0)}
+            @{coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;address_duplicates&#x27;]?[&#x27;duplicate_nguid_count&#x27;], 0)}
           &lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Duplicate address groups (warning only)&lt;/td&gt;
         &lt;/tr&gt;
@@ -197,55 +197,55 @@
       &lt;tbody&gt;
         &lt;tr&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Schema fields present&lt;/td&gt;
-          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields']),0),'#15803d','#dc2626')};&quot;&gt;
-            @{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields']),0),'PASSED','FAILED')}
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(length(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;missing_fields&#x27;]),0),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;)};&quot;&gt;
+            @{if(equals(length(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;missing_fields&#x27;]),0),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;)}
           &lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
-            Missing required fields: @{length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['missing_fields'])}
+            Missing required fields: @{length(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;missing_fields&#x27;])}
           &lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;NGUID uniqueness&lt;/td&gt;
-          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0),'#15803d','#dc2626')};&quot;&gt;
-            @{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0),'PASSED','FAILED')}
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;nguid_summary&#x27;]?[&#x27;duplicate_nguid_count&#x27;],0),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;)};&quot;&gt;
+            @{if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;nguid_summary&#x27;]?[&#x27;duplicate_nguid_count&#x27;],0),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;)}
           &lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
-            Duplicate NGUID count: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['nguid_summary']?['duplicate_nguid_count'],0)}
+            Duplicate NGUID count: @{coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;nguid_summary&#x27;]?[&#x27;duplicate_nguid_count&#x27;],0)}
           &lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Mandatory fields exist&lt;/td&gt;
-          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing']),0),'#15803d','#dc2626')};&quot;&gt;
-            @{if(equals(length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing']),0),'PASSED','FAILED')}
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(length(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_missing&#x27;]),0),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;)};&quot;&gt;
+            @{if(equals(length(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_missing&#x27;]),0),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;)}
           &lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
-            Missing mandatory fields: @{length(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_missing'])}
+            Missing mandatory fields: @{length(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_missing&#x27;])}
           &lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Mandatory field null check&lt;/td&gt;
-          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),'#15803d','#dc2626')};&quot;&gt;
-            @{if(equals(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),'PASSED','FAILED')}
+          &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;total_failed_features&#x27;],0),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;)};&quot;&gt;
+            @{if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;total_failed_features&#x27;],0),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;)}
           &lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
-            Features with one or more mandatory nulls: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0)}
+            Features with one or more mandatory nulls: @{coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;total_failed_features&#x27;],0)}
           &lt;/td&gt;
         &lt;/tr&gt;
         &lt;tr&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Address duplicates&lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:#ea580c;&quot;&gt;WARNING&lt;/td&gt;
           &lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;
-            Duplicate address groups: @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['address_duplicates']?['duplicate_nguid_count'],0)}
+            Duplicate address groups: @{coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;address_duplicates&#x27;]?[&#x27;duplicate_nguid_count&#x27;],0)}
           &lt;/td&gt;
         &lt;/tr&gt;
       &lt;/tbody&gt;
     &lt;/table&gt;
   
-    &lt;div style=&quot;display:@{if(greater(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0),0),'block','none')};&quot;&gt;
+    &lt;div style=&quot;display:@{if(greater(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;total_failed_features&#x27;],0),0),&#x27;block&#x27;,&#x27;none&#x27;)};&quot;&gt;
       &lt;h3 style=&quot;margin:18px 0 8px 0;color:#dc2626;&quot;&gt;Blocking Feature Samples&lt;/h3&gt;
       &lt;p style=&quot;font-size:13px;margin:0 0 8px 0;color:#6b7280;&quot;&gt;
         Showing up to 5 of
-        @{coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['total_failed_features'],0)}
+        @{coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;total_failed_features&#x27;],0)}
         features with mandatory-null failures.
       &lt;/p&gt;
       &lt;table style=&quot;border-collapse:collapse;width:100%;font-size:14px;margin-bottom:12px;&quot;&gt;
@@ -257,36 +257,36 @@
           &lt;/tr&gt;
         &lt;/thead&gt;
         &lt;tbody&gt;
-          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),'table-row','none')};&quot;&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['object_id'],'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['nguid'],'N/A'),'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),0),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][0]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),0),&#x27;table-row&#x27;,&#x27;none&#x27;)};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),0),triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][0][&#x27;object_id&#x27;],&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),0),coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][0][&#x27;nguid&#x27;],&#x27;N/A&#x27;),&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),0),join(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][0][&#x27;failing_fields&#x27;],&#x27;, &#x27;),&#x27;&#x27;)}&lt;/td&gt;
           &lt;/tr&gt;
-          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),'table-row','none')};&quot;&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['object_id'],'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['nguid'],'N/A'),'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),1),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][1]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),1),&#x27;table-row&#x27;,&#x27;none&#x27;)};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),1),triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][1][&#x27;object_id&#x27;],&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),1),coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][1][&#x27;nguid&#x27;],&#x27;N/A&#x27;),&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),1),join(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][1][&#x27;failing_fields&#x27;],&#x27;, &#x27;),&#x27;&#x27;)}&lt;/td&gt;
           &lt;/tr&gt;
-          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),'table-row','none')};&quot;&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['object_id'],'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['nguid'],'N/A'),'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),2),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][2]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),2),&#x27;table-row&#x27;,&#x27;none&#x27;)};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),2),triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][2][&#x27;object_id&#x27;],&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),2),coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][2][&#x27;nguid&#x27;],&#x27;N/A&#x27;),&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),2),join(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][2][&#x27;failing_fields&#x27;],&#x27;, &#x27;),&#x27;&#x27;)}&lt;/td&gt;
           &lt;/tr&gt;
-          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),'table-row','none')};&quot;&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['object_id'],'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['nguid'],'N/A'),'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),3),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][3]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),3),&#x27;table-row&#x27;,&#x27;none&#x27;)};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),3),triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][3][&#x27;object_id&#x27;],&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),3),coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][3][&#x27;nguid&#x27;],&#x27;N/A&#x27;),&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),3),join(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][3][&#x27;failing_fields&#x27;],&#x27;, &#x27;),&#x27;&#x27;)}&lt;/td&gt;
           &lt;/tr&gt;
-          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),'table-row','none')};&quot;&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['object_id'],'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['nguid'],'N/A'),'')}&lt;/td&gt;
-            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'],json('[]'))),4),join(triggerBody()?['stage_results']?['RUN_QA']?['qa_report']?['mandatory_null_failures']?['sample_failed_features'][4]['failing_fields'],', '),'')}&lt;/td&gt;
+          &lt;tr style=&quot;display:@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),4),&#x27;table-row&#x27;,&#x27;none&#x27;)};&quot;&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),4),triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][4][&#x27;object_id&#x27;],&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),4),coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][4][&#x27;nguid&#x27;],&#x27;N/A&#x27;),&#x27;&#x27;)}&lt;/td&gt;
+            &lt;td style=&quot;padding:8px;border:1px solid #fecaca;background:#fef2f2;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;],json(&#x27;[]&#x27;))),4),join(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;qa_report&#x27;]?[&#x27;mandatory_null_failures&#x27;]?[&#x27;sample_failed_features&#x27;][4][&#x27;failing_fields&#x27;],&#x27;, &#x27;),&#x27;&#x27;)}&lt;/td&gt;
           &lt;/tr&gt;
         &lt;/tbody&gt;
       &lt;/table&gt;
     &lt;/div&gt;
   
-    @{outputs('IssuesByAgencyTableHtml')}
+    @{outputs(&#x27;IssuesByAgencyTableHtml&#x27;)}
   
     &lt;h3 style=&quot;margin:18px 0 8px 0;&quot;&gt;Pipeline Stages&lt;/h3&gt;
     &lt;table style=&quot;border-collapse:collapse;width:100%;font-size:14px;&quot;&gt;
@@ -299,11 +299,12 @@
         &lt;/tr&gt;
       &lt;/thead&gt;
       &lt;tbody&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;1&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Reconcile and Post Municipal Versions to QA Version&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),'#6b7280',if(equals(triggerBody()?['stage_results']?['MUNI_TO_QA']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),'SKIPPED',if(equals(triggerBody()?['stage_results']?['MUNI_TO_QA']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),0),triggerBody()?['stage_summaries'][0]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;2&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Run QA Checks and Update QA Status Field&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),'#6b7280',if(equals(triggerBody()?['stage_results']?['RUN_QA']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),'SKIPPED',if(equals(triggerBody()?['stage_results']?['RUN_QA']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),1),triggerBody()?['stage_summaries'][1]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;3&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Reconcile and Post QA Version to Default Version&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),'#6b7280',if(equals(triggerBody()?['stage_results']?['QA_TO_DEFAULT']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),'SKIPPED',if(equals(triggerBody()?['stage_results']?['QA_TO_DEFAULT']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),2),triggerBody()?['stage_summaries'][2]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;4&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Export Default Version Geodatabase&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),'#6b7280',if(equals(triggerBody()?['stage_results']?['EXPORT_DEFAULT']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),'SKIPPED',if(equals(triggerBody()?['stage_results']?['EXPORT_DEFAULT']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),3),triggerBody()?['stage_summaries'][3]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
-        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;5&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Sync Default Back to Municipal Versions&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),'#6b7280',if(equals(triggerBody()?['stage_results']?['DEFAULT_TO_MUNI_SYNC']?['success'],true),'#15803d','#dc2626'))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),'SKIPPED',if(equals(triggerBody()?['stage_results']?['DEFAULT_TO_MUNI_SYNC']?['success'],true),'PASSED','FAILED'))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?['stage_summaries'],json('[]'))),4),triggerBody()?['stage_summaries'][4]['summary'],'Stage not reached')}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;1&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Reconcile and Post Municipal Versions to QA Version&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),0),&#x27;#6b7280&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;MUNI_TO_QA&#x27;]?[&#x27;success&#x27;],true),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),0),&#x27;SKIPPED&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;MUNI_TO_QA&#x27;]?[&#x27;success&#x27;],true),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),0),triggerBody()?[&#x27;stage_summaries&#x27;][0][&#x27;summary&#x27;],&#x27;Stage not reached&#x27;)}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;2&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Run QA Checks and Update QA Status Field&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),1),&#x27;#6b7280&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;success&#x27;],true),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),1),&#x27;SKIPPED&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;RUN_QA&#x27;]?[&#x27;success&#x27;],true),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),1),triggerBody()?[&#x27;stage_summaries&#x27;][1][&#x27;summary&#x27;],&#x27;Stage not reached&#x27;)}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;3&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Reconcile and Post QA Version to Default Version&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),2),&#x27;#6b7280&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;QA_TO_DEFAULT&#x27;]?[&#x27;success&#x27;],true),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),2),&#x27;SKIPPED&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;QA_TO_DEFAULT&#x27;]?[&#x27;success&#x27;],true),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),2),triggerBody()?[&#x27;stage_summaries&#x27;][2][&#x27;summary&#x27;],&#x27;Stage not reached&#x27;)}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;4&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Compress Geodatabase&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),3),&#x27;#6b7280&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;COMPRESS&#x27;]?[&#x27;success&#x27;],true),&#x27;#15803d&#x27;,&#x27;#ea580c&#x27;))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),3),&#x27;SKIPPED&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;COMPRESS&#x27;]?[&#x27;success&#x27;],true),&#x27;PASSED&#x27;,&#x27;WARNING&#x27;))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),3),triggerBody()?[&#x27;stage_summaries&#x27;][3][&#x27;summary&#x27;],&#x27;Stage not reached&#x27;)}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;5&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Delete and Recreate Municipal Editor Versions&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),4),&#x27;#6b7280&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;DELETE_RECREATE_VERSIONS&#x27;]?[&#x27;success&#x27;],true),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),4),&#x27;SKIPPED&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;DELETE_RECREATE_VERSIONS&#x27;]?[&#x27;success&#x27;],true),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),4),triggerBody()?[&#x27;stage_summaries&#x27;][4][&#x27;summary&#x27;],&#x27;Stage not reached&#x27;)}&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;6&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;Export Default Version Geodatabase&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;font-weight:700;color:@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),5),&#x27;#6b7280&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;EXPORT_DEFAULT&#x27;]?[&#x27;success&#x27;],true),&#x27;#15803d&#x27;,&#x27;#dc2626&#x27;))};&quot;&gt;@{if(lessOrEquals(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),5),&#x27;SKIPPED&#x27;,if(equals(triggerBody()?[&#x27;stage_results&#x27;]?[&#x27;EXPORT_DEFAULT&#x27;]?[&#x27;success&#x27;],true),&#x27;PASSED&#x27;,&#x27;FAILED&#x27;))}&lt;/td&gt;&lt;td style=&quot;padding:8px;border:1px solid #e5e7eb;&quot;&gt;@{if(greater(length(coalesce(triggerBody()?[&#x27;stage_summaries&#x27;],json(&#x27;[]&#x27;))),5),triggerBody()?[&#x27;stage_summaries&#x27;][5][&#x27;summary&#x27;],&#x27;Stage not reached&#x27;)}&lt;/td&gt;&lt;/tr&gt;
       &lt;/tbody&gt;
     &lt;/table&gt;
   
@@ -311,19 +312,19 @@
     &lt;div style=&quot;font-size:13px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;&quot;&gt;
       &lt;b&gt;Nightly run summary JSON:&lt;/b&gt;&lt;br&gt;
       &lt;a href=&quot;@{if(
-        greater(length(coalesce(triggerBody()?['output_files'], json('[]'))), 0),
-        first(triggerBody()?['output_files'])?['access_link'],
+        greater(length(coalesce(triggerBody()?[&#x27;output_files&#x27;], json(&#x27;[]&#x27;))), 0),
+        first(triggerBody()?[&#x27;output_files&#x27;])?[&#x27;access_link&#x27;],
         concat(
-          'https://apps.csrd.bc.ca/notebook/notebooks/b4ea80afab8d433195aa7f195e4a832a/files/home/run_summaries/',
-          last(split(replace(string(triggerBody()?['run_summary_path']), '\', '/'), '/'))
+          &#x27;https://apps.csrd.bc.ca/notebook/notebooks/b4ea80afab8d433195aa7f195e4a832a/files/home/run_summaries/&#x27;,
+          last(split(replace(string(triggerBody()?[&#x27;run_summary_path&#x27;]), &#x27;\&#x27;, &#x27;/&#x27;), &#x27;/&#x27;))
         )
       )}&quot;&gt;
         @{if(
-          greater(length(coalesce(triggerBody()?['output_files'], json('[]'))), 0),
-          first(triggerBody()?['output_files'])?['access_link'],
+          greater(length(coalesce(triggerBody()?[&#x27;output_files&#x27;], json(&#x27;[]&#x27;))), 0),
+          first(triggerBody()?[&#x27;output_files&#x27;])?[&#x27;access_link&#x27;],
           concat(
-            'https://apps.csrd.bc.ca/notebook/notebooks/b4ea80afab8d433195aa7f195e4a832a/files/home/run_summaries/',
-            last(split(replace(string(triggerBody()?['run_summary_path']), '\', '/'), '/'))
+            &#x27;https://apps.csrd.bc.ca/notebook/notebooks/b4ea80afab8d433195aa7f195e4a832a/files/home/run_summaries/&#x27;,
+            last(split(replace(string(triggerBody()?[&#x27;run_summary_path&#x27;]), &#x27;\&#x27;, &#x27;/&#x27;), &#x27;/&#x27;))
           )
         )}
       &lt;/a&gt;

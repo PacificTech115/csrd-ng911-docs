@@ -1771,6 +1771,8 @@ li code {
   padding: 14px;
   background: var(--code-bg);
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 70vh;
   font-family: 'Fira Code', monospace;
   font-size: .76rem;
   line-height: 1.6;
@@ -2011,6 +2013,10 @@ details .detail-content {
 
 .pipeline-step.s5 {
   background: linear-gradient(135deg, var(--pink), #db2777)
+}
+
+.pipeline-step.s6 {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7)
 }
 
 .pipeline-arrow {
