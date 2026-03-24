@@ -26,7 +26,7 @@ export const config = {
         qaValidation: `${ARCGIS_REST}/Regional/QA/GPServer`,
         reconcilePost: `${ARCGIS_REST}/ReconcilePostTraditional/GPServer`,
         exportSsap: `${ARCGIS_REST}/Landbase/ExportSSAP/GPServer`,
-        orchestrator: `${ARCGIS_REST}/Regional/Orchestrator/GPServer/Orchestrator`
+        orchestrator: `https://apps.csrd.bc.ca/notebook/rest/services/a2bd1f1e38ee472e9fcf8d6fa6165b42/GPServer/execute_notebook`
     },
 
     services: {

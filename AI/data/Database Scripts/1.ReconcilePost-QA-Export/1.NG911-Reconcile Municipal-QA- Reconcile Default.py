@@ -5,8 +5,9 @@ Pipeline:
 1) Reconcile/Post MUNI -> QA
 2) Run QA GP tool + update QAStatus
 3) Reconcile/Post QA -> DEFAULT
-4) Export DEFAULT feature class to FGDB ZIP
-5) Sync DEFAULT back into municipal versions (QAStatus sync)
+4) Compress geodatabase (non-blocking)
+5) Delete/Recreate municipal editor versions (clean slate)
+6) Export DEFAULT feature class to FGDB ZIP
 
 Sends one notification payload with stage-by-stage success/fail + summaries.
 """
@@ -331,6 +332,17 @@ def stage_summary(stage_name: str, result: dict) -> dict:
             "Reconciled DEFAULT into municipal versions (NO_POST) so editor versions receive updated QAStatus."
             if ok else (result.get("error") or "DEFAULT to municipal sync failed.")
         )
+    elif stage_name == "COMPRESS":
+        summary["summary"] = (
+            "Geodatabase compressed — versioned deltas pushed to base table."
+            if ok else (result.get("error") or "Compress failed (non-blocking).")
+        )
+    elif stage_name == "DELETE_RECREATE_VERSIONS":
+        if ok:
+            created = (result or {}).get("versions_created", [])
+            summary["summary"] = f"Deleted and recreated {len(created)} municipal editor versions: {', '.join(created)}"
+        else:
+            summary["summary"] = result.get("error") or "Delete/Recreate versions failed."
     return summary
 
 
@@ -379,6 +391,41 @@ def finalize_run(summary: dict, run_id: str, status: str):
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
     print("Run summary saved:", out_path)
+
+    # --- PUSH BASE64 LOG TO CMS HOSTED TABLE FOR DASHBOARD ---
+    try:
+        from arcgis.features import FeatureLayer
+        import base64
+        
+        # Grab the GIS object implicitly from the active logged-in portal
+        gis_conn = GIS("home")
+        CMS_URL = "https://apps.csrd.bc.ca/arcgis/rest/services/Hosted/NG911_Docs_CMS/FeatureServer/0"
+        fl = FeatureLayer(CMS_URL, gis_conn)
+        
+        json_str = json.dumps(summary)
+        encoded_b64 = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+        
+        q = fl.query(where="keyname = 'dashboard.orchestrator.latest_run'")
+        if len(q.features) > 0:
+            feat = q.features[0]
+            feat.attributes["contentvalue"] = encoded_b64
+            feat.attributes["contenttype"] = "json"
+            fl.edit_features(updates=[feat])
+            print("Successfully updated CMS Dashboard row.")
+        else:
+            new_feat = {
+                "attributes": {
+                    "keyname": "dashboard.orchestrator.latest_run",
+                    "contentvalue": encoded_b64,
+                    "contenttype": "json"
+                }
+            }
+            fl.edit_features(adds=[new_feat])
+            print("Successfully created new CMS Dashboard row.")
+    except Exception as e:
+        print(f"WARNING: FAILED to update CMS Dashboard Table: {e}")
+    # ---------------------------------------------------------
+
     payload = build_email_payload(summary)
     notify = send_power_automate_notification(payload)
     print("Notification:", notify)
@@ -426,20 +473,28 @@ def main():
         finalize_run(summary, run_id, "stage3_failed")
         return
 
-    print("\n=== Stage 4: Export DEFAULT to FGDB ZIP ===")
-    s4 = run_export_stage(gis)
-    summary["stage_results"]["EXPORT_DEFAULT"] = s4
-    summary["stage_summaries"].append(stage_summary("EXPORT_DEFAULT", s4))
+    print("\n=== Stage 4: Compress Geodatabase ===")
+    s4 = run_reconcile_stage("COMPRESS", gis)
+    summary["stage_results"]["COMPRESS"] = s4
+    summary["stage_summaries"].append(stage_summary("COMPRESS", s4))
     if not s4.get("success", False):
-        finalize_run(summary, run_id, "stage4_failed")
-        return
+        # Compress is non-blocking — log warning but continue
+        print("WARNING: Compress failed. Continuing pipeline (data is correct in versioned views).")
 
-    print("\n=== Stage 5: Sync DEFAULT back to municipal versions ===")
-    s5 = run_reconcile_stage("DEFAULT_TO_MUNI_SYNC", gis)
-    summary["stage_results"]["DEFAULT_TO_MUNI_SYNC"] = s5
-    summary["stage_summaries"].append(stage_summary("DEFAULT_TO_MUNI_SYNC", s5))
+    print("\n=== Stage 5: Delete/Recreate Municipal Versions ===")
+    s5 = run_reconcile_stage("DELETE_RECREATE_VERSIONS", gis)
+    summary["stage_results"]["DELETE_RECREATE_VERSIONS"] = s5
+    summary["stage_summaries"].append(stage_summary("DELETE_RECREATE_VERSIONS", s5))
     if not s5.get("success", False):
         finalize_run(summary, run_id, "stage5_failed")
+        return
+
+    print("\n=== Stage 6: Export DEFAULT to FGDB ZIP ===")
+    s6 = run_export_stage(gis)
+    summary["stage_results"]["EXPORT_DEFAULT"] = s6
+    summary["stage_summaries"].append(stage_summary("EXPORT_DEFAULT", s6))
+    if not s6.get("success", False):
+        finalize_run(summary, run_id, "stage6_failed")
         return
 
     qa_ok = s2.get("success", False)

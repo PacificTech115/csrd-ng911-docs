@@ -1,9 +1,11 @@
 # ReconcilePostTraditional.py
 # Traditional versioning reconcile/post automation (ArcPy)
-# Supports two stages:
-#   - MUNI_TO_QA    : reconcile/post multiple municipal versions into QA
-#   - QA_TO_DEFAULT : reconcile/post QA into DEFAULT
-#   - DEFAULT_TO_MUNI_SYNC : reconcile DEFAULT into municipal versions (NO_POST)
+# Supports the following stages:
+#   - MUNI_TO_QA                : reconcile/post multiple municipal versions into QA
+#   - QA_TO_DEFAULT             : reconcile/post QA into DEFAULT
+#   - DEFAULT_TO_MUNI_SYNC      : reconcile DEFAULT into municipal versions (NO_POST) [LEGACY]
+#   - COMPRESS                  : compress geodatabase to push deltas to base table
+#   - DELETE_RECREATE_VERSIONS  : delete + recreate municipal editor versions
 #
 # Expected Script Tool parameters (ORDER MATTERS):
 #   0 sde_conn         (File)
@@ -149,7 +151,7 @@ def main():
         raise ValueError("default_version is blank.")
 
     # Validate choices (must match ArcPy accepted strings)
-    _validate_choice(stage, {"MUNI_TO_QA", "QA_TO_DEFAULT", "DEFAULT_TO_MUNI_SYNC"}, "stage")
+    _validate_choice(stage, {"MUNI_TO_QA", "QA_TO_DEFAULT", "DEFAULT_TO_MUNI_SYNC", "COMPRESS", "DELETE_RECREATE_VERSIONS"}, "stage")
     _validate_choice(conflict_policy, {"ABORT_CONFLICTS", "NO_ABORT"}, "conflict_policy")
     _validate_choice(acquire_locks, {"LOCK_ACQUIRED", "NO_LOCK_ACQUIRED"}, "acquire_locks")
 
@@ -161,6 +163,10 @@ def main():
         log_path = os.path.join(out_log_folder, f"reconcile_muni_to_QA_{ts}.txt")
     elif stage == "QA_TO_DEFAULT":
         log_path = os.path.join(out_log_folder, f"reconcile_QA_to_DEFAULT_{ts}.txt")
+    elif stage == "COMPRESS":
+        log_path = os.path.join(out_log_folder, f"compress_{ts}.txt")
+    elif stage == "DELETE_RECREATE_VERSIONS":
+        log_path = os.path.join(out_log_folder, f"delete_recreate_versions_{ts}.txt")
     else:
         log_path = os.path.join(out_log_folder, f"reconcile_DEFAULT_to_MUNI_sync_{ts}.txt")
 
@@ -226,6 +232,40 @@ def main():
             with_delete="KEEP_VERSION"
         )
         result["messages"] = msgs
+        result["success"] = True
+
+    elif stage == "COMPRESS":
+        _msg("Running Compress on geodatabase to push versioned deltas to base table")
+        arcpy.management.Compress(sde_conn)
+        result["messages"] = arcpy.GetMessages()
+        result["success"] = True
+
+    elif stage == "DELETE_RECREATE_VERSIONS":
+        if not editor_versions_norm:
+            raise ValueError("editor_versions is blank for DELETE_RECREATE_VERSIONS stage.")
+
+        versions_list = [v.strip() for v in editor_versions_norm.split(";") if v.strip()]
+        all_msgs = []
+
+        # Phase 1: Delete all editor versions
+        for v in versions_list:
+            _msg(f"Deleting version: {v}")
+            arcpy.management.DeleteVersion(sde_conn, v)
+            all_msgs.append(f"Deleted {v}: {arcpy.GetMessages()}")
+
+        # Phase 2: Recreate with same names, parented to QA version
+        for v in versions_list:
+            # Strip owner prefix: "SDE.Revelstoke" -> "Revelstoke"
+            short_name = v.split(".")[-1] if "." in v else v
+            _msg(f"Recreating version: {short_name} (parent={qa_version})")
+            arcpy.management.CreateVersion(
+                sde_conn, qa_version, short_name, "PUBLIC"
+            )
+            all_msgs.append(f"Created {short_name}: {arcpy.GetMessages()}")
+
+        result["messages"] = "\n".join(all_msgs)
+        result["versions_deleted"] = versions_list
+        result["versions_created"] = [v.split(".")[-1] if "." in v else v for v in versions_list]
         result["success"] = True
 
     # Return JSON output (Parameter 8 must be OUTPUT/DERIVED)

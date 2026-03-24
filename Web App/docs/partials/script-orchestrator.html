@@ -28,7 +28,7 @@
 <!-- PURPOSE -->
 <section>
   <h2 class="reveal"><i class="fas fa-bullseye"></i>&nbsp; Purpose</h2>
-  <p class="reveal">Master pipeline script running nightly on ArcGIS Notebook Server. Executes 5 stages sequentially — reconciling municipal editor versions through a QA gate into the production DEFAULT layer, exporting an FGDB snapshot, and syncing approved data back down. On completion it saves a JSON summary and sends a Power Automate notification email with full run details.</p>
+  <p class="reveal">Master pipeline script running nightly on ArcGIS Notebook Server. Executes 6 stages sequentially — reconciling municipal editor versions through a QA gate into the production DEFAULT layer, compressing the geodatabase, recreating clean editor versions, and exporting an FGDB snapshot. On completion it saves a JSON summary and sends a Power Automate notification email with full run details.</p>
 </section>
 
 <!-- FULL SOURCE CODE -->
@@ -130,8 +130,9 @@ NB_RUN_DIR = <span class="str">"/arcgis/home/run_summaries"</span>
         <tr><td>1</td><td>MUNI &rarr; QA</td><td>Reconcile/post all municipal editor versions into SDE.QA</td><td>Pipeline stops immediately</td></tr>
         <tr><td>2</td><td>Run QA</td><td>Execute QA validation GP service; update QAStatus on all scoped features</td><td>Configurable via <code>QA_BLOCKING</code></td></tr>
         <tr><td>3</td><td>QA &rarr; DEFAULT</td><td>Reconcile/post SDE.QA into sde.DEFAULT</td><td>Pipeline stops immediately</td></tr>
-        <tr><td>4</td><td>Export FGDB</td><td>Export DEFAULT feature class to File Geodatabase, zip, copy to network share</td><td>Pipeline stops immediately</td></tr>
-        <tr><td>5</td><td>DEFAULT &rarr; MUNI</td><td>Reconcile DEFAULT back to municipal versions (NO_POST) so QAStatus flows down</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>4</td><td>Compress</td><td>Compress geodatabase to push versioned deltas to the base table</td><td>Non-blocking (warning only)</td></tr>
+        <tr><td>5</td><td>Delete/Recreate</td><td>Delete and recreate all municipal editor versions for a clean slate</td><td>Pipeline stops immediately</td></tr>
+        <tr><td>6</td><td>Export FGDB</td><td>Export DEFAULT feature class to File Geodatabase, zip, copy to network share</td><td>Pipeline stops immediately</td></tr>
       </tbody>
     </table>
   </div>
@@ -184,7 +185,7 @@ NB_RUN_DIR = <span class="str">"/arcgis/home/run_summaries"</span>
     <p>Each stage checks success before proceeding to the next. The pipeline uses a sequential gate pattern:</p>
     <ul>
       <li><strong>Stage gate:</strong> If a stage returns a failure status, the pipeline records the failure in the summary and skips all subsequent stages.</li>
-      <li><strong>QA flexibility:</strong> When <code>QA_BLOCKING=False</code>, QA failures are recorded as warnings in the summary but do not prevent stages 3–5 from executing.</li>
+      <li><strong>QA flexibility:</strong> When <code>QA_BLOCKING=False</code>, QA failures are recorded as warnings in the summary but do not prevent stages 3–6 from executing.</li>
       <li><strong>Conflict normalization:</strong> Reconcile results are normalized — "conflicts detected" with <code>NO_ABORT</code> policy is treated as a successful auto-resolution, not a failure.</li>
       <li><strong>Timeout protection:</strong> <code>_poll_job_result</code> enforces a 30-minute ceiling on any single GP job to prevent indefinite hangs.</li>
     </ul>
