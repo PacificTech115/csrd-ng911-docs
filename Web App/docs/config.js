@@ -26,7 +26,7 @@ export const config = {
         qaValidation: `${ARCGIS_REST}/Regional/QA/GPServer`,
         reconcilePost: `${ARCGIS_REST}/ReconcilePostTraditional/GPServer`,
         exportSsap: `${ARCGIS_REST}/Landbase/ExportSSAP/GPServer`,
-        orchestrator: `https://apps.csrd.bc.ca/notebook/rest/services/a2bd1f1e38ee472e9fcf8d6fa6165b42/GPServer/execute_notebook`
+        orchestrator: `https://apps.csrd.bc.ca/notebook/rest/services/a2bd1f1e38ee472e9fcf8d6fa6165b42/GPServer/1.NG911-Reconcile_Municipal_-QA-_Reconcile_Default`
     },
 
     services: {
