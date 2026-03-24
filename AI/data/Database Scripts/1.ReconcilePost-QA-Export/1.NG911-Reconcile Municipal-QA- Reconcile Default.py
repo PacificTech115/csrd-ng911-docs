@@ -32,6 +32,7 @@ EXPORT_TASK_NAME = "export_ssap"
 
 # Reconcile inputs
 SDE_CONN_UNC = r"\\GIS\Scripts\NG911\NG911_Automation\connections\sde@regional.sde"
+QA_SDE_CONN = r"\\GIS\Scripts\NG911\NG911_Automation\connections\sde@regional_qa.sde"
 DEFAULT_VERSION = "sde.DEFAULT"
 QA_VERSION = "SDE.QA"
 EDITOR_VERSIONS = "SDE.CSRD;SDE.Revelstoke;SDE.Golden;SDE.Salmon Arm;SDE.Sicamous"
@@ -146,8 +147,9 @@ def _collect_output_files(summary: dict) -> list:
     return files
 
 
-def build_target_layer() -> str:
-    return os.path.join(SDE_CONN_UNC, TARGET_DATASET)
+def build_target_layer(use_qa=False) -> str:
+    conn = QA_SDE_CONN if use_qa else SDE_CONN_UNC
+    return os.path.join(conn, TARGET_DATASET)
 
 
 def _schema_json_param_value(path: str):
@@ -265,7 +267,7 @@ def run_qa_stage(gis):
     task_url = _resolve_gp_task_url(gis, QA_GP_URL, QA_TASK_NAME)
     params = {
         "f": "json",
-        "target_layer": build_target_layer(),
+        "target_layer": build_target_layer(use_qa=True),
         "schema_json": _schema_json_param_value(SCHEMA_JSON),
         "dataset_name": DATASET_NAME or "",
         "mode": MODE,
