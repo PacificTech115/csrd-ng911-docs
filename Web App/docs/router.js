@@ -36,7 +36,8 @@ class SPA_Router {
             'golden': 'golden.html',
             'salmonarm': 'salmonarm.html',
             'sicamous': 'sicamous.html',
-            'sync-app': 'sync-app.html'
+            'sync-app': 'sync-app.html',
+            'web-editor': 'web-editor.html'
         };
 
         // Enforce Authentication
@@ -322,7 +323,11 @@ class SPA_Router {
         });
 
         // --- Dynamic Script Loading for specific routes ---
-        if (hash === 'sync-app') {
+        if (hash === 'web-editor') {
+            import(`./web-editor.js?v=${Date.now()}`).then(module => {
+                module.initWebEditor();
+            }).catch(e => console.error("Failed to load web editor module", e));
+        } else if (hash === 'sync-app') {
             if (typeof window.initSyncAppModule === 'function') {
                 window.initSyncAppModule();
             } else {
@@ -468,7 +473,7 @@ class SPA_Router {
             'rule-full-address.html', 'rule-nguid.html', 'rule-longitude.html', 'rule-latitude.html',
             'rule-addcode.html', 'rule-dateupdate.html', 'rule-qastatus.html', 'rule-defaultagency.html',
             'rule-mandatory.html', 'domains.html', 'script-orchestrator.html', 'script-etl.html',
-            'script-qa.html', 'script-reconcile.html', 'script-export.html'];
+            'script-qa.html', 'script-reconcile.html', 'script-export.html', 'web-editor.html'];
 
         if (isAdmin) {
             window.CSRD_ALLOWED_PAGES = null; // null = all pages allowed
@@ -519,6 +524,7 @@ class SPA_Router {
             
             navHtml += `
             <div class="nav-group-label">Tools</div>
+            <a href="#web-editor"><i class="fas fa-map-location-dot"></i> Web Editor</a>
             <a href="#sync-app"><i class="fas fa-sync"></i> Data Sync App</a>
             `;
         }

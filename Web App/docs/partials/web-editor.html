@@ -1,0 +1,18 @@
+<div class="content-wrap" style="max-width: 100%; padding: 0; margin-top: 0;">
+    <div id="web-editor-header" style="background: var(--navy); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--teal);">
+        <h2 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif;">
+            <i class="fas fa-map-location-dot" style="color: var(--teal);"></i> <span id="we-title">NG911 Web Editor</span>
+        </h2>
+        <div id="we-status" style="font-size: 0.9rem; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 4px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-circle-notch fa-spin"></i> Initializing...
+        </div>
+    </div>
+    <div id="web-editor-container" style="position: relative; height: calc(100vh - 65px); width: 100%;">
+        <div id="we-loading" style="position: absolute; inset: 0; background: rgba(255,255,255,0.9); z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="spinner"></div>
+            <h3 style="color: var(--navy); margin-top: 20px; font-family: 'Inter', sans-serif;">Loading Secure Editing Service...</h3>
+            <p style="color: var(--text-secondary); max-width: 400px; text-align: center; margin-top: 10px;">Authenticating with ArcGIS Portal and fetching municipal feature layers.</p>
+        </div>
+        <div id="viewDiv" style="height: 100%; width: 100%;"></div>
+    </div>
+</div>

@@ -34,6 +34,7 @@ export const config = {
         municipalEdit: {
             revelstoke: `${ARCGIS_REST}/Regional/NG911_Address_Revelstoke_Edit/FeatureServer`,
             golden: `${ARCGIS_REST}/Regional/NG911_Address_Golden_Edit/FeatureServer`,
+            salmonarm: `${ARCGIS_REST}/Regional/NG911_Address_SalmonArm_Edit/FeatureServer`,
             sicamous: `${ARCGIS_REST}/Regional/NG911_Address_Sicamous_Edit/FeatureServer`
         }
     },
