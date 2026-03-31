@@ -20,9 +20,9 @@ export async function initWebEditor() {
     else if (uName.includes('salmonarm') || uName.includes('salmon_arm')) { muniKey = 'salmonarm'; muniLabel = 'Salmon Arm'; }
     else if (uName.includes('sicamous')) { muniKey = 'sicamous'; muniLabel = 'Sicamous'; }
     
-    // Admins default to Revelstoke for now via the web editor to avoid errors, or they can switch via UI later
+    // Admins default to Revelstoke testing, or valid route
     if (!muniKey && (auth.isAdmin && auth.isAdmin())) {
-        muniKey = 'revelstoke'; // Default for admin testing
+        muniKey = 'revelstoke'; 
         muniLabel = 'Revelstoke (Admin Default)';
     }
 
@@ -42,7 +42,6 @@ export async function initWebEditor() {
     document.getElementById('we-title').textContent = `${muniLabel} Address Editor`;
 
     try {
-        // We rely on the global require from the ArcGIS JS API loaded in index.html
         require([
             "esri/identity/IdentityManager",
             "esri/Map",
@@ -50,14 +49,14 @@ export async function initWebEditor() {
             "esri/layers/FeatureLayer",
             "esri/widgets/Editor",
             "esri/widgets/Home",
-            "esri/widgets/BasemapToggle"
-        ], function(IdentityManager, Map, MapView, FeatureLayer, Editor, Home, BasemapToggle) {
+            "esri/widgets/BasemapToggle",
+            "esri/widgets/FeatureTable",
+            "esri/widgets/Search"
+        ], function(IdentityManager, Map, MapView, FeatureLayer, Editor, Home, BasemapToggle, FeatureTable, Search) {
             
             // Register OAuth token to bypass ArcGIS Server prompts
             const token = auth.getToken();
             if (token) {
-                // We use base portal URL or REST base depending on the token issuer
-                // Usually the IdentityManager is smart enough, but we should register it to config.portalUrl or config.arcgisRestBase
                 IdentityManager.registerToken({
                     server: config.portalUrl,
                     token: token
@@ -108,9 +107,28 @@ export async function initWebEditor() {
                             deleteEnabled: true
                         }]
                     });
-
-                    // Add widgets to UI
                     view.ui.add(editor, "top-right");
+
+                    // Add Search Widget
+                    const searchWidget = new Search({
+                        view: view,
+                        allPlaceholder: "Find address or NGUID",
+                        includeDefaultSources: false,
+                        sources: [{
+                            layer: editLayer,
+                            searchFields: ["FullAddress", "NGUID", "AddressNumber", "StreetName"],
+                            displayField: "FullAddress",
+                            exactMatch: false,
+                            outFields: ["*"],
+                            name: `${muniLabel} Addresses`,
+                            placeholder: "Search by Full Address or NGUID"
+                        }]
+                    });
+                    // Put it in the top right, but secondary to the Editor maybe, or put it top-leading
+                    view.ui.add(searchWidget, {
+                        position: "top-left",
+                        index: 0
+                    });
                     
                     const homeWidget = new Home({ view: view });
                     view.ui.add(homeWidget, "top-left");
@@ -120,6 +138,46 @@ export async function initWebEditor() {
                         nextBasemap: "hybrid"
                     });
                     view.ui.add(basemapToggle, "bottom-right");
+
+                    // Add Feature Table
+                    const featureTable = new FeatureTable({
+                        view: view,
+                        layer: editLayer,
+                        container: "tableDiv",
+                        editingEnabled: true,
+                        visibleElements: {
+                            selectionColumn: true,
+                            menuItems: {
+                                clearSelection: true,
+                                refreshData: true,
+                                toggleColumns: true,
+                            }
+                        }
+                    });
+
+                    // Table Toggle Interaction Logic
+                    const toggleBtn = document.getElementById('btn-toggle-table');
+                    const tableSection = document.getElementById('table-section');
+                    const btnText = document.getElementById('btn-toggle-table-text');
+                    
+                    if (toggleBtn && tableSection) {
+                        // Enable the button since data is ready
+                        toggleBtn.style.opacity = '1';
+                        toggleBtn.style.pointerEvents = 'auto';
+
+                        toggleBtn.addEventListener('click', () => {
+                            if (tableSection.style.display === 'none') {
+                                tableSection.style.display = 'block';
+                                btnText.textContent = 'Hide Table';
+                                // Toggling display block flex properties handles layout resize magically, but let's reinforce view resize
+                            } else {
+                                tableSection.style.display = 'none';
+                                btnText.textContent = 'Show Table';
+                            }
+                            // Allow DOM to repaint before resizing the map view
+                            setTimeout(() => { view.resize(); }, 150);
+                        });
+                    }
 
                     // Hide the loading overlay smoothly
                     const loadingDiv = document.getElementById('we-loading');
