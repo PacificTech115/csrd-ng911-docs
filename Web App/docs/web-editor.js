@@ -116,8 +116,8 @@ export async function initWebEditor() {
                         includeDefaultSources: false,
                         sources: [{
                             layer: editLayer,
-                            searchFields: ["FullAddress", "NGUID", "AddressNumber", "StreetName"],
-                            displayField: "FullAddress",
+                            searchFields: ["Full_Addr", "NGUID"],
+                            displayField: "Full_Addr",
                             exactMatch: false,
                             outFields: ["*"],
                             name: `${muniLabel} Addresses`,
@@ -169,7 +169,6 @@ export async function initWebEditor() {
                             if (tableSection.style.display === 'none') {
                                 tableSection.style.display = 'block';
                                 btnText.textContent = 'Hide Table';
-                                // Toggling display block flex properties handles layout resize magically, but let's reinforce view resize
                             } else {
                                 tableSection.style.display = 'none';
                                 btnText.textContent = 'Show Table';
@@ -178,6 +177,65 @@ export async function initWebEditor() {
                             setTimeout(() => { view.resize(); }, 150);
                         });
                     }
+
+                    // --- Widget Interactivity Setup ---
+                    
+                    // 1. Table Selection -> Pan/Zoom Map
+                    featureTable.highlightIds.on("change", async (event) => {
+                        if (event.added.length > 0) {
+                            const objectId = event.added[0];
+                            const query = editLayer.createQuery();
+                            query.objectIds = [objectId];
+                            query.returnGeometry = true;
+                            query.outSpatialReference = view.spatialReference;
+                            try {
+                                const results = await editLayer.queryFeatures(query);
+                                if (results.features.length > 0) {
+                                    view.goTo({
+                                        target: results.features[0],
+                                        zoom: 18
+                                    });
+                                }
+                            } catch(e) { console.error("Could not zoom to feature table selection", e); }
+                        }
+                    });
+
+                    // 2. Map Click -> Select in Table
+                    view.on("click", (event) => {
+                        view.hitTest(event).then((response) => {
+                            const results = response.results.filter(r => 
+                                r.graphic && r.graphic.layer === editLayer
+                            );
+                            if (results.length > 0) {
+                                const objectId = results[0].graphic.attributes[editLayer.objectIdField];
+                                if (objectId) {
+                                    featureTable.highlightIds.removeAll();
+                                    featureTable.highlightIds.add(objectId);
+                                    
+                                    // Open table automatically if they click a map point
+                                    if(tableSection && tableSection.style.display === 'none' && toggleBtn) {
+                                        toggleBtn.click();
+                                    }
+                                }
+                            }
+                        });
+                    });
+
+                    // 3. Search Result -> Select in Table
+                    searchWidget.on("select-result", (event) => {
+                        if (event.result && event.result.feature) {
+                            const objectId = event.result.feature.attributes[editLayer.objectIdField];
+                            if (objectId) {
+                                featureTable.highlightIds.removeAll();
+                                featureTable.highlightIds.add(objectId);
+                                
+                                // Open table automatically
+                                if(tableSection && tableSection.style.display === 'none' && toggleBtn) {
+                                    toggleBtn.click();
+                                }
+                            }
+                        }
+                    });
 
                     // Hide the loading overlay smoothly
                     const loadingDiv = document.getElementById('we-loading');
