@@ -1,10 +1,14 @@
 <div class="content-wrap" style="max-width: 100%; padding: 0; margin-top: 0; display: flex; flex-direction: column; height: 100vh;">
     <!-- Header -->
     <div id="web-editor-header" style="background: var(--navy); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--teal); flex-shrink: 0;">
-        <h2 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif;">
+        <h2 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif; width: 300px; white-space: nowrap;">
             <i class="fas fa-map-location-dot" style="color: var(--teal);"></i> <span id="we-title">NG911 Web Editor</span>
         </h2>
-        <div style="display: flex; gap: 15px; align-items: center;">
+        
+        <!-- Centered Search Widget -->
+        <div id="we-search-container" style="flex: 1; max-width: 500px; display: flex; justify-content: center;"></div>
+
+        <div style="display: flex; gap: 15px; align-items: center; width: 300px; justify-content: flex-end;">
             <!-- Data Table Toggle -->
             <button id="btn-toggle-table" style="background: var(--teal); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); pointer-events: none; opacity: 0.5; transition: opacity 0.2s;" title="Toggle Feature Table">
                 <i class="fas fa-table"></i> <span id="btn-toggle-table-text">Show Table</span>

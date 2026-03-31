@@ -112,6 +112,7 @@ export async function initWebEditor() {
                     // Add Search Widget
                     const searchWidget = new Search({
                         view: view,
+                        container: "we-search-container",
                         allPlaceholder: "Find address or NGUID",
                         includeDefaultSources: false,
                         sources: [{
@@ -121,13 +122,11 @@ export async function initWebEditor() {
                             exactMatch: false,
                             outFields: ["*"],
                             name: `${muniLabel} Addresses`,
-                            placeholder: "Search by Full Address or NGUID"
+                            placeholder: "Search by Full Address or NGUID",
+                            suggestionsEnabled: true,
+                            minSuggestCharacters: 2,
+                            maxSuggestions: 10
                         }]
-                    });
-                    // Put it in the top right, but secondary to the Editor maybe, or put it top-leading
-                    view.ui.add(searchWidget, {
-                        position: "top-left",
-                        index: 0
                     });
                     
                     const homeWidget = new Home({ view: view });
